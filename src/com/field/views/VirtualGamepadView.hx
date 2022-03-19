@@ -155,6 +155,8 @@ class VirtualGamepadView extends AbstractView {
     
     private static var _instance : Null<VirtualGamepadView> = null;
 
+    private var _childrenAsVector : NativeVector<Element> = null;
+
     private function new() {
         super();
         _element = getElement();
@@ -210,12 +212,14 @@ class VirtualGamepadView extends AbstractView {
         Press a button on the virtual gamepad using xy coordinates.
     **/
     public function press(x : Float, y : Float) : Void {
-        var children : NativeVector<Element> = getChildrenAsVector(_element);
+        if (_childrenAsVector == null) {
+            _childrenAsVector = getChildrenAsVector(_element);
+        }
         var inner : Element = null;
         var i : Int = 0;
 
-        while (i < children.length()) {
-            var e : Element = children.get(i);
+        while (i < _childrenAsVector.length()) {
+            var e : Element = _childrenAsVector.get(i);
             var sType : Null<String> = #if js
                 js.Syntax.code("{0}.tagName", _element);
             #else

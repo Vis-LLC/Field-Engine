@@ -25,6 +25,7 @@ package com.field;
 import com.field.manager.Pool;
 import com.field.navigator.NavigatorCoreInterface;
 import com.field.navigator.NavigatorGrid;
+import com.field.navigator.NavigatorHex;
 
 @:expose
 @:nativeGen
@@ -86,6 +87,15 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private var _isShared : Bool;
     private var _locationArrayView : Null<NativeVector<Int>> = null;
     private var _spriteArrayView : Null<NativeVector<Int>> = null;
+    private var _gridType : Int;
+
+    private static function withDefault(v : Any, d : Any) : Any {
+        if (v == null) {
+            return d;
+        } else {
+            return v;
+        }
+    }
 
     private function new(fo : FieldOptions<L, S>) {
         var fom : NativeStringMap<Any> = fo.toMap();
@@ -107,6 +117,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         _spritePredefinedAttributes = cast fom.get("spritePredefinedAttributes");
         _locationNumericalAttributes = cast fom.get("locationNumericalAttributes");
         _spriteNumericalAttributes = cast fom.get("spriteNumericalAttributes");
+        _gridType = cast withDefault(fom.get("gridType"), 1);
+
         _id = cast fom.get("id");
         if (_id == null) {
             _id = "1";
@@ -152,8 +164,13 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             }
         }
 
-        // TODO - Add options.
-        _navigator = NavigatorGrid.instance();
+        // TODO - Add additional options.
+        switch (_gridType) {
+            case 3:
+                _navigator = NavigatorHex.instance();
+            default:
+                _navigator = NavigatorGrid.instance();
+        }
 
         initAllocators();
         initManagers();

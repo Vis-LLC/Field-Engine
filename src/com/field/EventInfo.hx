@@ -38,8 +38,9 @@ class EventInfo<F,L,S> {
     private var _event : Event;
     private var _x : Null<Int>;
     private var _y : Null<Int>;
+    private var _button : Null<Int>;
 
-    private function new(field : F, location : Null<LocationInterface<Dynamic, Dynamic>>, sprite : Null<SpriteInterface<Dynamic, Dynamic>>, element : Null<Element>, fieldElement : Null<Element>, event : Event, x : Null<Int>, y : Null<Int>) {
+    private function new(field : F, location : Null<LocationInterface<Dynamic, Dynamic>>, sprite : Null<SpriteInterface<Dynamic, Dynamic>>, element : Null<Element>, fieldElement : Null<Element>, event : Event, x : Null<Int>, y : Null<Int>, button : Null<Int>) {
         _field = field;
         _sprite = cast sprite;
         _location = cast location;
@@ -48,20 +49,21 @@ class EventInfo<F,L,S> {
         _event = event;
         _x = x;
         _y = y;
+        _button = button;
     }
 
     /**
         Create an EventInfo object for an Event that is connected to a Sprite.
     **/
-    public static function spriteEvent(sprite : SpriteInterface<Dynamic, Dynamic>, element : Element, fieldElement : Element, event : Event) {
-        return new EventInfo(sprite.field(), null, sprite, element, fieldElement, event, sprite.getX(null), sprite.getY(null));
+    public static function spriteEvent(sprite : SpriteInterface<Dynamic, Dynamic>, element : Element, fieldElement : Element, event : Event, button : Null<Int>) {
+        return new EventInfo(sprite.field(), null, sprite, element, fieldElement, event, sprite.getX(null), sprite.getY(null), button);
     }
 
     /**
         Create an EventInfo object for an Event that is connected to a Location.
     **/
-    public static function locationEvent(location : LocationInterface<Dynamic, Dynamic>, element : Element, fieldElement : Element, event : Event) {
-        return new EventInfo(location.field(), location, null, element, fieldElement, event, location.getX(null), location.getY(null));
+    public static function locationEvent(location : LocationInterface<Dynamic, Dynamic>, element : Element, fieldElement : Element, event : Event, button : Null<Int>) {
+        return new EventInfo(location.field(), location, null, element, fieldElement, event, location.getX(null), location.getY(null), button);
     }
 
     /**
@@ -118,6 +120,13 @@ class EventInfo<F,L,S> {
     **/
     public function y() : Null<Int> {
         return _y;
+    }    
+
+    /**
+        The Button associated with the Event.
+    **/
+    public function button() : Null<Int> {
+        return _button;
     }    
 
     /**

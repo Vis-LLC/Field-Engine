@@ -75,7 +75,17 @@ class EventInfoDOM {
 
     public function buttons() : Int {
         #if js
-            return cast js.Syntax.code("{0}.buttons", _event);
+            switch (cast js.Syntax.code("{0}.pointerType", _event)) {
+                case "mouse":
+                    return cast js.Syntax.code("{0}.button", _event);
+                default:
+                    switch (cast js.Syntax.code("{0}.type", _event)) {
+                        case "touchend":
+                            return cast js.Syntax.code("{0}.touches.length - 1", _event);
+                        default:
+                            return cast js.Syntax.code("{0}.buttons", _event);
+                    }
+            }
         #else
         #end
     }
@@ -91,9 +101,9 @@ class EventInfoDOM {
         return new EventInfoDOM(e);
     }
     
-    public static function wrapFunction(f : EventInfoInterface -> Void) : js.html.Event -> Void {
+    public static function wrapFunction(f : EventInfoInterface -> Void, r : Dynamic) : js.html.Event -> Void {
         #if js
-            return cast js.Syntax.code("function (e) { {1}({0}(e)); }", wrapObject, f);
+            return cast js.Syntax.code("function (e) { {1}({0}(e)); return {2}; }", wrapObject, f, r);
         #else
         #end
     }

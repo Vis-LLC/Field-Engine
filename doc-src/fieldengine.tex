@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+%\geometry{a4paper}
+\usepackage{graphicx}
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{hyperref}
+% These packages are all incorporated in the memoir class to one degree or another...
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+% (This matches ConTeXt defaults)
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+
+\usepackage{makecell}
+
+%%% END Article customizations
+
+%%% The "real" document content comes below...
+
+
+
+
+\title{FieldEngine}
+\author{Franklin E. Powers, Jr.}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+FieldEngine is a grid-based game/data engine. \\
+
+For data manipulation, it can be combined with the SDTK (Simple Data Toolkit - \href{https://sourceforge.net/projects/simple-data-toolkit/}{https://sourceforge.net/projects/simple-data-toolkit/}) \\
+
+\subsection{Supported Programming Languages}
+\begin{center}
+\begin{tabular}{ | c | }
+\hline
+Haxe \\
+\hline
+JavaScript \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Examples of Use}
+\begin{center}
+\begin{tabular}{ | c | c | c | }
+\hline
+Vis Mines & An open source Minesweeper clone. & \\
+& \tiny Project Home \par & \tiny \href{https://sourceforge.net/projects/vis-mines/}{https://sourceforge.net/projects/vis-mines/} \par \\
+& \tiny Live Web Version \par & \tiny \href{https://vis-mines.sourceforge.io/app/index.html}{https://vis-mines.sourceforge.io/app/index.html} \par \\
+& \tiny Git Repo \par & \tiny \href{https://github.com/Vis-LLC/Vis-Mines}{https://github.com/Vis-LLC/Vis-Mines} \par \\
+\hline
+Vis Sudoku & An open source Sudoku clone. & \\
+& \tiny Project Home \par & \tiny \href{https://sourceforge.net/projects/vis-sudoku/}{https://sourceforge.net/projects/vis-sudoku/} \par \\
+& \tiny Live Web Version \par & \tiny \href{https://vis-sudoku.sourceforge.io/app/index.html}{https://vis-sudoku.sourceforge.io/app/index.html} \par \\
+& \tiny Git Repo \par & \tiny \href{https://github.com/Vis-LLC/Vis-Sudoku}{https://github.com/Vis-LLC/Vis-Sudoku} \par \\
+\hline
+SDTK-UI & An open source data converter tool. & \\
+& \tiny Project Home \par & \tiny \href{https://sourceforge.net/projects/simple-data-toolkit/}{https://sourceforge.net/projects/simple-data-toolkit/} \par \\
+& \tiny Live Web Version \par & \tiny \href{https://simple-data-toolkit.sourceforge.io/app/index.html}{https://simple-data-toolkit.sourceforge.io/app/index.html} \par \\
+& \tiny Git Repo \par & \tiny \href{https://github.com/Vis-LLC/Simple-Data-Toolkit-UI}{https://github.com/Vis-LLC/Simple-Data-Toolkit-UI} \par \\
+\hline
+\end{tabular}
+\end{center}
+\end{document}

@@ -27,19 +27,22 @@ import com.field.views.VirtualGamepadView;
 import com.field.renderers.Element;
 import com.field.renderers.EventInfoInterface;
 import com.field.renderers.RendererAbstract;
+import com.field.navigator.DirectionInterface;
 
 @:native
 class InputSettings extends com.field.renderers.RendererAccessor implements com.field.renderers.MouseEventReceiver implements com.field.renderers.TouchEventReceiver implements com.field.renderers.KeyEventReceiver implements com.field.renderers.GamepadEventReceiver {
-    public inline function new(fieldView : FieldViewInterface, gamepadOnMouse : Bool, gamepadOnTouch : Bool) {
+    public inline function new(fieldView : FieldViewInterface, gamepadOnMouse : Bool, gamepadOnTouch : Bool, gridType : Int) {
         super();
         _fieldView = fieldView;
         _gamepadOnMouse = gamepadOnMouse;
         _gamepadOnTouch = gamepadOnTouch;
+        _gridType = gridType;
     }
 
     private var _fieldView : FieldViewInterface;
     private var _gamepadOnMouse : Bool;
     private var _gamepadOnTouch : Bool;
+    private var _gridType : Int;
 
     public var _thresholdX : Float;
     public var _thresholdY : Float;
@@ -188,72 +191,112 @@ class InputSettings extends com.field.renderers.RendererAccessor implements com.
         var dCurrentKeyDown : Date = Date.now();
         if ((_lastKeyDown == null) || (dCurrentKeyDown.getTime() - _lastKeyDown.getTime()) > 25) {
                 _lastKeyDown = dCurrentKeyDown;
-                var x : Int = 0;
-                var y : Int = 0;
+                var direction : Null<DirectionInterface> = null;
+                var doDefault : Bool = false;
 
-                switch (e.keyCode())
-                {
-                    // Left arrow
-                    case 37:
-                        x = 1;
-                        y = 0;
-                    // Up arrow
-                    case 38:
-                        x = 0;
-                        y = 1;
-                    // Right arrow
-                    case 39:
-                        x = -1;
-                        y = 0;
-                    // Down arrow
-                    case 40:
-                        x = 0;
-                        y = -1;
-                    // A
-                    case 65:
-                        x = 1;
-                        y = 0;
-                    // D
-                    case 68:
-                        x = -1;
-                        y = 0;
-                    // S
-                    case 83:
-                        x = 0;
-                        y = -1;
-                    // W
-                    case 87:
-                        x = 0;
-                        y = 1;
-                    // 2
-                    case 98:
-                        x = 0;
-                        y = 1;
-                    // 4
-                    case 100:
-                        x = 1;
-                        y = 0;
-                    // 6
-                    case 102:
-                        x = -1;
-                        y = 0;
-                    // 8
-                    case 104:
-                        x = 0;
-                        y = -1;
-                    default:
-                        if (_selectOnPress != null && e.key() == _selectOnPress) {
-                            var e : Null<Element> = RendererAbstract.currentRenderer().getActiveElement();
-                            if (e != null && RendererAbstract.currentRenderer().hasStyle(RendererAbstract.currentRenderer().getStyle(e), LocationView.FIELD_LOCATION_STYLE) && RendererAbstract.currentRenderer().containsElement(_fieldView.toElement(), e)) {
-                                RendererAbstract.currentRenderer().click(e);
-                            }
-                        } else {
-                            _unknownKey(e.keyCode());
+                switch (_gridType) {
+                    case 3:
+                        switch (e.keyCode()) {
+                            // Hex - UpperLeft
+                            case 81:
+                                direction = _fieldView.directions().get(0);
+                            // Hex - Up
+                            case 87:
+                                direction = _fieldView.directions().get(1);
+                            // Hex - UpperRight
+                            case 69:
+                                direction = _fieldView.directions().get(2);
+                            // Hex - LowerLeft
+                            case 65:
+                                direction = _fieldView.directions().get(5);
+                            // Hex - Down
+                            case 83:
+                                direction = _fieldView.directions().get(4);
+                            // Hex - LowerRight
+                            case 68:
+                                direction = _fieldView.directions().get(3);
+
+
+
+                            // Hex - UpperLeft
+                            case 36:
+                                direction = _fieldView.directions().get(0);
+                            // Hex - Up
+                            case 38:
+                                direction = _fieldView.directions().get(1);
+                            // Hex - UpperRight
+                            case 33:
+                                direction = _fieldView.directions().get(2);
+                            // Hex - LowerLeft
+                            case 35:
+                                direction = _fieldView.directions().get(5);
+                            // Hex - Down
+                            case 40:
+                                direction = _fieldView.directions().get(4);
+                            // Hex - LowerLeft
+                            case 34:
+                                direction = _fieldView.directions().get(3);
+
+                            default:
+                                doDefault = true;                                
                         }
+                    default:
+                        switch (e.keyCode())
+                        {
+                            // Left arrow
+                            case 37:
+                                direction = _fieldView.directions().get(0);
+                            // Up arrow
+                            case 38:
+                                direction = _fieldView.directions().get(1);
+                            // Right arrow
+                            case 39:
+                                direction = _fieldView.directions().get(2);
+                            // Down arrow
+                            case 40:
+                                direction = _fieldView.directions().get(3);
+                            // A
+                            case 65:
+                                direction = _fieldView.directions().get(0);
+                            // D
+                            case 68:
+                                direction = _fieldView.directions().get(2);
+                            // S
+                            case 83:
+                                direction = _fieldView.directions().get(3);
+                            // W
+                            case 87:
+                                direction = _fieldView.directions().get(1);
+                            // 2
+                            case 98:
+                                direction = _fieldView.directions().get(3);
+                            // 4
+                            case 100:
+                                direction = _fieldView.directions().get(0);
+                            // 6
+                            case 102:
+                                direction = _fieldView.directions().get(2);
+                            // 8
+                            case 104:
+                                direction = _fieldView.directions().get(1);
+                            default:
+                                doDefault = true;
+                        }                        
+                }
+                
+                if (doDefault == true) {
+                    if (_selectOnPress != null && e.key() == _selectOnPress) {
+                        var e : Null<Element> = RendererAbstract.currentRenderer().getActiveElement();
+                        if (e != null && RendererAbstract.currentRenderer().hasStyle(RendererAbstract.currentRenderer().getStyle(e), LocationView.FIELD_LOCATION_STYLE) && RendererAbstract.currentRenderer().containsElement(_fieldView.toElement(), e)) {
+                            RendererAbstract.currentRenderer().click(e);
+                        }
+                    } else {
+                        _unknownKey(e.keyCode());
+                    }
                 }
 
-                if (x != 0 || y != 0) {
-                    _fieldView.navigateInXY(x, y);
+                if (direction != null) {
+                    _fieldView.navigate(direction, 1);
                 }
             }
     }

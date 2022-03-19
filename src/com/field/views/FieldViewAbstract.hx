@@ -81,6 +81,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private var _field : FieldInterface<Dynamic, Dynamic>;
     private var _style : Style;
     private var _addOverlay : Bool;
+    private var _specifiedTileWidth : Float;
+    private var _specifiedTileHeight : Float;
     private var _tileWidth : Float;
     private var _tileHeight : Float;
     private var _tileBuffer : Float;
@@ -148,6 +150,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private var _canMove : DirectionInterface->Int->FieldViewAbstract->Bool;
     private var _spriteStubValid : FieldViewAbstractSpriteStubValid;
     private var _onScroll : Null<FieldViewAbstract -> Float -> Float -> Void>;
+    private var _childrenAsVector : NativeVector<Element> = null;
+    private var _noAddLocation : Bool = false;
 
     private function loadFieldSheet() : Element {
         #if js
@@ -187,6 +191,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             _field = cast fo.get("field");
             _tileWidth = cast fo.get("tileWidth");
             _tileHeight = cast fo.get("tileHeight");
+            _specifiedTileWidth = _tileWidth;
+            _specifiedTileHeight = _tileHeight;
             _tileBuffer = cast fo.get("tileBuffer");
             if (_field == null) {
                 _field = FieldStandard.create(
@@ -194,6 +200,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                     .width(Math.floor(_tileWidth + _tileBuffer * 2))
                     .height(Math.floor(_tileHeight + _tileBuffer * 2))
                 );
+            }
+            _gridType = cast withDefault(fo.get("gridType"), 1);
+            switch (_gridType) {
+                case 3:
+                    _tileHeight *= 2;
+                    _tileWidth /= 2/3;
+                    _tileBuffer *= 2;
             }
             {
                 var s : FieldSystemInterface<Dynamic, Dynamic> = cast _field;
@@ -211,7 +224,6 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             _style = cast fo.get("style");
             _addOverlay = cast fo.get("addOverlay");
             _clearOnHide = cast fo.get("clearOnHide");
-            _gridType = cast withDefault(fo.get("gridType"), 1);
            
 
             _locationSettings.noHideShow = cast withDefault(fo.get("locationNoHideShow"), false);
@@ -426,6 +438,16 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             }
             var squareHeight : Float = _cachedOffsetHeight / _tileHeight;
             var squareWidth : Float = _cachedOffsetWidth / _tileWidth;
+/*
+            switch (_gridType) {
+                case 3:
+                    //squareHeight *= 2;
+                    //squareWidth /= 2/3;
+                    squareHeight *= 2/3;
+                    squareWidth *= 2/3;
+            }
+            */
+
             if (_lockSquareOrientation) {
                 var squareSize = squareHeight < squareWidth ? squareHeight : squareWidth;
                 _rectHeight = squareSize;
@@ -438,7 +460,10 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
         if (_innerElement != null)
         {
-            var children : NativeArray<Element> = getChildrenAsVector(_innerElement).toArray();
+            if (_childrenAsVector == null) {
+                _childrenAsVector = getChildrenAsVector(_innerElement);
+            }
+            var children : NativeArray<Element> = _childrenAsVector.toArray();
             var i : Int = 0;
             while (children.length() > 0)
             {
@@ -511,33 +536,61 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         var leftCache : NativeVector<LeftStyle> = new NativeVector<LeftStyle>(fullWidth);
 
         var j : Int = 0;
+        var oddRow : Bool = Math.abs(Math.floor(j + oy) % 2) == 1;
+        var fragment : Dynamic = null;
+
         while (j < fullHeight) {
-            var j2 : Int = Math.floor(j + oy);
+            var j2o : Int = Math.floor(j + oy);
+            var j2 : Float = j2o;
+            switch (_gridType) {
+                case 3:
+                    j2 /= 2;
+            }
             var top : TopStyle = this.top(j2, _rectHeight, _tileBuffer, _tileHeight);
             var i : Int = 0;
 
             while (i < fullWidth) {
-                var i2 : Int = Math.floor(i + ox);
-                var left : LeftStyle = leftCache.get(i2);
+                var i2o : Int = Math.floor(i + ox);
+                var i2 : Float = i2o;
+                switch (_gridType) {
+                    case 3:
+                        i2 *= 1.5;
+                        if (oddRow) {
+                            i2 += 0.75;
+                        }                        
+                }
+                var left : LeftStyle = null;
+                switch (_gridType) {
+                    case 3:
+                    default:
+                        left = leftCache.get(i2o);
+                }
                 if (left == null) {
                     // TODO - Move into renderer
                     left = this.left(i2, _rectWidth, _tileBuffer, _tileWidth);
-                    leftCache.set(i2, left);
+                    switch (_gridType) {
+                        case 3:
+                        default:
+                            leftCache.set(i2o, left);
+                    }
                 }
 
-                var location : LocationInterface<Dynamic, Dynamic> = cast _field.get(i2, j2);
+                var location : LocationInterface<Dynamic, Dynamic> = cast _field.get(i2o, j2o);
                 if (location != null) {
                     //var newSprites : NativeVector<SpriteInterface<Dynamic, Dynamic>> = cast _field.findSpritesForLocation(location);
-                    var lvLocation : LocationView = LocationView.get(location, _locationSettings);
+                    var lvLocation : LocationView = LocationView.get(location, _locationSettings, this);
                     var eLocation : Element = lvLocation.toElement();
     
                     if (eLocation != null) {
                         hideElement(eLocation, null, com.field.renderers.Immediate._instance);
                         if (getParent(eLocation) == null) {
-                            appendChild(_innerElement, eLocation);
+                            if (fragment == null) {
+                                fragment = createFragment(_innerElement);
+                            }
+                            appendChild(fragment, eLocation);
                         }
     
-                        var pos : Coordinate = _field.getLoop(i2, j2);
+                        var pos : Coordinate = _field.getLoop(i2o, j2o);
                         var attr : Style = getStyleFor(location.attributes());
                         now(function () {
                             var area : Style;
@@ -558,7 +611,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                     _locationToViews.set(location.getI(), lvLocation);
 
                     if (_hasSprites) {
-                        addSpritesForLocation(location, eLocation);
+                        fragment = addSpritesForLocation(location, eLocation, fragment);
                     }
                     /*
                     while (k < newSprites.length()) {
@@ -592,6 +645,12 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             }
 
             j++;
+            oddRow = !oddRow;
+        }
+
+        if (fragment != null) {
+            mergeFragment(_innerElement, fragment);
+            fragment = null;
         }
 
         updateStyles();
@@ -643,8 +702,25 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     }
 
     public function updateStyles() : Void {
-        var sHeight = (100.0 / _tileHeight) + "%";
-        var sWidth = (100.0 / _tileWidth) + "%";
+        var fHeight = 100.0 / _specifiedTileHeight;
+        var fWidth = 100.0 / _specifiedTileWidth;
+        /*
+        switch (_gridType) {
+            case 3:
+                //fHeight *= 2;
+                //fWidth /= 2/3;
+                fHeight *= 2/3;
+                fWidth *= 2/3;
+        }
+        */
+        var sHeight;
+        switch (_gridType) {
+            case 3:
+                sHeight = (fHeight * 1.03) + "%";
+            default:
+                sHeight = fHeight + "%";
+        }
+        var sWidth = fWidth + "%";
         now(function() {
             #if js
                 // TODO - Add font size
@@ -656,6 +732,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     public function scrollView(x : Float, y : Float) : Void {
         var update : Void->Void = function () {
             start();
+/*
+            switch (_gridType) {
+                case 3:
+                    _tileHeight *= 2;
+                    _tileWidth /= 2/3;
+            }
+            */
 
             scroll(_innerElement, -x, -y, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
             if (_onScroll != null) {
@@ -726,7 +809,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         // TODO - dispatch(createEvent(_id));
     }
 
-    private function addSpritesForLocation(lLocation : LocationInterface<Dynamic, Dynamic>, ?eLocation : Null<Element>) : Void {
+    public function elementsChanged() : Void {
+        _childrenAsVector = null;
+    }
+
+    private function addSpritesForLocation(lLocation : LocationInterface<Dynamic, Dynamic>, ?eLocation : Null<Element>, fragment : Dynamic) : Dynamic {
         var sNewSprites : NativeVector<SpriteInterface<Dynamic, Dynamic>> = cast _field.findSpritesForLocation(lLocation);
         //dLocation.className += " " + sRows[j - dTileBuffer] + " " + sColumns[i - dTileBuffer];
 
@@ -736,7 +823,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             if (sSprite != null) {
                 var svSprite : Null<SpriteView> = _spriteToViews.get(sSprite.getI());
                 if (svSprite == null) {
-                    svSprite = SpriteView.get(sSprite, _spriteSettings);
+                    svSprite = SpriteView.get(sSprite, _spriteSettings, this);
                     if (svSprite != null) {
                         if (eLocation == null) {
                             var lvLocation : LocationView = _locationToViews.get(lLocation.getI());
@@ -752,7 +839,10 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                             hideElement(eSprite, null, immediate());
                         }
                         if (getParent(eSprite) == null) {
-                            appendChild(_innerElement, eSprite);
+                            if (fragment == null) {
+                                fragment = createFragment(_innerElement);
+                            }
+                            appendChild(fragment, eSprite);
                         }
                         moveSpriteTo(eSprite, eLocation, function () {
                             later(function () {
@@ -773,12 +863,14 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             }
             k++;
         }
+
+        return fragment;
     }
 
-    private function AddLocation(i : Float, j : Float, sTop : TopStyle, sLeft : LeftStyle, ox : Float, oy : Float) : Void {
+    private function AddLocation(i : Float, j : Float, sTop : TopStyle, sLeft : LeftStyle, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(i + ox), Math.floor(j + oy));
         if (lLocation != null) {
-            var lvLocation : LocationView = LocationView.get(lLocation, _locationSettings);
+            var lvLocation : LocationView = LocationView.get(lLocation, _locationSettings, this);
 
             if (lvLocation != null)
             {
@@ -788,7 +880,10 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                     if (!(_locationSettings.noHideShow)) {
                         hideElement(eLocation, null, immediate());
                     }
-                    appendChild(_innerElement, eLocation);
+                    if (fragment == null) {
+                        fragment = createFragment(_innerElement);
+                    }                    
+                    appendChild(fragment, eLocation);
     
                 }
                 var pos : Coordinate = _field.getLoop(Math.floor(i + ox), Math.floor(j + oy));
@@ -816,7 +911,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     
                 //dLocation.className = "field_location " + sRows[j - dTileBuffer] + " " + sColumns[i - dTileBuffer];
                 if (_hasSprites) {
-                    addSpritesForLocation(lLocation, eLocation);
+                    fragment = addSpritesForLocation(lLocation, eLocation, fragment);
                 }
                 _locationToViews.set(lLocation.getI(), lvLocation);
             }
@@ -830,9 +925,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             Logger.log(function () { return "Added " + (i + ox) + "," + (j + oy) + "=" + sResult; }, Logger.fieldView + Logger.locationAdded);
             lLocation.doneWith();
         }
+
+        return fragment;
     }
 
-    private function AddRow(j : Float, dFirstX : Float, dLastX : Float, ox : Float, oy : Float) : Void {
+    private function AddRow(j : Float, dFirstX : Float, dLastX : Float, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var dInnerX : Float = ox;//getFieldX(_innerElement, _rectWidth, _tileWidth);
         var dInnerY : Float = oy;//getFieldY(_innerElement, _rectHeight, _tileWidth);
         var sTop : TopStyle = top(j + dInnerY, _rectHeight, _tileBuffer, _tileHeight);
@@ -841,12 +938,14 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
         while (i <= i2) {
             var sLeft : LeftStyle = left(i + dInnerX, _rectWidth, _tileBuffer, _tileWidth);
-            AddLocation(i, j, sTop, sLeft, ox, oy);
+            fragment = AddLocation(i, j, sTop, sLeft, ox, oy, fragment);
             i++;
         }
+
+        return fragment;
     }
 
-    private function AddColumn(i : Float, dFirstY : Float, dLastY : Float, ox : Float, oy : Float) : Void {
+    private function AddColumn(i : Float, dFirstY : Float, dLastY : Float, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var dInnerX : Float = ox;//getFieldX(_innerElement, _rectWidth, _tileWidth);
         var dInnerY : Float = oy;//getFieldY(_innerElement, _rectHeight, _tileWidth);
         var sLeft : LeftStyle = left(i + dInnerX, _rectWidth, _tileBuffer, _tileWidth);
@@ -855,9 +954,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
         while (j <= j2) {
             var sTop : TopStyle = top(j + dInnerY, _rectHeight, _tileBuffer, _tileHeight);
-            AddLocation(i, j, sTop, sLeft, ox, oy);
+            fragment = AddLocation(i, j, sTop, sLeft, ox, oy, fragment);
             j++;
         }
+
+        return fragment;
     }
 
     public function update() : Void {
@@ -951,177 +1052,189 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         }
         */
 
-        var eSprites : NativeArray<Element> = new NativeArray<Element>();
+        if (_noAddLocation == false) {
+            var eSprites : NativeArray<Element> = new NativeArray<Element>();
 
 
-        // for (var i = dInnerDiv.childNodes.length - 1; i >= 0 ; i--)
-        var children : NativeVector<Element> = getChildrenAsVector(_innerElement);
-        var i : Int = 0;
-        while (i < children.length()) {
-            var e : Element = children.get(i);
-            if (SpriteView.toSpriteView(e) != null) {
-                eSprites.push(e);
-            } else {
-                var lvView : Null<LocationView> = LocationView.toLocationView(e);
-                if (lvView != null && lvView.useCount() > 0) {
-                    var x : Float = Math.round(getX(e, _rectWidth, _tileWidth, null) - dInnerX);
-                    var y : Float = Math.round(getY(e, _rectHeight, _tileWidth, null) - dInnerY);
+            // for (var i = dInnerDiv.childNodes.length - 1; i >= 0 ; i--)
+            if (_childrenAsVector == null) {
+                _childrenAsVector = getChildrenAsVector(_innerElement);
+            }        
+            var children : NativeVector<Element> = _childrenAsVector;
+            var i : Int = 0;
+            while (i < children.length()) {
+                var e : Element = children.get(i);
+                if (SpriteView.toSpriteView(e) != null) {
+                    eSprites.push(e);
+                } else {
+                    var lvView : Null<LocationView> = LocationView.toLocationView(e);
+                    if (lvView != null && lvView.useCount() > 0) {
+                        var x : Float = Math.round(getX(e, _rectWidth, _tileWidth, null) - dInnerX);
+                        var y : Float = Math.round(getY(e, _rectHeight, _tileWidth, null) - dInnerY);
 
-                    if (x < dLeft || x >= dRight || y < dTop || y >= dBottom) {
-                        var lLocation : LocationInterface<Dynamic, Dynamic> = lvView.location();
-                        if (lLocation != null) {
-                            _locationToViews.remove(lLocation.getI());                        
-                            lLocation.doneWith();
-                        }
-                        lvView.discard();
-                    } else {
-                        lvView.update(null);
-
-                        if (x < dFirstX) {
-                            dFirstX = x;
-                            dFirstXElement = e;
-                        } else if (x > dLastX) {
-                            dLastX = x;
-                            dLastXElement = e;
-                        }
-
-                        if (y < dFirstY) {
-                            dFirstY = y;
-                            dFirstYElement = e;
-                        } else if (y > dLastY) {
-                            dLastY = y;
-                            dLastYElement = e;
-                        }
-                    }
-                }
-            }
-            i++;
-        }
-
-
-        dFirstY = Math.round(dFirstY);
-        dLastY = Math.round(dLastY);
-        dFirstX = Math.round(dFirstX);
-        dLastX = Math.round(dLastX);
-
-        if (_hasSprites) {
-            var i : Int = Math.floor(dFirstX + ox);
-            var j : Int = Math.floor(dLastX + ox);
-            var iFirst : Int = Math.floor(dFirstY + oy);
-            var iLast : Int = Math.floor(dLastY + oy);
-
-            while (i <= j) {
-                var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(i, iFirst);
-                addSpritesForLocation(lLocation);
-                lLocation.doneWith();
-                lLocation = _field.get(i, iLast);
-                addSpritesForLocation(lLocation);
-                lLocation.doneWith();
-                i++;
-            }
-            i = Math.floor(dFirstY + oy);
-            j = Math.floor(dLastY + oy);
-            iFirst = Math.floor(dFirstX + ox);
-            iLast = Math.floor(dLastX + ox);
-            while (i <= j) {
-                var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(iFirst, i);
-                addSpritesForLocation(lLocation);
-                lLocation.doneWith();
-                lLocation = _field.get(iLast, i);
-                addSpritesForLocation(lLocation);
-                lLocation.doneWith();
-                i++;
-            }
-        }
-
-        while (dFirstY > dTop) {
-            AddRow(dFirstY - 1, dFirstX, dLastX, ox, oy);
-            dFirstY -= 1;
-        }
-
-        while (dLastY < dBottom - 1) {
-            AddRow(dLastY + 1, dFirstX, dLastX, ox, oy);
-            dLastY += 1;
-        }
-
-        while (dFirstX > dLeft) {
-            AddColumn(dFirstX - 1, dFirstY, dLastY, ox, oy);
-            dFirstX -= 1;
-        }
-
-        while (dLastX < dRight - 1) {
-            AddColumn(dLastX + 1, dFirstY, dLastY, ox, oy);
-            dLastX += 1;
-        }
-
-        if (_hasSprites) {
-            while (_spritesAdded.length() > 0) {
-                var sSprite : SpriteInterface<Dynamic, Dynamic> = _spritesAdded.pop();
-                var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(sSprite.getX(_field), sSprite.getY(_field));
-                var dLocation : LocationView = findViewForLocation(lLocation);
-    
-                if (_spriteToViews.get(sSprite.getI()) == null) {
-                    var dSprite : SpriteView = SpriteView.get(sSprite, _spriteSettings);
-                    if (dSprite != null)
-                    {
-                        var e : Element = dSprite.toElement();
-                        _spriteToViews.set(sSprite.getI(), dSprite);
-                        if (!(_spriteSettings.noHideShow)) {
-                            hideElement(e, null, immediate());
-                        }
-                        if (getParent(e) == null) {
-                            appendChild(_innerElement, e);
-                        }
-                        var sAttr : String = sSprite.attributes();
-                        moveSpriteTo(e, dLocation.toElement(), function () {
-                            later(function () {
-                                setStyle(e, combineStyles(dSprite.originalStyle(), getStyleFor(sAttr)));
-                                if (!(_spriteSettings.noHideShow)) {
-                                    showElement(e);
-                                }
-                            });
-                        });
-                    }
-                }
-    
-                _spritesAdded = new NativeArray<SpriteInterface<Dynamic, Dynamic>>();
-            }
-    
-            var i : Int = eSprites.length() - 1;
-            while (i >= 0) {
-                try {
-                    var e : Element = eSprites.get(i);
-                    var v : SpriteView = SpriteView.toSpriteView(e);
-                    if (v.useCount() > 0) {
-                        var s : SpriteInterface<Dynamic, Dynamic> = v.sprite();
-                        if (s != null) {
-                            var lLocation : Null<LocationInterface<Dynamic, Dynamic>> = _field.findLocationForSprite(s);
-                            var eLocation : LocationView = null;
-            
+                        if (x < dLeft || x >= dRight || y < dTop || y >= dBottom) {
+                            var lLocation : LocationInterface<Dynamic, Dynamic> = lvView.location();
                             if (lLocation != null) {
-                                eLocation = findViewForLocation(lLocation);
-                                if (eLocation != null) {
-                                    moveSpriteTo(e, eLocation.toElement());
-                                }
+                                _locationToViews.remove(lLocation.getI());                        
                                 lLocation.doneWith();
-                                lLocation = null;
                             }
-            
-                            if (eLocation == null) {
-                                _spriteToViews.remove(s.getI());
-                                v.discard();
-                            }
-            
-                            if (s.changed()) {
-                                setStyle(e, combineStyles(v.originalStyle(), getStyleFor(s.attributes())));
+                            lvView.discard();
+                        } else {
+                            lvView.update(null);
+
+                            if (x < dFirstX) {
+                                dFirstX = x;
+                                dFirstXElement = e;
+                            } else if (x > dLastX) {
+                                dLastX = x;
+                                dLastXElement = e;
                             }
 
-                            s.doneWith();
+                            if (y < dFirstY) {
+                                dFirstY = y;
+                                dFirstYElement = e;
+                            } else if (y > dLastY) {
+                                dLastY = y;
+                                dLastYElement = e;
+                            }
                         }
                     }
-                } catch (ex) {
                 }
-                i--;
+                i++;
+            }
+
+
+            dFirstY = Math.round(dFirstY);
+            dLastY = Math.round(dLastY);
+            dFirstX = Math.round(dFirstX);
+            dLastX = Math.round(dLastX);
+
+            var fragment : Dynamic = null;
+
+            if (_hasSprites) {
+                var i : Int = Math.floor(dFirstX + ox);
+                var j : Int = Math.floor(dLastX + ox);
+                var iFirst : Int = Math.floor(dFirstY + oy);
+                var iLast : Int = Math.floor(dLastY + oy);
+
+                while (i <= j) {
+                    var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(i, iFirst);
+                    fragment = addSpritesForLocation(lLocation, null, fragment);
+                    lLocation.doneWith();
+                    lLocation = _field.get(i, iLast);
+                    fragment = addSpritesForLocation(lLocation, null, fragment);
+                    lLocation.doneWith();
+                    i++;
+                }
+                i = Math.floor(dFirstY + oy);
+                j = Math.floor(dLastY + oy);
+                iFirst = Math.floor(dFirstX + ox);
+                iLast = Math.floor(dLastX + ox);
+                while (i <= j) {
+                    var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(iFirst, i);
+                    fragment = addSpritesForLocation(lLocation, null, fragment);
+                    lLocation.doneWith();
+                    lLocation = _field.get(iLast, i);
+                    fragment = addSpritesForLocation(lLocation, null, fragment);
+                    lLocation.doneWith();
+                    i++;
+                }
+            }
+
+            while (dFirstY > dTop) {
+                fragment = AddRow(dFirstY - 1, dFirstX, dLastX, ox, oy, fragment);
+                dFirstY -= 1;
+            }
+    
+            while (dLastY < dBottom - 1) {
+                fragment = AddRow(dLastY + 1, dFirstX, dLastX, ox, oy, fragment);
+                dLastY += 1;
+            }
+    
+            while (dFirstX > dLeft) {
+                fragment = AddColumn(dFirstX - 1, dFirstY, dLastY, ox, oy, fragment);
+                dFirstX -= 1;
+            }
+    
+            while (dLastX < dRight - 1) {
+                fragment = AddColumn(dLastX + 1, dFirstY, dLastY, ox, oy, fragment);
+                dLastX += 1;
+            }
+
+            if (fragment != null) {
+                mergeFragment(_innerElement, fragment);
+                fragment = null;
+            }
+
+            if (_hasSprites) {
+                while (_spritesAdded.length() > 0) {
+                    var sSprite : SpriteInterface<Dynamic, Dynamic> = _spritesAdded.pop();
+                    var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(sSprite.getX(_field), sSprite.getY(_field));
+                    var dLocation : LocationView = findViewForLocation(lLocation);
+        
+                    if (_spriteToViews.get(sSprite.getI()) == null) {
+                        var dSprite : SpriteView = SpriteView.get(sSprite, _spriteSettings, this);
+                        if (dSprite != null)
+                        {
+                            var e : Element = dSprite.toElement();
+                            _spriteToViews.set(sSprite.getI(), dSprite);
+                            if (!(_spriteSettings.noHideShow)) {
+                                hideElement(e, null, immediate());
+                            }
+                            if (getParent(e) == null) {
+                                appendChild(_innerElement, e);
+                            }
+                            var sAttr : String = sSprite.attributes();
+                            moveSpriteTo(e, dLocation.toElement(), function () {
+                                later(function () {
+                                    setStyle(e, combineStyles(dSprite.originalStyle(), getStyleFor(sAttr)));
+                                    if (!(_spriteSettings.noHideShow)) {
+                                        showElement(e);
+                                    }
+                                });
+                            });
+                        }
+                    }
+        
+                    _spritesAdded = new NativeArray<SpriteInterface<Dynamic, Dynamic>>();
+                }
+        
+                var i : Int = eSprites.length() - 1;
+                while (i >= 0) {
+                    try {
+                        var e : Element = eSprites.get(i);
+                        var v : SpriteView = SpriteView.toSpriteView(e);
+                        if (v.useCount() > 0) {
+                            var s : SpriteInterface<Dynamic, Dynamic> = v.sprite();
+                            if (s != null) {
+                                var lLocation : Null<LocationInterface<Dynamic, Dynamic>> = _field.findLocationForSprite(s);
+                                var eLocation : LocationView = null;
+                
+                                if (lLocation != null) {
+                                    eLocation = findViewForLocation(lLocation);
+                                    if (eLocation != null) {
+                                        moveSpriteTo(e, eLocation.toElement());
+                                    }
+                                    lLocation.doneWith();
+                                    lLocation = null;
+                                }
+                
+                                if (eLocation == null) {
+                                    _spriteToViews.remove(s.getI());
+                                    v.discard();
+                                }
+                
+                                if (s.changed()) {
+                                    setStyle(e, combineStyles(v.originalStyle(), getStyleFor(s.attributes())));
+                                }
+
+                                s.doneWith();
+                            }
+                        }
+                    } catch (ex) {
+                    }
+                    i--;
+                }
             }
         }
 
@@ -1329,7 +1442,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                     } else {
                         var d : LocationView = findViewForLocation(l);
                         focusOnElement(d.toElement());
-                        if (_selectOnMove) {
+                        if (_selectOnMove) {-
                             d.onclick(null);
                         }
                         l.doneWith();
@@ -1465,10 +1578,15 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                 height =  Math.floor(_tileHeight * tileHeight);
             }
 
+            left = Math.floor((actualWidth - width) / 2);
+            switch (_gridType) {
+                case 3:
+                    height = Math.floor(height / 2);
+            }
+
             sWidth = width + "px";
             sHeight = height + "px";
 
-            left = Math.floor((actualWidth - width) / 2);
             top = Math.floor((actualHeight - height) / 2);
 
             removeStyle(_element, rect);
@@ -1497,7 +1615,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
     public function startDefaultListeners(options : DefaultListenersOptions) : Void {
         {
-            _inputSettings = new InputSettings(this, _gamepadOnMouse, _gamepadOnTouch);
+            _inputSettings = new InputSettings(this, _gamepadOnMouse, _gamepadOnTouch, _gridType);
             var fo : NativeStringMap<Any> = options.toMap();
             options = null;
 
@@ -1592,6 +1710,28 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             fullRefresh();
             return fNew;
         }
+    }
+
+    private var _autoScroll : Dynamic = null;
+
+    // TODO - Adjust
+    public function autoScroll(x : Float, y : Float, ms : Int, noAddLocation: Bool) {
+        _noAddLocation = noAddLocation;
+        #if js
+            _autoScroll = js.Syntax.code("setInterval({0}, {1})", function () {
+                scrollView(x, y);
+                if (_mainSprite != null) {
+                    _mainSprite.set(Math.floor(_mainSprite.getX(null) - x), Math.floor(_mainSprite.getY(null) - y));
+                }
+            }, ms);
+        #end
+    }
+
+    public function endAutoScroll() {
+        #if js
+            js.Syntax.code("clearInterval({0})", _autoScroll);
+        #end
+        _noAddLocation = false;
     }
 }
 

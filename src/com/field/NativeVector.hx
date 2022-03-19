@@ -89,7 +89,7 @@ abstract NativeVector<V>(
 
     inline public function toArray() : NativeArray<V> {
         #if js
-            return cast this;
+            return cast js.Syntax.code("{0}.slice()", this);
         #elseif java
             // TODO
         #elseif cs

@@ -238,4 +238,9 @@ class RendererAbstract implements RendererInterface {
     }
     public function clearLines(parent : Element) : Void { }
     public function setCaption(e : Element, caption : String) : Void { }
+    public function createFragment(parent : Element) : Element {
+        return null;
+    }
+
+    public function mergeFragment(parent : Element, fragment : Element) : Void { }    
 }

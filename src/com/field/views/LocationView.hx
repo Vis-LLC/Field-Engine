@@ -67,7 +67,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
         Get the LocationView for a Location.
         This function is not meant to be used externally, only internally to the FieldEngine library.
     **/
-    public static function get(lLocation : LocationInterface<Dynamic, Dynamic>, settings : CommonSettings<LocationView>) : LocationView {
+    public static function get(lLocation : LocationInterface<Dynamic, Dynamic>, settings : CommonSettings<LocationView>, field : FieldViewAbstract) : LocationView {
         if (lLocation != null) {
             var iElementCount = (settings.tileElement ? 1 : 0) + (settings.effectElement ? 1 : 0) + (settings.selectElement ? 1 : 0) + settings.shellElements;
             var view : Null<LocationView> = null;
@@ -78,6 +78,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
 
             if (view._element == null) {
                 Logger.log("Creating new Location View", Logger.locationView);
+                field.elementsChanged();
                 // Remove - view = new LocationView();
                 if (iElementCount == 1) {
                     if (settings.tileElement) {
@@ -310,8 +311,8 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
         return _location.changed();
     }
     
-    private function generateSelectInfo() : EventInfo<Dynamic, Dynamic, Dynamic> {
-        return EventInfo.locationEvent(_location, _element, getParent(getParent(getParent(_element))), Events.locationSelect());
+    private function generateSelectInfo(button : Int) : EventInfo<Dynamic, Dynamic, Dynamic> {
+        return EventInfo.locationEvent(_location, _element, getParent(getParent(getParent(_element))), Events.locationSelect(), button);
     }
 
     /**
@@ -325,7 +326,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
             view = this;
         #end
         if (view._location != null) {
-            Logger.dispatch(view.generateSelectInfo, view._location.field(), Logger.locationView + Logger.locationSelect);
+            Logger.dispatch(function () : EventInfo<Dynamic, Dynamic, Dynamic> { return view.generateSelectInfo(e.buttons());}, view._location.field(), Logger.locationView + Logger.locationSelect);
         }
     }
 
@@ -342,12 +343,18 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
     }
 
     private function generateHoverInfo() : EventInfo<Dynamic, Dynamic, Dynamic> {
-        return EventInfo.locationEvent(_location, _element, getParent(getParent(getParent(_element))), Events.locationHover());
+        return EventInfo.locationEvent(_location, _element, getParent(getParent(getParent(_element))), Events.locationHover(), null);
     }
 
     public function onmouseover(e : EventInfoInterface) : Void {
-        if (_location != null) {
-            Logger.dispatch(generateHoverInfo, _location.field(), Logger.locationView + Logger.locationHover);
+        var view : LocationView;
+        #if js
+            view = toLocationView(cast this);
+        #else
+            view = this;
+        #end
+        if (view._location != null) {
+            Logger.dispatch(generateHoverInfo, view._location.field(), Logger.locationView + Logger.locationHover);
         }
     }
 

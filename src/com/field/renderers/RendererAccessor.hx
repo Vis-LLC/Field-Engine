@@ -417,4 +417,12 @@ class RendererAccessor {
     private function setCaption(e : Element, caption : String) : Void {
         renderer().setCaption(e, caption);
     }
+
+    private function createFragment(parent : Element) : Element {
+        return renderer().createFragment(parent);
+    }
+
+    private function mergeFragment(parent : Element, fragment : Element) : Void {
+        renderer().mergeFragment(parent, fragment);
+    }
 }

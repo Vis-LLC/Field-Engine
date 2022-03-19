@@ -66,7 +66,7 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
         Get the SpriteView for a Location.
         This function is not meant to be used externally, only internally to the FieldEngine library.
     **/
-    public static function get(sSprite : SpriteInterface<Dynamic, Dynamic>, settings : CommonSettings<SpriteView>) : SpriteView {
+    public static function get(sSprite : SpriteInterface<Dynamic, Dynamic>, settings : CommonSettings<SpriteView>, field : FieldViewAbstract) : SpriteView {
         if (sSprite != null) {
             var iElementCount = (settings.tileElement ? 1 : 0) + (settings.effectElement ? 1 : 0) + (settings.selectElement ? 1 : 0) + settings.shellElements;
             var view : Null<SpriteView> = null;
@@ -77,6 +77,7 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
 
             if (view._element == null) {
                 Logger.log("Creating new Sprite View", Logger.spriteView);
+                field.elementsChanged();
                 // Remove - view = new SpriteView();
                 if (iElementCount == 1) {
                     if (settings.tileElement) {
@@ -223,13 +224,19 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
         #end
     }
 
-    private function generateSelectInfo() : EventInfo<Dynamic, Dynamic, Dynamic> {
-        return EventInfo.spriteEvent(_sprite, _element, getParent(getParent(getParent(_element))), Events.spriteSelect());
+    private function generateSelectInfo(button : Int) : EventInfo<Dynamic, Dynamic, Dynamic> {
+        return EventInfo.spriteEvent(_sprite, _element, getParent(getParent(getParent(_element))), Events.spriteSelect(), button);
     }
 
     public function onclick(e : EventInfoInterface) : Void {
-        if (_sprite != null) {
-            Logger.dispatch(generateSelectInfo, _sprite.field(), Logger.spriteView + Logger.locationSelect);
+        var view : SpriteView;
+        #if js
+            view = toSpriteView(cast this);
+        #else
+            view = this;
+        #end        
+        if (view._sprite != null) {
+            Logger.dispatch(function () : EventInfo<Dynamic, Dynamic, Dynamic> { return view.generateSelectInfo(e.buttons());}, _sprite.field(), Logger.spriteView + Logger.locationSelect);
         }
     }
 
@@ -246,12 +253,18 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
     }
 
     private function generateHoverInfo() : EventInfo<Dynamic, Dynamic, Dynamic> {
-        return EventInfo.spriteEvent(_sprite, _element, getParent(getParent(getParent(_element))), Events.spriteHover());
+        return EventInfo.spriteEvent(_sprite, _element, getParent(getParent(getParent(_element))), Events.spriteHover(), null);
     }
 
     public function onmouseover(e : EventInfoInterface) : Void {
-        if (_sprite != null) {
-            Logger.dispatch(generateHoverInfo, _sprite.field(), Logger.spriteView + Logger.locationHover);
+        var view : SpriteView;
+        #if js
+            view = toSpriteView(cast this);
+        #else
+            view = this;
+        #end        
+        if (view._sprite != null) {
+            Logger.dispatch(generateHoverInfo, view._sprite.field(), Logger.spriteView + Logger.locationHover);
         }
     }    
 

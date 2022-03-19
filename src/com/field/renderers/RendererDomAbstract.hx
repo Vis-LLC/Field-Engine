@@ -234,7 +234,8 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnClick(e : Element, r : MouseEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.onclick = {1}", e, EventInfoDOM.wrapFunction(r.onclick));
+            js.Syntax.code("{0}.onclick = {1}", e, EventInfoDOM.wrapFunction(r.onclick, true));
+            js.Syntax.code("{0}.oncontextmenu = {1}", e, EventInfoDOM.wrapFunction(r.onclick, false));
         #else
             // TODO
         #end
@@ -242,7 +243,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnDblClick(e : Element, r : MouseEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.ondblclick = {1}", e, EventInfoDOM.wrapFunction(r.ondblclick));
+            js.Syntax.code("{0}.ondblclick = {1}", e, EventInfoDOM.wrapFunction(r.ondblclick, true));
         #else
             // TODO
         #end
@@ -250,7 +251,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnTouchStart(e : Element, r : TouchEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.ontouchstart = {1}", e, EventInfoDOM.wrapFunction(r.ontouchstart));
+            js.Syntax.code("{0}.ontouchstart = {1}", e, EventInfoDOM.wrapFunction(r.ontouchstart, true));
         #else
             // TODO
         #end
@@ -258,7 +259,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnTouchCancel(e : Element, r : TouchEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.ontouchcancel = {1}", e, EventInfoDOM.wrapFunction(r.ontouchcancel));
+            js.Syntax.code("{0}.ontouchcancel = {1}", e, EventInfoDOM.wrapFunction(r.ontouchcancel, true));
         #else
             // TODO
         #end
@@ -266,7 +267,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnTouchMove(e : Element, r : TouchEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.ontouchmove = {1}", e, EventInfoDOM.wrapFunction(r.ontouchmove));
+            js.Syntax.code("{0}.ontouchmove = {1}", e, EventInfoDOM.wrapFunction(r.ontouchmove, true));
         #else
             // TODO
         #end
@@ -274,7 +275,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnMouseOver(e: Element, r : MouseEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.onmouseover = {1}", e, EventInfoDOM.wrapFunction(r.onmouseover));
+            js.Syntax.code("{0}.onmouseover = {1}", e, EventInfoDOM.wrapFunction(r.onmouseover, true));
         #else
             // TODO
         #end
@@ -282,7 +283,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnMouseDown(e: Element, r : MouseEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.onmousedown = {1}", e, EventInfoDOM.wrapFunction(r.onmousedown));
+            js.Syntax.code("{0}.onmousedown = {1}", e, EventInfoDOM.wrapFunction(r.onmousedown, true));
         #else
             // TODO
         #end
@@ -290,7 +291,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnMouseUp(e: Element, r : MouseEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.onmouseup = {1}", e, EventInfoDOM.wrapFunction(r.onmouseup));
+            js.Syntax.code("{0}.onmouseup = {1}", e, EventInfoDOM.wrapFunction(r.onmouseup, true));
         #else
             // TODO
         #end
@@ -298,7 +299,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnTouchEnd(e : Element, r : TouchEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.ontouchend = {1}", e, EventInfoDOM.wrapFunction(r.ontouchend));
+            js.Syntax.code("{0}.ontouchend = {1}", e, EventInfoDOM.wrapFunction(r.ontouchend, true));
         #else
             // TODO
         #end
@@ -306,7 +307,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnKeyDown(e : Element, r : KeyEventReceiver) : Void {
         #if js
-            js.Syntax.code("{0}.onkeydown = {1}", e, EventInfoDOM.wrapFunction(r.onkeydown));
+            js.Syntax.code("{0}.onkeydown = {1}", e, EventInfoDOM.wrapFunction(r.onkeydown, true));
         #else
             // TODO
         #end
@@ -314,7 +315,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnGamepadConnected(e : Element, r : GamepadEventReceiver) : Void {
         #if js
-            js.Syntax.code("window.addEventListener(\"gamepadconnected\", {1})", e, EventInfoDOM.wrapFunction(r.ongamepadconnected));
+            js.Syntax.code("window.addEventListener(\"gamepadconnected\", {1})", e, EventInfoDOM.wrapFunction(r.ongamepadconnected, true));
         #else
             // TODO
         #end
@@ -322,7 +323,7 @@ class RendererDomAbstract extends RendererAbstract {
 
     public override function setOnGamepadDisconnected(e : Element, r : GamepadEventReceiver) : Void {
         #if js
-            js.Syntax.code("window.addEventListener(\"gamepaddisconnected\", {1})", e, EventInfoDOM.wrapFunction(r.ongamepaddisconnected));
+            js.Syntax.code("window.addEventListener(\"gamepaddisconnected\", {1})", e, EventInfoDOM.wrapFunction(r.ongamepaddisconnected, true));
         #else
             // TODO
         #end
@@ -600,6 +601,22 @@ class RendererDomAbstract extends RendererAbstract {
         #if js
             js.Syntax.code("{0}.title = {1}", e, caption);
             js.Syntax.code("{0}.alt = {1}", e, caption);
+        #else
+            // TODO
+        #end
+    }
+
+    public override function createFragment(parent : Element) : Element {
+        #if js
+            return cast js.Syntax.code("document.createDocumentFragment()");
+        #else
+            // TODO
+        #end
+    }
+
+    public override function mergeFragment(parent : Element, fragment : Element) : Void {
+        #if js
+            return cast js.Syntax.code("{0}.appendChild({1})", parent, fragment);
         #else
             // TODO
         #end

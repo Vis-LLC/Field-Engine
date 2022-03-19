@@ -87,4 +87,6 @@ interface RendererInterface {
     function drawLine(parent : Element, x1 : Int, y1 : Int, x2 : Int, y2 : Int) : Element;
     function setCaption(e : Element, caption : String) : Void;
     function clearLines(parent : Element) : Void;
+    function createFragment(parent : Element) : Element;
+    function mergeFragment(parent : Element, fragment : Element) : Void;
 }

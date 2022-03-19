@@ -245,4 +245,19 @@ class FieldOptions<L, S> extends OptionsAbstract<FieldOptions<L, S>> {
     public function id(id : String) : FieldOptions<L, S> {
         return set("id", id);
     }
+
+    /**
+        Make Field handle a grid of hexagons.
+    **/
+    public function gridTypeHex() : FieldOptions<L, S> {
+        return setOnce("gridType", 3);
+    }
+
+    /**
+        Make Field handle a grid of squares.
+    **/
+    public function gridTypeSquare() : FieldOptions<L, S> {
+        return setOnce("gridType", 1);
+    }    
+
 }

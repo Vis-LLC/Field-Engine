@@ -339,7 +339,14 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
 
     public function ontouchend(e : EventInfoInterface) : Void {
         e.preventDefault();
-        onclick(e);
+        if (AbstractView.getSkipTouches() > 0) {
+            AbstractView.skipTouchesDec();
+        } else {
+            if (e.buttons() > 0) {
+                AbstractView.setSkipTouches(e.buttons());
+            }
+            onclick(e);
+        }
     }
 
     private function generateHoverInfo() : EventInfo<Dynamic, Dynamic, Dynamic> {

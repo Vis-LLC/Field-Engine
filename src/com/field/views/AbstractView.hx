@@ -34,11 +34,41 @@ import com.field.renderers.Style;
 class AbstractView extends com.field.renderers.RendererAccessor {
     private var _element : Element;
     private static var _discardedElements : NativeArray<Element> = new NativeArray<Element>();
+    private static var _skipTouches : Int = 0;
+    private static var _skipTouchesStart : Int = 0;
 
     public function new() {
         super();
     }
     
+    private static function getSkipTouches() : Int {
+        if (_skipTouches <= 0) {
+            return 0;
+        } else {
+            var current : Int = 0;
+            #if js
+                js.Syntax.code("{0} = (new Date()).getMilliseconds()", current);
+            #end
+            if ((current - _skipTouchesStart) < 250) {
+                return _skipTouches;
+            } else {
+                _skipTouches = 0;
+                return 0;
+            }
+        }
+    }
+
+    private static function skipTouchesDec() : Void {
+        _skipTouches--;
+    }
+
+    private static function setSkipTouches(skips : Int) : Void {
+        _skipTouches = skips;
+        #if js
+            js.Syntax.code("{0} = (new Date()).getMilliseconds()", _skipTouchesStart);
+        #end
+    }
+
     private function getElement(?style : Null<Style> = null, ?parent : Null<Element> = null) : Element {
         var o : Element = popElement();
         if (style != null) {

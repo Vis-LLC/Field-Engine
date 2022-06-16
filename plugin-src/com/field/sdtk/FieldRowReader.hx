@@ -126,7 +126,7 @@ class FieldRowReader extends com.sdtk.table.DataTableRowReader {
       }
       l.doneWith();
       _i += _info._increment;
-      incrementTo(name, _value);
+      incrementTo(name, _value, _i);
       return _value;
     }
   

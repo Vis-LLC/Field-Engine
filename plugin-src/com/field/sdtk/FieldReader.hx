@@ -56,8 +56,8 @@ class FieldReader extends com.sdtk.table.DataTableReader {
 
   public override function nextReuse(rowReader : Null<DataTableRowReader>) : Dynamic {
     var rowReader : FieldRowReader = FieldRowReader.readWholeRowReuse(_info._field, _i, cast rowReader);
-    incrementTo(null, rowReader);
     _i += _info._rowIncrement;
+    incrementTo(null, rowReader, _i);
     return rowReader;
   }
 

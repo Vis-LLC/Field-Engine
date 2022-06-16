@@ -81,7 +81,7 @@ class EventInfoDOM {
                 default:
                     switch (cast js.Syntax.code("{0}.type", _event)) {
                         case "touchend":
-                            return cast js.Syntax.code("{0}.touches.length - 1", _event);
+                            return cast js.Syntax.code("{0}.touches.length", _event);
                         default:
                             return cast js.Syntax.code("{0}.buttons", _event);
                     }

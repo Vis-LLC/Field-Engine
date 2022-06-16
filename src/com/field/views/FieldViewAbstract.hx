@@ -152,6 +152,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private var _onScroll : Null<FieldViewAbstract -> Float -> Float -> Void>;
     private var _childrenAsVector : NativeVector<Element> = null;
     private var _noAddLocation : Bool = false;
+    private var _skipScroll : Bool = false;
 
     private function loadFieldSheet() : Element {
         #if js
@@ -528,7 +529,31 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         });
 
         // TODO - Remove or Optional?
-        scroll(_innerElement, originX() - getFieldX(_innerElement, _rectWidth, _tileWidth), originY() - getFieldY(_innerElement, _rectHeight, _tileHeight), _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
+        if (!_skipScroll) {
+            var scrollX : Float = originX();
+            var scrollY : Float = originY();
+            var oddRow : Bool = Math.abs(Math.floor(oy) % 2) == 1;
+            switch (_gridType) {
+                case 3:
+                    scrollX *= 1.5;
+                    if (oddRow)
+                    {
+                        scrollX += 0.75;
+                    }
+                    scrollY *= 0.5;
+            }
+
+            scrollX -= getFieldX(_innerElement, _rectWidth, _tileWidth);
+            scrollY -= getFieldY(_innerElement, _rectHeight, _tileHeight);
+/*
+            switch (_gridType) {
+                case 3:
+                    scrollX -= 1.75;
+                    scrollY -= 1.5;
+            }
+*/
+            scroll(_innerElement, scrollX, scrollY, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
+        }
 
         var fullHeight : Int = Math.floor(_tileHeight + _tileBuffer * 2);
         // TODO - *2?
@@ -716,7 +741,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         var sHeight;
         switch (_gridType) {
             case 3:
-                sHeight = (fHeight * 1.03) + "%";
+                sHeight = fHeight + "%"; //(fHeight * 1.03) + "%";
             default:
                 sHeight = fHeight + "%";
         }
@@ -730,17 +755,29 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     }
 
     public function scrollView(x : Float, y : Float) : Void {
+        var ox : Float = originX() - _tileBuffer;
+        var oy : Float = originY() - _tileBuffer;        
+        //var oddRow : Bool = Math.abs(Math.floor(y + oy) % 2) == 1;
+        var x2 : Float = x;
+        var y2 : Float = y;
+        switch (_gridType) {
+            case 3:
+                x2 *= 1.5;
+                //if (oddRow)
+                {
+                    x2 += 0.75;
+                }
+                y2 *= 0.5;
+        }
         var update : Void->Void = function () {
             start();
-/*
             switch (_gridType) {
                 case 3:
                     _tileHeight *= 2;
                     _tileWidth /= 2/3;
             }
-            */
 
-            scroll(_innerElement, -x, -y, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
+            scroll(_innerElement, -x2, -y2, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
             if (_onScroll != null) {
                 _onScroll(this, x, y);
             }
@@ -750,11 +787,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
             // TODO - dispatch(createEvent(_id, x.toString() + "," + y.toString()));
             if (_autoUpdate) {
+                _skipScroll = true;
                 if (Math.abs(x) >= width() || Math.abs(y) >= height()) {
                     fullRefresh();
                 } else {
                     update();
                 }
+                _skipScroll = false;
             }
             end();
         };
@@ -932,12 +971,26 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private function AddRow(j : Float, dFirstX : Float, dLastX : Float, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var dInnerX : Float = ox;//getFieldX(_innerElement, _rectWidth, _tileWidth);
         var dInnerY : Float = oy;//getFieldY(_innerElement, _rectHeight, _tileWidth);
-        var sTop : TopStyle = top(j + dInnerY, _rectHeight, _tileBuffer, _tileHeight);
+        var j2 : Float = j + dInnerY;
+        switch (_gridType) {
+            case 3:
+                j2 /= 2;
+        }
+        var sTop : TopStyle = top(j2, _rectHeight, _tileBuffer, _tileHeight);
         var i2 : Float = dLastX;
         var i : Float = dFirstX;
+        var oddRow : Bool = Math.abs(Math.floor(j) % 2) == 1;
 
         while (i <= i2) {
-            var sLeft : LeftStyle = left(i + dInnerX, _rectWidth, _tileBuffer, _tileWidth);
+            var i3 : Float = i + dInnerX;
+            switch (_gridType) {
+                case 3:
+                    i3 *= 1.5;
+                    if (oddRow) {
+                        i3 += 0.75;
+                    }
+            }
+            var sLeft : LeftStyle = left(i3, _rectWidth, _tileBuffer, _tileWidth);
             fragment = AddLocation(i, j, sTop, sLeft, ox, oy, fragment);
             i++;
         }
@@ -948,17 +1001,79 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private function AddColumn(i : Float, dFirstY : Float, dLastY : Float, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var dInnerX : Float = ox;//getFieldX(_innerElement, _rectWidth, _tileWidth);
         var dInnerY : Float = oy;//getFieldY(_innerElement, _rectHeight, _tileWidth);
-        var sLeft : LeftStyle = left(i + dInnerX, _rectWidth, _tileBuffer, _tileWidth);
+        var i2 : Float = i + dInnerX;
         var j2 : Float = dLastY;
         var j : Float = dFirstY;
+        var sLeft : NativeArray<LeftStyle> = new NativeArray<LeftStyle>();
+        switch (_gridType) {
+            case 3:
+                i2 *= 1.5;
+                var oddRow : Bool = Math.abs(Math.floor(j) % 2) == 1;
+                if (oddRow) {
+                    i2 += 0.75;
+                }
+                var sLeft2 : LeftStyle = left(i2, _rectWidth, _tileBuffer, _tileWidth);
+                sLeft.push(sLeft2);
+                if (!oddRow) {
+                    i2 += 0.75;
+                } else {
+                    i2 -= 0.75;
+                }
+                sLeft2 = left(i2, _rectWidth, _tileBuffer, _tileWidth);
+                sLeft.push(sLeft2);
+            default:
+                var sLeft2 : LeftStyle = left(i2, _rectWidth, _tileBuffer, _tileWidth);
+                sLeft.push(sLeft2);
+                sLeft.push(sLeft2);
+        }
+        var left : Int = 0;
 
         while (j <= j2) {
-            var sTop : TopStyle = top(j + dInnerY, _rectHeight, _tileBuffer, _tileHeight);
-            fragment = AddLocation(i, j, sTop, sLeft, ox, oy, fragment);
+            var j3 : Float = j + dInnerY;
+            switch (_gridType) {
+                case 3:
+                    j3 /= 2;
+            }
+
+            var sTop : TopStyle = top(j3, _rectHeight, _tileBuffer, _tileHeight);
+            fragment = AddLocation(i, j, sTop, sLeft.get(left), ox, oy, fragment);
             j++;
+            left = 1 - left;
         }
 
         return fragment;
+    }
+
+    private override function getX(e : Element, dRectWidth : Float, dTileWidth : Float, scale : Float) : Float {
+        var x : Float = super.getX(e, dRectWidth, dTileWidth, scale);
+        switch (_gridType) {
+            case 3:
+        }
+        return x;
+    }
+
+    private override function getY(e : Element, dRectHeight : Float, dTileHeight : Float, scale : Float) : Float {
+        var y : Float = super.getY(e, dRectHeight, dTileHeight, scale);
+        switch (_gridType) {
+            case 3:
+        }        
+        return y;
+    }
+
+    private override function getFieldX(e : Element, dRectWidth : Float, dTileWidth : Float) : Float {
+        var x : Float = super.getFieldX(e, dRectWidth, dTileWidth);
+        switch (_gridType) {
+            case 3:
+        }        
+        return x;
+    }
+
+    private override function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float {
+        var y : Float = super.getFieldY(e, dRectHeight, dTileHeight);
+        switch (_gridType) {
+            case 3:
+        }        
+        return y;
     }
 
     public function update() : Void {
@@ -1022,10 +1137,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             }
         }
 
-        var dTop : Float = 0 - _tileBuffer;
-        var dLeft : Float = 0 - _tileBuffer;
-        var dBottom : Float = _tileHeight + _tileBuffer;
-        var dRight : Float = _tileWidth + _tileBuffer;
+        var tileBuffer : Float = _tileBuffer * (_gridType == 3 ? 2 : 1);
+        var dTop : Float = 0 - tileBuffer;
+        var dLeft : Float = 0 - tileBuffer;
+        var dBottom : Float = _tileHeight + tileBuffer;
+        var dRight : Float = _tileWidth + tileBuffer;
         var dFirstY : Float = dBottom + 1;
         var dFirstYDiv : Float = null;
         var dLastY : Float = dTop - 1;
@@ -1042,10 +1158,32 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         // TODO - Remove or Optional?
 
 
-        var scrollX : Float = ox - getFieldX(_innerElement, _rectWidth, _tileWidth);
-        var scrollY : Float = oy - getFieldY(_innerElement, _rectHeight, _tileHeight);
+        if (!_skipScroll) {
+            var scrollX : Float = ox;
+            var scrollY : Float = oy;
+            var oddRow : Bool = Math.abs(Math.floor(oy) % 2) == 1;
+            switch (_gridType) {
+                case 3:
+                    scrollX *= 1.5;
+                    if (oddRow)
+                    {
+                        scrollX += 0.75;
+                    }
+                    scrollY *= 0.5;
+            }
 
-        scroll(_innerElement, scrollX, scrollY, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
+            scrollX -= getFieldX(_innerElement, _rectWidth, _tileWidth);
+            scrollY -= getFieldY(_innerElement, _rectHeight, _tileHeight);
+/*
+            switch (_gridType) {
+                case 3:
+                    scrollX -= 1.75;
+                    scrollY -= 1.5;
+            }
+*/
+            scroll(_innerElement, scrollX, scrollY, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
+        }
+
         /* TODO -
         if (_onScroll != null) {
             _onScroll(this, scrollX, scrollY);
@@ -1293,6 +1431,22 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             return s.navigator().directions();
     }
 
+    private function roundX(oddRow : Bool, x : Float) {
+        if (oddRow) {
+            if (x < 0) {
+                return Math.floor(x);
+            } else {
+                return Math.ceil(x);
+            }
+        } else {
+            if (x < 0) {
+                return Math.ceil(x);
+            } else {
+                return Math.floor(x);
+            }
+        }
+    }
+
     private function navigateI(direction : DirectionInterface, distance : Int) : Bool {
         var fPrevious : Null<FieldInterface<Dynamic, Dynamic>> = null;
         var fCurrent : Null<FieldInterface<Dynamic, Dynamic>> = null;
@@ -1319,13 +1473,14 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         }
 
         var xy : NativeVector<Float> = direction.xy();
-        var x : Int = Math.round(xy.get(0));
-        var y : Int = Math.round(xy.get(1));
+        var oddRow = Math.abs(Math.floor(_oy) % 2) == 1;
+        var x : Int = roundX(oddRow, (xy.get(0) - direction.shiftX()) * direction.distanceMultiplierX());
+        var y : Int = Math.round((xy.get(1) - direction.shiftY()) * direction.distanceMultiplierY());
 
         if (_locationSettings.triggerFocusOnElement) {
             var e  : Element = getActiveElement();
             if (e != null && hasStyle(getStyle(e), LocationView.FIELD_LOCATION_STYLE) && containsElement(_element, e)) {
-                var l : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(getX(e, _rectWidth, _tileWidth, null) - x),  Math.floor( getY(e, _rectHeight, _tileWidth, null) - y));
+                var l : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(getX(e, _rectWidth, _tileWidth, null) - x),  Math.floor(getY(e, _rectHeight, _tileWidth, null) - y));
                 if (l == null) {
                     bScroll = false;
                     bEvent = false;

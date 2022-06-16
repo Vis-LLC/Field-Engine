@@ -242,19 +242,19 @@ class RendererAccessor {
         return renderer().getParent(e);
     }
 
-    private inline function getX(e : Element, dRectWidth : Float, dTileWidth : Float, scale : Float) : Float {
+    private function getX(e : Element, dRectWidth : Float, dTileWidth : Float, scale : Float) : Float {
         return renderer().getX(e, dRectWidth, dTileWidth, scale);
     }
 
-    private inline function getY(e : Element, dRectHeight : Float, dTileHeight : Float, scale : Float) : Float {
+    private function getY(e : Element, dRectHeight : Float, dTileHeight : Float, scale : Float) : Float {
         return renderer().getY(e, dRectHeight, dTileHeight, scale);
     }
 
-    private inline function getFieldX(e : Element, dRectWidth : Float, dTileWidth : Float) : Float {
+    private function getFieldX(e : Element, dRectWidth : Float, dTileWidth : Float) : Float {
         return renderer().getFieldX(e, dRectWidth, dTileWidth);
     }
 
-    private inline function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float {
+    private function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float {
         return renderer().getFieldY(e, dRectHeight, dTileHeight);
     }
 

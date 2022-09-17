@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:nativeGen
 /**
     Represents an Element on the screen.
@@ -39,3 +40,4 @@ abstract Element (
 #end
 ) {
 }
+#end

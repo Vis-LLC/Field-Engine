@@ -20,24 +20,32 @@
     FieldEngine - Source code can be found on SourceForge.net
 */
 
-package com.field.renderers;
+package com.field;
 
-#if !EXCLUDE_RENDERING
 @:nativeGen
 /**
-    Represents Style information for a given Element on the screen.
-    These functions are not meant to used externally, only internally to the FieldEngine library.
+    An Adapter class that allows all native vectors to be used easily.
 **/
-abstract Style (
-#if js
-    String
-#elseif java
-    
-#elseif cs
-    
-#else
-    Any
-#end
-) {
+class NativeVectorSlice<V> {
+    private var _v : NativeVector<V>;
+    private var _start : Int;
+    private var _end : Int;
+
+    public function new(v : NativeVector<V>, start : Int, end : Int) {
+        _v = v;
+        _start = start;
+        _end = end;
+    }
+
+    public function set(k : Int, v : Null<V>) : Void {
+        _v.set(k + _start, v);
+    }
+
+    public function get(k : Int) : Null<V> {
+        return _v.get(k + _start);
+    }
+
+    public function length() : Int {
+        return _end - _start;
+    }
 }
-#end

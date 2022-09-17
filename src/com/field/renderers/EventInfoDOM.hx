@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:nativeGen
 /**
     A Bridge for determining how event information is retrieved from DOM (Document Object Model) events.
@@ -107,4 +108,16 @@ class EventInfoDOM {
         #else
         #end
     }
+
+    public function wheelDelta() : NativeVector<Float> {
+        var delta : NativeVector<Float> = new NativeVector<Float>(3);
+        #if js
+            delta.set(0, cast js.Syntax.code("{0}.deltaX", _event));
+            delta.set(1, cast js.Syntax.code("{0}.deltaY", _event));
+            delta.set(2, cast js.Syntax.code("{0}.deltaZ", _event));
+        #else
+        #end
+        return delta;
+    }
 }
+#end

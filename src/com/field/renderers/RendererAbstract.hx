@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 import com.field.NativeVector;
 
 @:expose
@@ -128,6 +129,7 @@ class RendererAbstract implements RendererInterface {
     public function setOnKeyDown(e : Element, r : KeyEventReceiver) : Void { }
     public function setOnGamepadConnected(e : Element, r : GamepadEventReceiver) : Void { }
     public function setOnGamepadDisconnected(e : Element, r : GamepadEventReceiver) : Void { }
+    public function setOnWheel(e : Element, r : MouseEventReceiver) : Void { }
 
 
     public function getStyleString(s : Style) : String {
@@ -238,9 +240,25 @@ class RendererAbstract implements RendererInterface {
     }
     public function clearLines(parent : Element) : Void { }
     public function setCaption(e : Element, caption : String) : Void { }
+    public function setColor(e : Element, color : String) : Void { }
     public function createFragment(parent : Element) : Element {
         return null;
     }
 
     public function mergeFragment(parent : Element, fragment : Element) : Void { }    
+
+    public function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> { return null; }
+
+    public function setText(e : Element, s : String) : Void { }
+
+    public function createElement(?s : Null<String>) : Element {
+        return null;
+    }
+
+    public function setStyleLeft(e : Element, v : LeftStyle) : Void { }
+
+    public function setStyleTop(e : Element, v : TopStyle) : Void { }
+
+    public function setStyleBottom(e : Element, v : TopStyle) : Void { }
 }
+#end

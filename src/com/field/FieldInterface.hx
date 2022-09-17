@@ -153,10 +153,12 @@ interface FieldInterface<L, S> extends HasAccessor extends FrameOfReference {
     **/
     function refresh(callback : Void->Void) : Void;
 
+    #if !EXCLUDE_RENDERING
     /**
         Add a Listener for the given Event on this Field.
     **/
     function addEventListenerFor(event : Event, listener : EventInfo<Dynamic, Dynamic, Dynamic>->Void) : Void;
+    #end
 
     /**
         Get the standard Field interface for the Field.

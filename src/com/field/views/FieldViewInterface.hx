@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.NativeObjectMap;
 import com.field.navigator.DirectionInterface;
 import com.field.renderers.Element;
@@ -138,3 +139,4 @@ interface FieldViewInterface extends com.field.navigator.NavigatorInterface {
     **/
     function startDefaultListeners(options : DefaultListenersOptions) : Void;
 }
+#end

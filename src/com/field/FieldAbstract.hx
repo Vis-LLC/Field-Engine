@@ -55,8 +55,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private var _spriteCalculatedAttributes : Null<NativeStringMap<S->Any>>;
     private var _locationClass : Null<String>;
     private var _spriteClass : Null<String>;
-    private var _locationPredefinedAttributes : Null<NativeStringMap<NativeArray<String>>>;
-    private var _spritePredefinedAttributes : Null<NativeStringMap<NativeArray<String>>>;
+    private var _locationPredefinedAttributes : Null<NativeStringMap<NativeVector<String>>>;
+    private var _spritePredefinedAttributes : Null<NativeStringMap<NativeVector<String>>>;
     private var _locationNumericalAttributes : Null<NativeStringMap<Numerical>>;
     private var _spriteNumericalAttributes : Null<NativeStringMap<Numerical>>;
     private var _spritesAtLocation : Null<NativeIntMap<NativeIntMap<Int>>>;
@@ -77,7 +77,9 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private var _subFields : Null<NativeArray<FieldInterface<L, S>>> = null;
     private var _emptySpriteVector : NativeVector<S> = new NativeVector<S>(0);
     private var _refresh : Null<Dynamic->Void> = null;
+    #if !EXCLUDE_RENDERING
     private var _listeners : NativeObjectMap<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = new NativeObjectMap<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>>();
+    #end
 
     private var _getLoop : Int -> Int -> Coordinate;
     private var _loopReset : Int -> Int -> Bool;
@@ -316,6 +318,17 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         #if js
             js.Syntax.code("{0}.fill(0, 0, {0}.length)", _locationArrayView);
             js.Syntax.code("{0}.fill(0, 0, {0}.length)", _spriteArrayView);
+        #elseif php
+            var i : Int = 0;
+            while (i < _locationArrayView.length()) {
+                _locationArrayView.set(i, 0);
+                i++;
+            }
+            i = 0;
+            while (i < _spriteArrayView.length()) {
+                _spriteArrayView.set(i, 0);
+                i++;
+            }
         #else
             // TODO
             throw "Not supported";
@@ -347,26 +360,27 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         }
     }
 
-    function updateAttributeCount<T>(attr : AccessorFlatArraysAttributes, predefinedAttributes : Null<NativeStringMap<NativeArray<String>>>, numericalAttributes : Null<NativeStringMap<Numerical>>, calculatedAttributes : Null<NativeStringMap<T->Any>>) : Void {
+    function updateAttributeCount<T>(attr : AccessorFlatArraysAttributes, predefinedAttributes : Null<NativeStringMap<NativeVector<String>>>, numericalAttributes : Null<NativeStringMap<Numerical>>, calculatedAttributes : Null<NativeStringMap<T->Any>>) : Void {
         attr.count = 0;
         attr.lookup = new NativeStringMap<Int>();
-        attr.reverse = new NativeArray<String>();
-        attr.type = new NativeArray<Int>();
-        attr.divider = new NativeArray<Float>();
-        attr.valueLookup = new NativeArray<NativeStringMap<Int>>();
-        attr.valueReverse = new NativeArray<NativeArray<String>>();
         attr.size = 0;
+
+        var attrReverse : NativeArray<String> = new NativeArray<String>();
+        var attrType : NativeArray<Int> = new NativeArray<Int>();
+        var attrDivider : NativeArray<Float> = new NativeArray<Float>();
+        var attrValueLookup : NativeArray<NativeStringMap<Int>> = new NativeArray<NativeStringMap<Int>>();
+        var attrValueReverse : NativeArray<NativeVector<String>> = new NativeArray<NativeVector<String>>();
 
         if (predefinedAttributes != null) {
             for (i in predefinedAttributes.keys()) {
                 attr.lookup.set(i, attr.count);
-                attr.type.set(attr.count, 0);
-                attr.reverse.push(i);
+                attrType.set(attr.count, 0);
+                attrReverse.push(i);
 
                 var values : NativeStringMap<Int> = new NativeStringMap<Int>();
-                var reverse : NativeArray<String> = predefinedAttributes.get(i);
-                attr.valueLookup.set(attr.count, values);
-                attr.valueReverse.set(attr.count, reverse);
+                var reverse : NativeVector<String> = predefinedAttributes.get(i);
+                attrValueLookup.push(values);
+                attrValueReverse.push(reverse);
                 var j : Int = 0;
                 while (j < reverse.length()) {
                     values.set(reverse.get(j), j);
@@ -391,15 +405,15 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
                 digitsAfterDecimal = o.digitsAfterDecimal;
 
                 if (digitsAfterDecimal != null && digitsAfterDecimal != 0) {
-                    attr.type.set(attr.count, 2);
+                    attrType.set(attr.count, 2);
                     var divider = Math.pow(10, digitsAfterDecimal);
-                    attr.divider.set(attr.count, divider);
+                    attrDivider.set(attr.count, divider);
                     max *= divider;
                     if (max > attr.size) {
                         attr.size = Math.floor(max);
                     }
                 } else {
-                    attr.type.set(attr.count, 1);
+                    attrType.set(attr.count, 1);
                     if (max > attr.size) {
                         attr.size = Math.floor(max);
                     }
@@ -411,7 +425,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
 
         if (calculatedAttributes != null) {
             for (i in calculatedAttributes.keys()) {
-                attr.type.set(attr.count, 3);
+                attrType.set(attr.count, 3);
             }
         }
 
@@ -430,6 +444,12 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         } else {
             attr.size = 64;
         }
+
+        attr.reverse = attrReverse.toVector();
+        attr.type = attrType.toVector();
+        attr.divider = attrDivider.toVector();
+        attr.valueLookup = attrValueLookup.toVector();
+        attr.valueReverse = attrValueReverse.toVector();
     }
 
     public function get(x : Int, y : Int) : L {
@@ -535,8 +555,11 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             }
             var end : Date = Date.now();
             var duration : Int = Math.floor(end.getTime() - start.getTime());
+            var s : String = "Task Done Duration: " + duration;
             #if js
-                js.html.Console.log("Task Done Duration: " + duration);
+                js.html.Console.log(s);
+            #elseif php
+                php.Syntax.code("error_log({0})", s);
             #else
                 // TODO
                 throw "Not supported";
@@ -564,6 +587,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private function arrayFillSupported() {
         #if js
             js.Syntax.code("return !!({0}[\"fill\"])", _locationArrayView);
+        #elseif php
+            return false;
         #end
         return false;
     }
@@ -587,6 +612,9 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
                 var data : AttributeFillParams = cast local.data();
                 #if js
                     js.Syntax.code("{0}.fill({1}, {2}, {3})", memory, data, sliceStart, sliceStart + sliceSize);
+                #elseif php
+                    // Array fill is not supported on php
+                    throw "Not supported";
                 #else
                     // TODO
                     throw "Not supported";
@@ -635,6 +663,17 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             } : function (m : Any, o : Any, i : Int) {
                 js.Syntax.code("for (var j = 0; j < {1}.length; j++, i++) { {0}[{2}] = {1}[j]; }", m, o, i);
             };
+        #elseif php
+            set = function (m : Any, o : Any, i : Int) : Void {
+                var m1 : NativeVector<Int> = cast m;
+                var o1 : NativeVectorSlice<Int> = cast o;
+                var j : Int = 0;
+                while (j < o1.length()) {
+                    m1.set(i, o1.get(j));
+                    i++;
+                    j++;
+                }
+            };
         #else
             // TODO
             throw "Not supported";
@@ -646,10 +685,14 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             var subHeight : Int = subAccessor.getRows();
             var mainMemory : Any = mainAccessor.locationMemory();
             var increment : Int = width * mainAccessor.getLocationAttributeCount();
-            var getSlice : Null<Int->Int->Int> = null;
+            var getSlice : Null<Int->Int->Dynamic> = null;
 
             #if js
                 js.Syntax.code("{0} = ({1}[\"subarray\"]) ? function (i, j) { return {1}.subarray(i, j); } : function (i, j) { return {1}.slice(i, j); }", getSlice, subMemory);
+            #elseif php
+                getSlice = function (start : Int, end : Int) : Dynamic {
+                    return new NativeVectorSlice<Int>(cast subMemory, start, end);
+                };
             #else
                 // TODO
             #end
@@ -658,7 +701,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             var y : Int = 0;
 
             while (y < subHeight) {
-                var memorySlice = getSlice(i, i + increment);
+                var memorySlice : Dynamic = getSlice(i, i + increment);
                 set(mainMemory, memorySlice, iMainIndex);
                 iMainIndex = mainAccessor.moveRow(iMainIndex, 1);
                 i += increment;
@@ -1170,6 +1213,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             if (_memoryBuffer != null && com.field.workers.WorkerThread.isSupported()) {
                 getWorkerThreadPool().registerObjectToGlobal(n);
             }
+        #elseif php
+            // Intentionally left empty, should be unnecessary
         #end
         /*
         js.Syntax.code("
@@ -1244,6 +1289,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         }
     }
 
+    #if !EXCLUDE_RENDERING
     public function addEventListenerFor(event : Event, listener : EventInfo<Dynamic, Dynamic, Dynamic>->Void) : Void {
         event.markHasListeners();
         var specific : Null<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = _listeners.get(event);
@@ -1253,11 +1299,14 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         }
         specific.push(listener);
     }
+    #end
 
+    #if !EXCLUDE_RENDERING
     public function hasListeners(e : Event) : Bool {
         var listeners : Null<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = _listeners.get(e);
         return listeners != null && listeners.length() > 0;
     }
+    #end
 
     public function field() : FieldInterface<L, S> {
         return this;
@@ -1288,6 +1337,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             } else {
                 callback(js.Syntax.code("base64.bytesToBase64({0})", view));
             }
+        #elseif php
+            // TODO - PHP
         #else
             // TODO
         #end
@@ -1299,6 +1350,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
                 var view : Dynamic = cast js.Syntax.code("(new Uint8Array({0}, {1}, {2}))", buf, offset, length);
                 var decoded : Dynamic = cast js.Syntax.code("base64.base64ToBytes({0})", data);
                 js.Syntax.code("{0}.set({1}, 0)", view, decoded);
+            #elseif php
+                // TODO - PHP                
             #else
                 // TODO
             #end
@@ -1487,6 +1540,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
                     callback();
                 }
             }
+        #elseif php
+            // TODO - PHP
         #else
             // TODO
         #end
@@ -1539,21 +1594,34 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         var wuUntil : WaitUntil = new WaitUntil(function () {
             var s : String = haxe.Json.stringify(data);
             if (compressJSON) {
-                var blobWriter : Dynamic = js.Syntax.code("new zip.BlobWriter('application/zip')");                
-                js.Syntax.code("zip.createWriter({0}, {1}, {2})", blobWriter, function (writer : Any) {
-                    js.Syntax.code("writer.add('data', new zip.TextReader({0}), {1})", s, function () {
-                        js.Syntax.code("writer.close({0})", function (b : Any) {
-                            js.Syntax.code("{0}.arrayBuffer().then({1})", b, function (b) {
-                                var s : String = cast js.Syntax.code("base64.bytesToBase64(new Uint8Array({0}))", b);
-                                b = null;
-                                s = "{ \"compressed\": \"" + s + "\" }";
-                                callback(s);
+                #if js
+                    var blobWriter : Dynamic = js.Syntax.code("new zip.BlobWriter('application/zip')");                
+                    js.Syntax.code("zip.createWriter({0}, {1}, {2})", blobWriter, function (writer : Any) {
+                        js.Syntax.code("writer.add('data', new zip.TextReader({0}), {1})", s, function () {
+                            js.Syntax.code("writer.close({0})", function (b : Any) {
+                                js.Syntax.code("{0}.arrayBuffer().then({1})", b, function (b) {
+                                    var s : String = cast js.Syntax.code("base64.bytesToBase64(new Uint8Array({0}))", b);
+                                    b = null;
+                                    s = "{ \"compressed\": \"" + s + "\" }";
+                                    callback(s);
+                                });
                             });
                         });
+                    }, function (e : Dynamic) {
+                        js.Syntax.code("console.log({0})", e);
                     });
-                }, function (e : Dynamic) {
-                    js.Syntax.code("console.log({0})", e);
-                });
+                #elseif php
+                    var tmp : Dynamic = php.Syntax.code("tempname(sys_get_temp_dir(), \"FE-ZIP-\")");
+                    var zipWriter : Dynamic = php.Syntax.code("new ZipArchive()");
+                    php.Syntax.code("{0}->open({1}, ZIPARCHIVE::CREATE)", zipWriter, tmp);
+                    php.Syntax.code("{0}->addFromString({1})", zipWriter, s);
+                    php.Syntax.code("{0}->close()", zipWriter);
+                    s = cast php.Syntax.code("base64_encode(file_get_contents({0}))", tmp);
+                    php.Syntax.code("unlink({0})", tmp);
+                    s = "{ \"compressed\": \"" + s + "\" }";
+                    callback(s);
+                    s = null;
+                #end
             } else {
                 callback(s);
             }

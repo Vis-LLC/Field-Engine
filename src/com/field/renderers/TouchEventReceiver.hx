@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Represents a receiver for Touch Event information.
@@ -32,3 +33,4 @@ interface TouchEventReceiver {
     function ontouchcancel(e : EventInfoInterface) : Void;
     function ontouchmove(e : EventInfoInterface) : Void;
 }
+#end

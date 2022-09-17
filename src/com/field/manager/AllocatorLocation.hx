@@ -60,7 +60,7 @@ class AllocatorLocation<T> implements Allocator<T> {
         #if js
             return (cast o).getX();
         #else
-            return cast(o, SpriteInterface<Dynamic, Dynamic>).getX();
+            return cast(o, SpriteInterface<Dynamic, Dynamic>).getX(null);
         #end
     }
 
@@ -68,7 +68,7 @@ class AllocatorLocation<T> implements Allocator<T> {
         #if js
             return (cast o).getY();
         #else
-            return cast(o, SpriteInterface<Dynamic, Dynamic>).getY();
+            return cast(o, SpriteInterface<Dynamic, Dynamic>).getY(null);
         #end
     }
 }

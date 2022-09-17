@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -50,3 +51,4 @@ class Immediate implements RendererMode {
     public function schedule(f : Void -> Void) : Void {
     }
 }
+#end

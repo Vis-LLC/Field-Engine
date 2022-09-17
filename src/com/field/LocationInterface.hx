@@ -31,7 +31,7 @@ interface LocationInterface<F, L> extends Usable<F, L> extends HasAttributes {
     /**
         Gets all the Attributes as a string.
     **/
-    function attributes() : String;
+    function attributes(?calculatedAttributes : Bool = true) : String;
     // TODO
     //function State(lsNew : Null<LocationState>) : LocationState;
 

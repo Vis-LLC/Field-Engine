@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.navigator.DirectionInterface;
 import com.field.renderers.Style;
 
@@ -159,3 +160,4 @@ class FieldViewOptions extends FieldViewOptionsAbstract<FieldViewOptions> {
         return FieldView.create(this);
     }
 }
+#end

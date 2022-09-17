@@ -26,6 +26,7 @@ package com.field.manager;
     Defines a Factory class for allocating Sprites of a Field in memory.
     These functions are not meant to used externally, only internally to the FieldEngine library.    
 **/
+@:expose
 @:nativeGen
 class AllocatorSprite<T> implements Allocator<T> {
     public function allocate() : T {

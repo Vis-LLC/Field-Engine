@@ -22,6 +22,8 @@
 
 package com.field;
 
+import haxe.Http;
+
 @:nativeGen
 /**
     An Adapter class that allows all native maps with string keys to be used easily.
@@ -33,6 +35,8 @@ abstract NativeStringMap<V>(
     java.util.Map<String, V>
 #elseif cs
     cs.system.collections.IDictionary
+#elseif php
+    php.NativeAssocArray<V>
 #else
     haxe.Constraints.IMap<String,V>
 #end
@@ -44,6 +48,8 @@ abstract NativeStringMap<V>(
             new java.util.Hashtable<String, V>()
         #elseif cs
             new cs.system.collections.Hashtable()
+        #elseif php
+            new php.NativeAssocArray<V>()
         #else
             cast new haxe.ds.StringMap<V>()
         #end
@@ -57,6 +63,8 @@ abstract NativeStringMap<V>(
             this.put(k, v);
         #elseif cs
             this.set_Item(k, v);
+        #elseif php
+            this[k] = v;
         #else
             this.set(k, v);
         #end
@@ -69,6 +77,8 @@ abstract NativeStringMap<V>(
             return this.get(k);
         #elseif cs
             return cast this.get_Item(k);
+        #elseif php
+            return this[k];
         #else
             return this.get(k);
         #end
@@ -81,6 +91,9 @@ abstract NativeStringMap<V>(
             return this.keySet().iterator();
         #elseif cs
             return cast this.get_Keys().GetEnumerator();
+        #elseif php
+            var na : php.NativeArray = cast php.Syntax.code("array_keys({0})", this);
+            return na.iterator();
         #else
             return cast this.keys();
         #end
@@ -93,6 +106,8 @@ abstract NativeStringMap<V>(
             this.remove(k);
         #elseif cs
             this.Remove(k);
+        #elseif php
+            php.Syntax.code("unset({0}[{1}])", this, k);
         #else
             this.remove(k);
         #end

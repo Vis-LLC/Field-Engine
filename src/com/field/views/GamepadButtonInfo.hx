@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Defines how to read a gamepad button.
@@ -32,3 +33,4 @@ class GamepadButtonInfo {
     **/
     public var value : Float;
 }
+#end

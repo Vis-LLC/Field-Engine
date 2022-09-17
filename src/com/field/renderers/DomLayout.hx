@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -184,3 +185,4 @@ class DomLayout extends RendererDomAbstract {
         return this;
     }
 }
+#end

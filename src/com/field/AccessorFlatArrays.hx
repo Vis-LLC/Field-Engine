@@ -88,35 +88,35 @@ class AccessorFlatArrays implements AccessorInterface {
         return _data.directions;
     }
 
-    private inline static function gaa(i : Int, arr : NativeArray<NativeArray<String>>) : NativeArray<String> {
+    private inline static function gaa(i : Int, arr : NativeVector<NativeVector<String>>) : NativeVector<String> {
         #if js
             return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
-            return arr[i];
+            return arr.get(i);
         #end
     }
 
-    private inline static function gfa(i : Int, arr : NativeArray<Float>) : Float {
+    private inline static function gfa(i : Int, arr : NativeVector<Float>) : Float {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
-            return arr[i];
+            return arr.get(i);
         #end
     }
 
-    private inline static function gia(i : Int, arr : NativeArray<Int>) : Int {
+    private inline static function gia(i : Int, arr : NativeVector<Int>) : Int {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
-            return arr[i];
+            return arr.get(i);
         #end
     }
 
-    private inline static function gma(i : Int, arr : NativeArray<NativeStringMap<Int>>) : NativeStringMap<Int> {
+    private inline static function gma(i : Int, arr : NativeVector<NativeStringMap<Int>>) : NativeStringMap<Int> {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
-            return arr[i];
+            return arr.get(i);
         #end
     }
 
@@ -128,27 +128,27 @@ class AccessorFlatArrays implements AccessorInterface {
         #end
     }
 
-    private inline static function gsa(i : Int, arr : NativeArray<String>) : String {
+    private inline static function gsa(i : Int, arr : NativeVector<String>) : String {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
-            return arr[i];
+            return arr.get(i);
         #end
     }
 
-    private inline static function sia(i : Int, arr : NativeArray<Int>, v : Int) : Void {
+    private inline static function sia(i : Int, arr : NativeVector<Int>, v : Int) : Void {
         #if js
             js.Syntax.code("{0}[{1}] = {2}", arr, i, v);
         #else
-            arr[i] = i;
+            arr.set(i, i);
         #end
     }
 
-    private inline static function ssa(i : Int, arr : NativeArray<String>, v : String) : Void {
+    private inline static function ssa(i : Int, arr : NativeVector<String>, v : String) : Void {
         #if js
         js.Syntax.code("{0}[{1}] = {2}", arr, i, v);
         #else
-            arr[i] = v;
+            arr.set(i, v);
         #end
     }
 
@@ -313,11 +313,11 @@ class AccessorFlatArrays implements AccessorInterface {
     }
 
     public function getLocationIntegerDirect(i : Int, attribute : Int) : Int {
-        return gia(i + attribute, _data.locationMemory);
+        return _data.locationMemory.get(i + attribute);
     }
 
     public function getSpriteIntegerDirect(i : Int, attribute : Int) : Int {
-        return gia(i + attribute, _data.spriteMemory);
+        return _data.spriteMemory.get(i + attribute);
     }
 
     public function getLocationType(attribute : String) : Int {
@@ -329,11 +329,11 @@ class AccessorFlatArrays implements AccessorInterface {
     }
 
     public function getLocationTypeDirect(attribute : Int) : Int {
-        return gia(attribute, _data.locationAttributes.type);
+        return _data.locationAttributes.type.get(attribute);
     }
 
     public function getSpriteTypeDirect(attribute : Int) : Int {
-        return gia(attribute, _data.spriteAttributes.type);
+        return _data.spriteAttributes.type.get(attribute);        
     }
 
     public function getLocationAttribute(i : Int, attribute : String) : Any {

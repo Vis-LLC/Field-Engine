@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.Logger;
 import com.field.renderers.Element;
 import com.field.renderers.EventInfoInterface;
@@ -67,13 +68,24 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
         Get the LocationView for a Location.
         This function is not meant to be used externally, only internally to the FieldEngine library.
     **/
-    public static function get(lLocation : LocationInterface<Dynamic, Dynamic>, settings : CommonSettings<LocationView>, field : FieldViewAbstract) : LocationView {
+    public static function get(lLocation : LocationInterface<Dynamic, Dynamic>, settings : CommonSettings<LocationView>, field : FieldViewAbstract, fixedElement : Element) : LocationView {
         if (lLocation != null) {
             var iElementCount = (settings.tileElement ? 1 : 0) + (settings.effectElement ? 1 : 0) + (settings.selectElement ? 1 : 0) + settings.shellElements;
             var view : Null<LocationView> = null;
 
-            if (settings.discarded != null) {
+            if (fixedElement != null) {
+                #if js
+                    view = toLocationView(fixedElement);
+                    if (view == null) {
+                        view = new LocationView();
+                    }
+                #else
+                    // TODO
+                #end
+            } else if (settings.discarded != null) {
                 view = settings.manager.simpleStart(settings.allocator, settings.views, settings.discarded);
+            } else {
+                view = new LocationView();
             }
 
             if (view._element == null) {
@@ -82,21 +94,41 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
                 // Remove - view = new LocationView();
                 if (iElementCount == 1) {
                     if (settings.tileElement) {
-                        view._element = view.getElement(FIELD_LOCATION_AND_TILE_STYLE);
+                        if (fixedElement == null) {
+                            view._element = view.getElement(FIELD_LOCATION_AND_TILE_STYLE);
+                        } else {
+                            view._element = fixedElement;
+                            view.setStyle(fixedElement, FIELD_LOCATION_AND_TILE_STYLE);
+                        }
                         view._tile = view._element;
                         view._originalStyle = FIELD_LOCATION_AND_TILE_STYLE;
                     } else if (settings.effectElement) {
-                        view._element = view.getElement(FIELD_LOCATION_AND_EFFECT_STYLE);
+                        if (fixedElement == null) {
+                            view._element = view.getElement(FIELD_LOCATION_AND_EFFECT_STYLE);
+                        } else {
+                            view._element = fixedElement;
+                            view.setStyle(fixedElement, FIELD_LOCATION_AND_EFFECT_STYLE);
+                        }
                         view._effect = view._element;
                         view._originalStyle = FIELD_LOCATION_AND_EFFECT_STYLE;
                     } else if (settings.selectElement) {
-                        view._element = view.getElement(FIELD_LOCATION_AND_SELECT_STYLE);
+                        if (fixedElement == null) {
+                            view._element = view.getElement(FIELD_LOCATION_AND_SELECT_STYLE);
+                        } else {
+                            view._element = fixedElement;
+                            view.setStyle(fixedElement, FIELD_LOCATION_AND_SELECT_STYLE);
+                        }
                         view._select = view._element;
                         view._originalStyle = FIELD_LOCATION_AND_SELECT_STYLE;
                     }
                     setLocationView(view._element, view);
                 } else {
-                    view._element = view.getElement(FIELD_LOCATION_STYLE);
+                    if (fixedElement == null) {
+                        view._element = view.getElement(FIELD_LOCATION_STYLE);
+                    } else {
+                        view._element = fixedElement;
+                        view.setStyle(fixedElement, FIELD_LOCATION_STYLE);
+                    }
                     view._originalStyle = FIELD_LOCATION_STYLE;
                     var innerMostShell : Element = view._element;
                     setLocationView(view._element, view);
@@ -136,21 +168,25 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
                     }
                 }
                 view._settings = settings;
+                if (settings.tabIndex) {
+                    view.setTabIndex(view._element, 0);
+                }
+                if (settings.willChange && fixedElement == null) {
+                    view.willChange(view._element);
+                }
+                if (settings.click) {
+                    view.setOnClick(view._element, view);
+                    view.setOnTouchEnd(view._element, view);
+                }
+                if (settings.setOnMouseOver) {
+                    view.setOnMouseOver(view._element, view);
+                }
             } else {
                 Logger.log("Reusing Location View", Logger.locationView);
             }
 
             view.update(lLocation);
             lLocation.nowInUse();
-
-            view.setTabIndex(view._element, 0);
-            view.willChange(view._element);
-            view.setOnClick(view._element, view);
-            view.setOnTouchEnd(view._element, view);
-
-            if (settings.setOnMouseOver) {
-                view.setOnMouseOver(view._element, view);
-            }
 
             // TODO
             //_location.State(Field.LocationStateDisplayed);
@@ -235,11 +271,20 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
                 } else {
                     s = "" + v;
                 }
-                if (getTextContent(_tile) != s) {
-                    _hasText = true;
-                    now(function () {
-                        setTextContent(_tile, s);
-                    });
+                if (_settings.rawText) {
+                    if (getRawContent(_tile) != s) {
+                        _hasText = true;
+                        now(function () {
+                            setRawContent(_tile, s);
+                        });
+                    }
+                } else {
+                    if (getTextContent(_tile) != s) {
+                        _hasText = true;
+                        now(function () {
+                            setTextContent(_tile, s);
+                        });
+                    }
                 }
             } else if (_location.hasDataSource()) {
                 var ext : LocationExtendedInterface = cast _location;
@@ -250,7 +295,11 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
             } else if (_hasText) {
                 _hasText = false;
                 now(function () {
-                    setTextContent(_tile, "");
+                    if (_settings.rawText) {
+                        setRawContent(_tile, "");
+                    } else {
+                        setTextContent(_tile, "");
+                    }
                 });
             }
     
@@ -263,7 +312,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
             if (_location.changed()) {
                 var sArea = getStyleString(getStylePart(getStyle(_element), "area_x_"));
                 now(function () {
-                    setStyle(_element, combineStyles(combineStyles(getOriginalStyle(_element), getStyleFor(_location.attributes())), getStyleFor(sArea)));
+                    setStyle(_element, combineStyles(combineStyles(getOriginalStyle(_element), getStyleFor(_location.attributes(_settings.calculatedAttributes))), getStyleFor(sArea)));
                 });
             }
         }
@@ -288,7 +337,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
     **/
     public function discard() : Void {
         //dDiv.remove();
-        if (_settings.noHideShow) {
+        if (!(_settings.noHideShow)) {
             hideElement(_element);
         }
         /*
@@ -330,6 +379,7 @@ class LocationView extends AbstractView implements com.field.renderers.MouseEven
         }
     }
 
+    public function onwheel(e : EventInfoInterface) : Void { }
     public function ondblclick(e : EventInfoInterface) : Void { }
     public function onmousedown(e : EventInfoInterface) : Void { }
     public function onmouseup(e : EventInfoInterface) : Void  { }
@@ -458,3 +508,4 @@ class LocationViewAllocator extends com.field.manager.AllocatorSprite<LocationVi
         return new LocationView();
     }
 }
+#end

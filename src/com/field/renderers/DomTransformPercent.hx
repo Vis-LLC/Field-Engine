@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -186,3 +187,4 @@ class DomTransformPercent extends RendererDomAbstract {
         return this;
     }
 }
+#end

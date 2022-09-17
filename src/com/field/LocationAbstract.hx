@@ -65,7 +65,7 @@ class LocationAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, L> imple
         return r;
     }
 
-    public function attributes() : String {
+    public function attributes(?includeCalculatedAttributes : Bool = true) : String {
         if (_attributesString == null) {
             var accessor : AccessorInterface = _field.getDefaultAccessor();
             var calculatedAttributes = _field.getLocationCalculatedAttributes();
@@ -83,7 +83,7 @@ class LocationAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, L> imple
                 }
             }
 
-            if (calculatedAttributes != null) {
+            if (calculatedAttributes != null && includeCalculatedAttributes) {
                 #if (hax_ver >= 4)
                     for (key => value in calculatedAttributes) {
                 #else

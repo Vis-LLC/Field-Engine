@@ -33,6 +33,8 @@ abstract NativeIntMap<V>(
     java.util.Map<Int, V>
 #elseif cs
     cs.system.collections.IDictionary
+#elseif php
+    php.NativeArray
 #else
     haxe.Constraints.IMap<Int,V>
 #end
@@ -44,6 +46,8 @@ abstract NativeIntMap<V>(
             new java.util.Hashtable<Int, V>()
         #elseif cs
             new cs.system.collections.Hashtable()
+        #elseif php
+            new php.NativeArray()
         #else
             cast new haxe.ds.IntMap<V>()
         #end
@@ -57,6 +61,8 @@ abstract NativeIntMap<V>(
             this.put(k, v);
         #elseif cs
             this.set_Item(k, v);
+        #elseif php
+            this[k] = v;
         #else
             this.set(k, v);
         #end
@@ -69,6 +75,8 @@ abstract NativeIntMap<V>(
             return this.get(k);
         #elseif cs
             return cast this.get_Item(k);
+        #elseif php
+            return this[k];
         #else
             return this.get(k);
         #end
@@ -81,6 +89,9 @@ abstract NativeIntMap<V>(
             return this.keySet().iterator();
         #elseif cs
             return cast this.get_Keys().GetEnumerator();
+        #elseif php
+            var na : php.NativeArray = cast php.Syntax.code("array_keys({0})", this);
+            return na.iterator();
         #else
             return cast this.keys();
         #end
@@ -93,6 +104,8 @@ abstract NativeIntMap<V>(
             this.remove(k);
         #elseif cs
             this.Remove(k);
+        #elseif php
+            php.Syntax.code("unset({0}[{1}])", this, k);
         #else
             this.remove(k);
         #end

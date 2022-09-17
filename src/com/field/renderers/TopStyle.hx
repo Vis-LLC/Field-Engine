@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:nativeGen
 /**
     Represents Style information for a given Element on the screen.
@@ -39,3 +40,4 @@ abstract TopStyle (
 #end
 ) {
 }
+#end

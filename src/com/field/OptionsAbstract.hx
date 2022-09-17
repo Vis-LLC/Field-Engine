@@ -24,6 +24,7 @@ package com.field;
 
 import haxe.Exception;
 
+@:expose
 @:nativeGen
 /**
     The base type for setting options/parameters for different parts of the library.

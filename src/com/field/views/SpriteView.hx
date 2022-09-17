@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.Logger;
 import com.field.renderers.Element;
 import com.field.renderers.EventInfoInterface;
@@ -134,21 +135,20 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
                     }
                 }
                 view._settings = settings;
+                view.setTabIndex(view._element, 0);
+                view.willChange(view._element);
+                view.setOnClick(view._element, view);
+                view.setOnTouchEnd(view._element, view);
+    
+                if (settings.setOnMouseOver) {
+                    view.setOnMouseOver(view._element, view);
+                }
             } else {
                 Logger.log("Reusing Sprite View", Logger.spriteView);
             }
 
             view._sprite = sSprite;
             view._sprite.nowInUse();
-
-            view.setTabIndex(view._element, 0);
-            view.willChange(view._element);
-            view.setOnClick(view._element, view);
-            view.setOnTouchEnd(view._element, view);
-
-            if (settings.setOnMouseOver) {
-                view.setOnMouseOver(view._element, view);
-            }
 
             // TODO
             //_location.State(Field.LocationStateDisplayed);
@@ -240,6 +240,7 @@ class SpriteView extends AbstractView implements com.field.renderers.MouseEventR
         }
     }
 
+    public function onwheel(e : EventInfoInterface) : Void { }
     public function ondblclick(e : EventInfoInterface) : Void { }
     public function onmousedown(e : EventInfoInterface) : Void { }
     public function onmouseup(e : EventInfoInterface) : Void  { }
@@ -331,3 +332,4 @@ class SpriteViewAllocator extends com.field.manager.AllocatorSprite<SpriteView> 
         return new SpriteView();
     }
 }
+#end

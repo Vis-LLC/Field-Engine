@@ -32,9 +32,9 @@ class AccessorFlatArraysData {
         this.sliceCount = sliceCount;
     }
 
-    public var raw : #if js Any #else Null<NativeArray<Int>> #end;
-    public var locationMemory : #if js Any #else Null<NativeArray<Int>> #end;
-    public var spriteMemory : #if js Any #else Null<NativeArray<Int>> #end;
+    public var raw : Null<NativeVector<Int>>;
+    public var locationMemory : Null<NativeVector<Int>>;
+    public var spriteMemory : Null<NativeVector<Int>>;
     public var directions : Null<NativeVector<Coordinate>>;
     public var locationAttributes : Null<AccessorFlatArraysAttributes>;
     public var spriteAttributes : Null<AccessorFlatArraysAttributes>;

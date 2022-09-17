@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -86,3 +87,4 @@ class DefaultListenersOptions extends OptionsAbstract<DefaultListenersOptions> {
         view.startDefaultListeners(this);
     }
 }
+#end

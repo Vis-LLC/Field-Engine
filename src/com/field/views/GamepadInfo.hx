@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Defines how to read a gamepad.
@@ -37,3 +38,4 @@ class GamepadInfo {
     **/
     public var axes : NativeVector<Float>;
 }
+#end

@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.renderers.Element;
 import com.field.renderers.Style;
 
@@ -261,4 +262,4 @@ class VirtualGamepadView extends AbstractView {
         #end
     }
 }
-
+#end

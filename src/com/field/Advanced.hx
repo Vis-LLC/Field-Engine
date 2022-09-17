@@ -30,6 +30,7 @@ package com.field;
 class Advanced {
     private function new() { }
 
+    #if !EXCLUDE_RENDERING
     /**
         Trigger the start of a graphics update, used for grouping operations together.
     **/
@@ -50,4 +51,5 @@ class Advanced {
     public static function queueGraphicsUpdate(f : Void->Void) {
         com.field.renderers.RendererAbstract.currentMode().now(f);
     }
+    #end
 }

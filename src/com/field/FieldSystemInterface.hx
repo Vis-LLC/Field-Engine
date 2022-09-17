@@ -74,10 +74,12 @@ interface FieldSystemInterface<L, S> {
     **/
     function getMaximumNumberOfSprites() : Int;
 
+    #if !EXCLUDE_RENDERING
     /**
         Check to see if the Field has any listeners for the given Event.
     **/
     function hasListeners(e : Event) : Bool;
+    #end
 
     /**
         Represents a collection of Directions that represent how to navigate a Field.

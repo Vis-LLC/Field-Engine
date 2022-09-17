@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.navigator.DirectionInterface;
 
 @:expose
@@ -219,6 +220,13 @@ class FieldViewOptionsAbstract<T> extends OptionsAbstract<T> {
     }
 
     /**
+        Scroll FieldView on wheel turn
+    **/
+    public function scrollOnWheel(scrollOnWheel : Bool) : T {
+        return set("scrollOnWheel", scrollOnWheel);
+    }
+
+    /**
         Keep a pool of LocationViews and reuse allocated ones.
     **/
     public function reuseLocationViews(reuseLocationViews : Bool) : T {
@@ -256,7 +264,47 @@ class FieldViewOptionsAbstract<T> extends OptionsAbstract<T> {
     /**
         Function to call when wrapping up update.
     **/
-    public function onEndOfUpdate(f : Void->Void) {
+    public function onEndOfUpdate(f : Void->Void) : T {
         return set("onEndOfUpdate", f);
     }
+
+    /**
+        Turns off features like "neighbor", "tabIndex", and "click"
+    **/
+    public function simpleView() : T {
+        set("calculatedAttributes", false);
+        return set("tabIndex", false);
+    }
+
+    public function noClick() : T {
+        return set("click", false);
+    }
+
+    /**
+        Turns off features that allow for quick changing of elements.
+    **/
+    public function primarilyStatic() : T{
+        return set("willChange", false);
+    }
+
+    public function shiftXLimit(limit : Int) : T {
+        return set("shiftXLimit", limit);
+    }
+
+    public function shiftYLimit(limit : Int) : T {
+        return set("shiftYLimit", limit);
+    }    
+
+    public function noExtraFrame(noExtraFrame : Bool) : T {
+        return set("noExtraFrame", noExtraFrame);
+    }
+
+    public function noBackground(noBackground : Bool) : T {
+        return set("noBackground", noBackground);
+    }    
+
+    public function fixedGrid(fixedGrid : Bool) : T {
+        return set("fixedGrid", fixedGrid);
+    }
 }
+#end

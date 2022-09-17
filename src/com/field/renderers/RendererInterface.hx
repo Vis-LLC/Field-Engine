@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -42,6 +43,7 @@ interface RendererInterface {
     function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float;
     function moveSpriteTo(e1 : Element, e2 : Element, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface;
     function appendChild(parent : Element, child : Element) : Void;
+    function setOnWheel(e : Element, r : MouseEventReceiver) : Void;
     function setOnClick(e : Element, r : MouseEventReceiver) : Void;
     function setOnDblClick(e : Element, r : MouseEventReceiver) : Void;
     function setOnMouseDown(e: Element, r : MouseEventReceiver) : Void;
@@ -86,7 +88,15 @@ interface RendererInterface {
     function click(e : Element) : Void;
     function drawLine(parent : Element, x1 : Int, y1 : Int, x2 : Int, y2 : Int) : Element;
     function setCaption(e : Element, caption : String) : Void;
+    function setColor(e : Element, color : String) : Void;
     function clearLines(parent : Element) : Void;
     function createFragment(parent : Element) : Element;
     function mergeFragment(parent : Element, fragment : Element) : Void;
+    function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>>;
+    function setText(e : Element, s : String) : Void;
+    function createElement(?s : Null<String>) : Element;
+    function setStyleLeft(e : Element, v : LeftStyle) : Void;
+    function setStyleTop(e : Element, v : TopStyle) : Void;
+    function setStyleBottom(e : Element, v : TopStyle) : Void;
 }
+#end

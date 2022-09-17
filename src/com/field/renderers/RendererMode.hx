@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -54,3 +55,4 @@ interface RendererMode {
     **/
     function schedule(f: Void -> Void) : Void;
 }
+#end

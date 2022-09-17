@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 import com.field.NativeArray;
 
 @:expose
@@ -120,7 +121,7 @@ class RendererDomAbstract extends RendererAbstract {
         #end
     }    
 
-    private inline function setStyleLeft(e : Element, v : LeftStyle) : Void {
+    public override function setStyleLeft(e : Element, v : LeftStyle) : Void {
         #if js
             js.Syntax.code("{0}.style.left = {1}", e, v);
         #else
@@ -136,13 +137,21 @@ class RendererDomAbstract extends RendererAbstract {
         #end
     }
 
-    private inline function setStyleTop(e : Element, v : TopStyle) : Void {
+    public override function setStyleTop(e : Element, v : TopStyle) : Void {
         #if js
             js.Syntax.code("{0}.style.top = {1}", e, v);
         #else
             // TODO
         #end
     }
+
+    public override function setStyleBottom(e : Element, v : TopStyle) : Void {
+        #if js
+            js.Syntax.code("{0}.style.bottom = {1}", e, v);
+        #else
+            // TODO
+        #end
+    }    
 
     private inline function getStyleTop(e : Element) : TopStyle {
         #if js
@@ -185,11 +194,23 @@ class RendererDomAbstract extends RendererAbstract {
     }
 
     private inline function setWillchange(e : Element, v : String) : Void {
-        #if js
-            js.Syntax.code("{0}.style.willChange = {1}", e, v);
-        #else
-            // TODO
-        #end
+        if (v != null) {
+            #if js
+                js.Syntax.code("{0}.style.willChange = {1}", e, v);
+                js.Syntax.code("{0}.style.bufferedRendering = 'dynamic'", e);
+                js.Syntax.code("{0}.style.renderpriority = 'user-visible'", e); // TODO - Check to see if this is working
+            #else
+                // TODO
+            #end
+        } else {
+            #if js
+                js.Syntax.code("{0}.style.willChange = 'unset'", e, v);
+                js.Syntax.code("{0}.style.bufferedRendering = 'static'", e);
+                js.Syntax.code("{0}.style.renderpriority = 'background'", e); // TODO - Check to see if this is working
+            #else
+                // TODO
+            #end
+        }
     }
 
     public override function appendChild(parent : Element, child : Element) : Void {
@@ -236,6 +257,14 @@ class RendererDomAbstract extends RendererAbstract {
         #if js
             js.Syntax.code("{0}.onclick = {1}", e, EventInfoDOM.wrapFunction(r.onclick, true));
             js.Syntax.code("{0}.oncontextmenu = {1}", e, EventInfoDOM.wrapFunction(r.onclick, false));
+        #else
+            // TODO
+        #end
+    }
+
+    public override function setOnWheel(e : Element, r : MouseEventReceiver) : Void {
+        #if js
+            js.Syntax.code("{0}.onwheel = {1}", e, EventInfoDOM.wrapFunction(r.onwheel, true));
         #else
             // TODO
         #end
@@ -576,8 +605,9 @@ class RendererDomAbstract extends RendererAbstract {
             var e : Element = cast js.Syntax.code("document.createElement('div')");
             appendChild(parent, e);
             setStyle(e, cast "line-segment");
-            var angle : Float = Math.atan2(y2 - y1, x2 - x1) / Math.PI * 180;
-            js.Syntax.code("{0}.style = '--x1: ' + {1} + '; --y1: ' + {2} + '; --x2: ' + {3} + '; --y2: ' + {4} + '; --angle: ' + {5} + ';'", e, x1, y1, x2, y2, angle);
+            var angle : Float = -Math.atan2(y2 - y1, x2 - x1) / Math.PI * 180;
+            var length : Float = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+            js.Syntax.code("{0}.style = '--x1: ' + {1} + '; --y1: ' + {2} + '; --x2: ' + {3} + '; --y2: ' + {4} + '; --angle: ' + {5} + '; --length: ' + {6} +';'", e, x1, y1, x2, y2, angle, length);
             return e;
         #else
             // TODO
@@ -606,6 +636,15 @@ class RendererDomAbstract extends RendererAbstract {
         #end
     }
 
+    public override function setColor(e : Element, color : String) : Void {
+        #if js
+            js.Syntax.code("{0}.style.backgroundColor = {1}", e, color);
+            js.Syntax.code("{0}.style.color = {1}", e, color);
+        #else
+            // TODO
+        #end
+    }    
+
     public override function createFragment(parent : Element) : Element {
         #if js
             return cast js.Syntax.code("document.createDocumentFragment()");
@@ -617,6 +656,51 @@ class RendererDomAbstract extends RendererAbstract {
     public override function mergeFragment(parent : Element, fragment : Element) : Void {
         #if js
             return cast js.Syntax.code("{0}.appendChild({1})", parent, fragment);
+        #else
+            // TODO
+        #end
+    }
+
+    public override function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> {
+        #if js
+            var table : Element = cast js.Syntax.code("document.createElement('table')");
+            var elements : NativeVector<NativeVector<Element>> = new NativeVector<NativeVector<Element>>(rows);
+            var j : Int = 0;
+            while (j < rows) {
+                var eRow : Element = cast js.Syntax.code("document.createElement('tr')");
+                js.Syntax.code("{0}.appendChild({1})", table, eRow);
+                var row : NativeVector<Element> = new NativeVector<Element>(columns);
+                elements.set(j, row);
+                var i : Int = 0;
+                while (i < columns) {
+                    var e : Element = cast js.Syntax.code("document.createElement('td')");
+                    row.set(i, e);
+                    js.Syntax.code("{0}.appendChild({1})", eRow, e);
+                    i++;
+                }
+                j++;
+            }
+
+            setStyle(table, getStyle(parent));
+            js.Syntax.code("{0}.appendChild({1})", getParent(parent), table);
+            js.Syntax.code("{0}.removeChild({1})", getParent(parent), parent);
+            return elements;
+        #else
+            // TODO
+        #end
+    }
+
+    public override function setText(e : Element, s : String) : Void {
+        #if js
+            js.Syntax.code("{0}.innerText = {1}", e, s);
+        #else
+            // TODO
+        #end
+    }
+
+    public override function createElement(?s : Null<String>) : Element {
+        #if js
+            return js.Syntax.code("document.createElement({0})", s == null ? "div" : s);
         #else
             // TODO
         #end
@@ -683,3 +767,4 @@ function discardDivPlain(e)
 	}
 
 */
+#end

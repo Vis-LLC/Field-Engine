@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Represents a receiver for Gamepad Event information.
@@ -30,3 +31,4 @@ interface GamepadEventReceiver {
     function ongamepadconnected(e : EventInfoInterface) : Void;
     function ongamepaddisconnected(e : EventInfoInterface) : Void;
 }
+#end

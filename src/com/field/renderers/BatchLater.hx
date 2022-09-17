@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -43,3 +44,4 @@ class BatchLater extends BatchAbstract {
         next(f);
     }
 }
+#end

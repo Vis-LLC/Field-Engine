@@ -22,6 +22,7 @@
 
 package com.field;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -61,3 +62,4 @@ class Events {
         return _spriteSelect;
     }
 }
+#end

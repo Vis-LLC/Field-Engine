@@ -31,8 +31,8 @@ class Array2DToFieldNoIndexesOptions extends FieldOptions<Dynamic, Dynamic> {
     /**
         The 2D Array to convert to a Field.
     **/
-    public function value(value : NativeVector<NativeVector<Any>>) : FieldOptions<Dynamic, Dynamic> {
-        return set("value", value);
+    public function value(value : NativeVector<NativeVector<Any>>) : Array2DToFieldNoIndexesOptions {
+        return cast set("value", value);
     }
 
     /**

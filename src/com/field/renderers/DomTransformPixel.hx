@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -103,8 +104,8 @@ class DomTransformPixel extends RendererDomAbstract {
                 setYCache(e, cast s);
             }
 
-            setEX(e, x);
-            setEY(e, y);
+            setEX(e, -x);
+            setEY(e, -y);
         }
 
         return this;
@@ -186,4 +187,4 @@ class DomTransformPixel extends RendererDomAbstract {
         return this;
     }
 }
-
+#end

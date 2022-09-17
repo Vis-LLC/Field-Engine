@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.NativeObjectMap;
 import com.field.navigator.DirectionInterface;
 import com.field.navigator.NavigatorCoreInterface;
@@ -153,6 +154,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private var _childrenAsVector : NativeVector<Element> = null;
     private var _noAddLocation : Bool = false;
     private var _skipScroll : Bool = false;
+    private var _shiftYLimit : Int = null;
+    private var _shiftXLimit : Int = null;
+    private var _noBackground : Bool = false;
+    private var _noExtraFrame : Bool = false;
+    private var _fixedGrid : Bool;
+    private var _fixedGridElements : NativeVector<NativeVector<Element>>;
+    private var _scrollOnWheel : Bool;
 
     private function loadFieldSheet() : Element {
         #if js
@@ -225,6 +233,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             _style = cast fo.get("style");
             _addOverlay = cast fo.get("addOverlay");
             _clearOnHide = cast fo.get("clearOnHide");
+            _shiftXLimit = cast fo.get("shiftXLimit");
+            _shiftYLimit = cast fo.get("shiftYLimit");
+            _noBackground = cast withDefault(fo.get("noBackground"), false);
+            _noExtraFrame = cast withDefault(fo.get("noExtraFrame"), false);
+            _fixedGrid = cast withDefault(fo.get("fixedGrid"), false);
            
 
             _locationSettings.noHideShow = cast withDefault(fo.get("locationNoHideShow"), false);
@@ -246,6 +259,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             _locationSettings.triggerFocusOnElement = cast fo.get("triggerFocusOnElement");
             _locationSettings.noAreaXY = cast fo.get("noAreaXY");
             _locationSettings.setOnMouseOver = cast fo.get("locationSetOnMouseOver");
+            _locationSettings.click = cast withDefault(fo.get("click"), true);
+            _locationSettings.tabIndex = cast withDefault(fo.get("tabIndex"), true);
+            _locationSettings.calculatedAttributes = cast withDefault(fo.get("calculatedAttributes"), true);
+            _locationSettings.willChange = cast withDefault(fo.get("willChange"), true);
+            _locationSettings.rawText = cast withDefault(fo.get("locationRawText"), false);
             if (_gridType == 3) {
                 _locationSettings.shellElements = 3;
             } else {
@@ -282,7 +300,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             _onmove = cast fo.get("onMove");
             _isometric = cast fo.get("isometric");
             _onScroll = cast fo.get("onScroll");
-
+            _scrollOnWheel = cast withDefault(fo.get("scrollOnWheel"), false);
             fo = null;
         }
 
@@ -325,22 +343,25 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
 
         _frame = createElement();
         setStyle(_frame, FIELD_VIEW_FRAME);
-        _frameLeft = createElement();
-        setStyle(_frameLeft, FIELD_VIEW_FRAME_LEFT);
-        _frameRight = createElement();
-        setStyle(_frameRight, FIELD_VIEW_FRAME_RIGHT);
-        _frameTop = createElement();
-        setStyle(_frameTop, FIELD_VIEW_FRAME_TOP);
-        _frameBottom = createElement();
-        setStyle(_frameBottom, FIELD_VIEW_FRAME_BOTTOM);
-        _frameLT = createElement();
-        setStyle(_frameLT, FIELD_VIEW_FRAME_LT);
-        _frameRT = createElement();
-        setStyle(_frameRT, FIELD_VIEW_FRAME_RT);
-        _frameLB = createElement();
-        setStyle(_frameLB, FIELD_VIEW_FRAME_LB);
-        _frameRB = createElement();
-        setStyle(_frameRB, FIELD_VIEW_FRAME_RB);
+        
+        if (!_noExtraFrame) {
+            _frameLeft = createElement();
+            setStyle(_frameLeft, FIELD_VIEW_FRAME_LEFT);
+            _frameRight = createElement();
+            setStyle(_frameRight, FIELD_VIEW_FRAME_RIGHT);
+            _frameTop = createElement();
+            setStyle(_frameTop, FIELD_VIEW_FRAME_TOP);
+            _frameBottom = createElement();
+            setStyle(_frameBottom, FIELD_VIEW_FRAME_BOTTOM);
+            _frameLT = createElement();
+            setStyle(_frameLT, FIELD_VIEW_FRAME_LT);
+            _frameRT = createElement();
+            setStyle(_frameRT, FIELD_VIEW_FRAME_RT);
+            _frameLB = createElement();
+            setStyle(_frameLB, FIELD_VIEW_FRAME_LB);
+            _frameRB = createElement();
+            setStyle(_frameRB, FIELD_VIEW_FRAME_RB);
+        }
         setTimeout(resizeFrame, 1);
 
         if (_addOverlay) {
@@ -411,6 +432,42 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         return SpriteView.toSpriteView(e) != null;
     }    
 
+    public function clear() : Void {
+        while (_uiUpdates.length() > 0) {
+            _uiUpdates.pop()();
+        }
+
+        if (_childrenAsVector == null) {
+            _childrenAsVector = getChildrenAsVector(_innerElement);
+        }
+        var children : NativeArray<Element> = _childrenAsVector.toArray();
+        var i : Int = 0;
+        while (children.length() > 0) {
+            var e : Element = children.pop();
+            if (isElementALocation(e)) {
+                var l : Null<LocationView> = LocationView.toLocationView(e);
+                if (l != null && l.useCount() > 0) {
+                    var l2 : Null<LocationInterface<Dynamic, Dynamic>> = l.location();
+                    if (l2 != null) {
+                        _locationToViews.remove(l2.getI());
+                        l2.doneWith();
+                    }
+                    l.discard();
+                }
+            } else if (isElementASprite(e)) {
+                var s : Null<SpriteView> = SpriteView.toSpriteView(e);
+                if (s != null && s.useCount() > 0) {
+                    var s2 : Null<SpriteInterface<Dynamic, Dynamic>> = s.sprite();
+                    if (s2 != null) {
+                        _spriteToViews.remove(s2.getI());
+                        s2.doneWith();
+                    }
+                    s.discard();
+                }
+            }
+        }
+    }
+
     public function fullRefresh() : Void {
         _lastFieldHeight = _field.height();
         _lastFieldWidth = _field.width();
@@ -459,43 +516,15 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             }
         }
 
-        if (_innerElement != null)
-        {
-            if (_childrenAsVector == null) {
-                _childrenAsVector = getChildrenAsVector(_innerElement);
-            }
-            var children : NativeArray<Element> = _childrenAsVector.toArray();
-            var i : Int = 0;
-            while (children.length() > 0)
-            {
-                var e : Element = children.pop();
-                if (isElementALocation(e)) {
-                    var l : Null<LocationView> = LocationView.toLocationView(e);
-                    if (l != null && l.useCount() > 0) {
-                        var l2 : Null<LocationInterface<Dynamic, Dynamic>> = l.location();
-                        if (l2 != null) {
-                            _locationToViews.remove(l2.getI());
-                            l2.doneWith();
-                        }
-                        l.discard();
-                    }
-                } else if (isElementASprite(e)) {
-                    var s : Null<SpriteView> = SpriteView.toSpriteView(e);
-                    if (s != null && s.useCount() > 0) {
-                        var s2 : Null<SpriteInterface<Dynamic, Dynamic>> = s.sprite();
-                        if (s2 != null) {
-                            _spriteToViews.remove(s2.getI());
-                            s2.doneWith();
-                        }
-                        s.discard();
-                    }
-                }
-            }
+        if (_innerElement != null) {
+            clear();
         } else {
             _innerElement = getElement();
             willChange(_innerElement);
-            _innerElement2 = getElement();
-            _innerElement3 = getElement();
+            if (!_noBackground) {
+                _innerElement2 = getElement();
+                _innerElement3 = getElement();
+            }
 
             #if js
                 if (_fieldSheet == null) {
@@ -504,29 +533,42 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                 appendChild(_element, _fieldSheet);
             #end
             appendChild(_element, _frame);
-            appendChild(_element, _frameLeft);
-            appendChild(_element, _frameRight);
-            appendChild(_element, _frameTop);
-            appendChild(_element, _frameBottom);
-            appendChild(_element, _frameLT);
-            appendChild(_element, _frameRT);
-            appendChild(_element, _frameLB);
-            appendChild(_element, _frameRB);
+
+            if (!_noExtraFrame) {            
+                appendChild(_element, _frameLeft);
+                appendChild(_element, _frameRight);
+                appendChild(_element, _frameTop);
+                appendChild(_element, _frameBottom);
+                appendChild(_element, _frameLT);
+                appendChild(_element, _frameRT);
+                appendChild(_element, _frameLB);
+                appendChild(_element, _frameRB);
+            }
 
             if (_overlay != null) {
                 appendChild(_element, _overlay);                
             }
 
             appendChild(_frame, _innerElement);
-            appendChild(_frame, _innerElement2);
-            appendChild(_frame, _innerElement3);
+
+            if (!_noBackground) {            
+                appendChild(_frame, _innerElement2);
+                appendChild(_frame, _innerElement3);
+            }
+            setStyle(_innerElement, FIELD_VIEW_INNER_STYLE);
+
+            if (!_noBackground) {            
+                now(function () {
+                    setStyle(_innerElement2, FIELD_VIEW_INNER_STYLE2);
+                    setStyle(_innerElement3, FIELD_VIEW_INNER_STYLE3);
+                });
+            }
+
+            if (_fixedGrid) {
+                _fixedGridElements = createStaticRectGrid(_innerElement, cast _tileHeight, cast _tileWidth);
+            }
         }
 
-        now(function () {
-            setStyle(_innerElement, FIELD_VIEW_INNER_STYLE);
-            setStyle(_innerElement2, FIELD_VIEW_INNER_STYLE2);
-            setStyle(_innerElement3, FIELD_VIEW_INNER_STYLE3);
-        });
 
         // TODO - Remove or Optional?
         if (!_skipScroll) {
@@ -558,7 +600,12 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         var fullHeight : Int = Math.floor(_tileHeight + _tileBuffer * 2);
         // TODO - *2?
         var fullWidth : Int = Math.floor(_tileWidth + _tileBuffer);
-        var leftCache : NativeVector<LeftStyle> = new NativeVector<LeftStyle>(fullWidth);
+        var leftCache : NativeVector<LeftStyle>;
+        if (!_fixedGrid) {
+            leftCache = new NativeVector<LeftStyle>(fullWidth);
+        } else {
+            leftCache = null;
+        }
 
         var j : Int = 0;
         var oddRow : Bool = Math.abs(Math.floor(j + oy) % 2) == 1;
@@ -571,7 +618,12 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                 case 3:
                     j2 /= 2;
             }
-            var top : TopStyle = this.top(j2, _rectHeight, _tileBuffer, _tileHeight);
+            var top : TopStyle;
+            if (!_fixedGrid) {
+                top = this.top(j2, _rectHeight, _tileBuffer, _tileHeight);
+            } else {
+                top = null;
+            }
             var i : Int = 0;
 
             while (i < fullWidth) {
@@ -585,29 +637,41 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                         }                        
                 }
                 var left : LeftStyle = null;
-                switch (_gridType) {
-                    case 3:
-                    default:
-                        left = leftCache.get(i2o);
-                }
-                if (left == null) {
-                    // TODO - Move into renderer
-                    left = this.left(i2, _rectWidth, _tileBuffer, _tileWidth);
+                if (!_fixedGrid) {
                     switch (_gridType) {
                         case 3:
                         default:
-                            leftCache.set(i2o, left);
+                            left = leftCache.get(i2o);
                     }
+                    if (left == null) {
+                        // TODO - Move into renderer
+                        left = this.left(i2, _rectWidth, _tileBuffer, _tileWidth);
+                        switch (_gridType) {
+                            case 3:
+                            default:
+                                leftCache.set(i2o, left);
+                        }
+                    }
+                } else {
+                    left = null;
                 }
 
                 var location : LocationInterface<Dynamic, Dynamic> = cast _field.get(i2o, j2o);
                 if (location != null) {
                     //var newSprites : NativeVector<SpriteInterface<Dynamic, Dynamic>> = cast _field.findSpritesForLocation(location);
-                    var lvLocation : LocationView = LocationView.get(location, _locationSettings, this);
+                    var lvLocation : LocationView;
+                    if (!_fixedGrid) {
+                        lvLocation = LocationView.get(location, _locationSettings, this, null);
+                    } else {
+                        lvLocation = LocationView.get(location, _locationSettings, this, _fixedGridElements.get(j).get(i));
+                    }
                     var eLocation : Element = lvLocation.toElement();
     
                     if (eLocation != null) {
-                        hideElement(eLocation, null, com.field.renderers.Immediate._instance);
+                        if (!(_locationSettings.noHideShow)) {
+                            hideElement(eLocation, null, com.field.renderers.Immediate._instance);
+                        }
+                        
                         if (getParent(eLocation) == null) {
                             if (fragment == null) {
                                 fragment = createFragment(_innerElement);
@@ -616,7 +680,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                         }
     
                         var pos : Coordinate = _field.getLoop(i2o, j2o);
-                        var attr : Style = getStyleFor(location.attributes());
+                        var attr : Style = getStyleFor(location.attributes(_locationSettings.calculatedAttributes));
                         now(function () {
                             var area : Style;
                             if (_locationSettings.noAreaXY) {
@@ -632,7 +696,50 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                         }
                     }
     
-                    moveTo(eLocation, i2, j2, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, left, top, null, null);
+                    if (!_fixedGrid) {
+                        if (_shiftXLimit != null || _shiftYLimit != null) {
+                            var shiftX : Int = location.attribute("shiftX");
+                            var shiftY : Int = location.attribute("shiftY");
+                            if (shiftX == null) {
+                                shiftX = 0;
+                            }
+                            if (shiftY == null) {
+                                shiftY = 0;
+                            }
+                            if (shiftX != 0 || shiftY != 0) {
+                                if (_transitionsEnabled) {
+                                    if (hasStyle(getStyle(_element), TRANSITIONS_ENABLED_STYLE)) {
+                                        removeStyle(_element, TRANSITIONS_ENABLED_STYLE);
+                                    }
+                                }
+                                moveTo(eLocation, i2 - shiftX, j2 - shiftY, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, shiftX == 0 ? left : null, shiftY == 0 ? top : null,/* function() {
+                                    if (_transitionsEnabled) {
+                                        if (!hasStyle(getStyle(_element), TRANSITIONS_ENABLED_STYLE)) {
+                                            addStyle(_element, TRANSITIONS_ENABLED_STYLE);
+                                        }
+                                    }
+                                    later(function () {
+                                        later(function() {
+                                            moveTo(eLocation, i2, j2, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, left, top, null, null);
+                                        });
+                                    });
+                                }*/ null, null);
+                                // TODO - Adjust - Call after queue is done.
+                                setTimeout(function() {
+                                    if (_transitionsEnabled) {
+                                        if (!hasStyle(getStyle(_element), TRANSITIONS_ENABLED_STYLE)) {
+                                            addStyle(_element, TRANSITIONS_ENABLED_STYLE);
+                                        }
+                                    }
+                                    moveTo(eLocation, i2, j2, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, left, top, null, null);
+                                }, 100);
+                            } else {
+                                moveTo(eLocation, i2, j2, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, left, top, null, null);
+                            }
+                        } else {
+                            moveTo(eLocation, i2, j2, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, left, top, null, null);
+                        }
+                    }
                     _locationToViews.set(location.getI(), lvLocation);
 
                     if (_hasSprites) {
@@ -745,13 +852,36 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
             default:
                 sHeight = fHeight + "%";
         }
+        var sShift : String = "";
+        if (_shiftXLimit != null) {
+            var i : Int = 0 - _shiftXLimit;
+            var sb : StringBuf = new StringBuf();
+            while (i <= _shiftXLimit) {
+                sb.add(" #" + _id + ".transitions_enabled .shiftX-" + i + " {transition: transform 0.25s; }");
+                i++;
+            }
+            sShift += sb.toString();
+        }
+        if (_shiftYLimit != null) {
+            var i : Int = 0 - _shiftYLimit;
+            var sb : StringBuf = new StringBuf();
+            while (i <= _shiftYLimit) {
+                sb.add(" #" + _id + ".transitions_enabled .shiftY-" + i + " {transition: transform 0.25s; }");
+                i++;
+            }
+            sShift += sb.toString();
+        }        
         var sWidth = fWidth + "%";
         now(function() {
             #if js
                 // TODO - Add font size
-                setTextContent(_fieldSheet, "#" + _id + " ." + LocationView.FIELD_LOCATION_STYLE + ", #" + _id + " ." + SpriteView.FIELD_SPRITE_STYLE + " { min-height: " + sHeight + "; max-height: " + sHeight + "; height: " + sHeight + "; min-width: " + sWidth + "; max-width: " + sWidth + "; width: " + sWidth + "; line-height: " + _rectHeight + "px; }");
+                setTextContent(_fieldSheet, "#" + _id + " ." + LocationView.FIELD_LOCATION_STYLE + ", #" + _id + " ." + SpriteView.FIELD_SPRITE_STYLE + " { min-height: " + sHeight + "; max-height: " + sHeight + "; height: " + sHeight + "; min-width: " + sWidth + "; max-width: " + sWidth + "; width: " + sWidth + "; line-height: " + _rectHeight + "px; }" + sShift + getAdditionalFieldStyleSheet());
             #end
         });
+    }
+
+    private function getAdditionalFieldStyleSheet() : String {
+        return "";
     }
 
     public function scrollView(x : Float, y : Float) : Void {
@@ -909,7 +1039,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private function AddLocation(i : Float, j : Float, sTop : TopStyle, sLeft : LeftStyle, ox : Float, oy : Float, fragment : Dynamic) : Dynamic {
         var lLocation : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(i + ox), Math.floor(j + oy));
         if (lLocation != null) {
-            var lvLocation : LocationView = LocationView.get(lLocation, _locationSettings, this);
+            var lvLocation : LocationView = LocationView.get(lLocation, _locationSettings, this, null);
 
             if (lvLocation != null)
             {
@@ -926,7 +1056,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     
                 }
                 var pos : Coordinate = _field.getLoop(Math.floor(i + ox), Math.floor(j + oy));
-                var sAttr : String = lLocation.attributes();
+                var sAttr : String = lLocation.attributes(_locationSettings.calculatedAttributes);
                 var sArea : Null<Style>;
                 if (_locationSettings.noAreaXY) {
                     sArea = null;
@@ -934,7 +1064,28 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
                     sArea = combineStyles(getStyleFor("area_x_" + pos.x), getStyleFor("area_y_" + pos.y));
                 }
     
-                moveTo(eLocation, i + ox, j + oy, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, sLeft, sTop, null, null);
+                if (_shiftXLimit != null || _shiftYLimit != null) {
+                    var shiftX : Int = lLocation.attribute("shiftX");
+                    var shiftY : Int = lLocation.attribute("shiftY");
+                    if (shiftX == null) {
+                        shiftX = 0;
+                    }
+                    if (shiftY == null) {
+                        shiftY = 0;
+                    }
+                    
+                    if (shiftX != 0 || shiftY != 0) {
+                        moveTo(eLocation, i + ox - shiftX, j + oy - shiftY, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, shiftX == 0 ? sLeft : null, shiftY == 0 ? sTop : null, null, null);
+                        // TODO - Adjust - Call after queue is done.
+                        setTimeout(function() {
+                            moveTo(eLocation, i + ox, j + oy, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, sLeft, sTop, null, null);
+                        }, 100);
+                    } else {
+                        moveTo(eLocation, i + ox, j + oy, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, sLeft, sTop, null, null);
+                    }
+                } else {
+                    moveTo(eLocation, i + ox, j + oy, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, sLeft, sTop, null, null);
+                }                
                 var sAreaStyle : Null<String> = getStyleString(sArea);
                 if (sAttr.length > 0 || (sAreaStyle != null && sAreaStyle.length > 0)) {
                     now(function() {
@@ -1077,6 +1228,10 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     }
 
     public function update() : Void {
+        if (_fixedGrid) {
+            fullRefresh();
+            return;
+        }
         Logger.log("Field View Update", Logger.fieldView);
         start();
 
@@ -1434,9 +1589,17 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     private function roundX(oddRow : Bool, x : Float) {
         if (oddRow) {
             if (x < 0) {
-                return Math.floor(x);
+                if (x > -1/10000.0) {
+                    return 0;
+                } else {
+                    return Math.floor(x);                    
+                }
             } else {
-                return Math.ceil(x);
+                if (x < 1/10000.0) {
+                    return 0;
+                } else {
+                    return Math.ceil(x);
+                }
             }
         } else {
             if (x < 0) {
@@ -1844,6 +2007,9 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
         setOnKeyDown(_element, _inputSettings);
         setOnGamepadConnected(_element, _inputSettings);
         setOnGamepadDisconnected(_element, _inputSettings);
+        if (_scrollOnWheel) {
+            setOnWheel(_element, _inputSettings);
+        }
     }
 
     public static function movementForValidOnly(direction : DirectionInterface, distance : Int, view : FieldViewAbstract) : Bool {
@@ -1868,17 +2034,23 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface {
     }
 
     private var _autoScroll : Dynamic = null;
+    private var _autoScrollEach : Void->Void = null;
 
     // TODO - Adjust
     public function autoScroll(x : Float, y : Float, ms : Int, noAddLocation: Bool) {
         _noAddLocation = noAddLocation;
+        var f : Void->Void = function () {
+            scrollView(x, y);
+            if (_mainSprite != null) {
+                _mainSprite.set(Math.floor(_mainSprite.getX(null) - x), Math.floor(_mainSprite.getY(null) - y));
+            }
+            if (_autoScrollEach != null) {
+                _autoScrollEach();
+            }
+        };
+        f();
         #if js
-            _autoScroll = js.Syntax.code("setInterval({0}, {1})", function () {
-                scrollView(x, y);
-                if (_mainSprite != null) {
-                    _mainSprite.set(Math.floor(_mainSprite.getX(null) - x), Math.floor(_mainSprite.getY(null) - y));
-                }
-            }, ms);
+            _autoScroll = js.Syntax.code("setInterval({0}, {1})", f, ms);
         #end
     }
 
@@ -1913,3 +2085,4 @@ class FieldViewAbstractSpriteStubValid implements SpriteSystemInterface {
         }
     }
 }
+#end

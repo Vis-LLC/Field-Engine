@@ -30,6 +30,7 @@ import haxe.display.Display.Package;
     These functions are not meant to used externally, only internally to the FieldEngine library.
 **/
 class WorkerThreadPool implements WorkerThreadPoolInterface {
+    // TODO - PHP
     #if js
         public var _cacheCount : Int = 0;
         public var _functionCache : NativeIntMap<Any> = new NativeIntMap<Any>();

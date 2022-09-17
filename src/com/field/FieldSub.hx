@@ -250,14 +250,18 @@ class FieldSub<L, S> implements FieldInterface<L, S> implements FieldAdvancedInt
         _parent.refresh(callback);
     }
 
+    #if !EXCLUDE_RENDERING
     public function addEventListenerFor(event : Event, listener : EventInfo<Dynamic, Dynamic, Dynamic>->Void) : Void {
         _parent.addEventListenerFor(event, listener);
     }    
+    #end
 
+    #if !EXCLUDE_RENDERING
     public function hasListeners(e : Event) : Bool {
         var field : FieldSystemInterface<L, S> = cast _parent;
         return field.hasListeners(e);
     }
+    #end
 
     public function field() : FieldInterface<L, S> {
         return this;

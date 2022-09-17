@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -59,4 +60,10 @@ interface EventInfoInterface {
         Get the buttons being pressed.
     **/
     function buttons() : Int;
+
+    /**
+        Get delta vector
+    **/
+    function wheelDelta() : NativeVector<Float>;
 }
+#end

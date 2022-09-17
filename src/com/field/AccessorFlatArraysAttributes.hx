@@ -30,11 +30,11 @@ class AccessorFlatArraysAttributes {
     public inline function new() { }
 
     public var count : Int;
-    public var type : NativeArray<Int>;
+    public var type : NativeVector<Int>;
     public var size : Int;
     public var lookup : Null<NativeStringMap<Int>>;
-    public var reverse : Null<NativeArray<String>>;
-    public var divider : Null<NativeArray<Float>>;
-    public var valueLookup : Null<NativeArray<NativeStringMap<Int>>>;
-    public var valueReverse : Null<NativeArray<NativeArray<String>>>;
+    public var reverse : Null<NativeVector<String>>;
+    public var divider : Null<NativeVector<Float>>;
+    public var valueLookup : Null<NativeVector<NativeStringMap<Int>>>;
+    public var valueReverse : Null<NativeVector<NativeVector<String>>>;
 }

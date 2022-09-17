@@ -44,7 +44,9 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
     private static var _laterTimer : Null<haxe.Timer> = null;
 
     private var _id : String;
+    #if !EXCLUDE_RENDERING
     private var _listeners : NativeObjectMap<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = new NativeObjectMap<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>>();
+    #end
     private var _width : Int = 0;
     private var _height : Int = 0;
     private var _locations : NativeArray<NativeArray<L>> = null;
@@ -633,6 +635,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         }
     }
 
+    #if !EXCLUDE_RENDERING
     public function addEventListenerFor(event : Event, listener : EventInfo<Dynamic, Dynamic, Dynamic>->Void) : Void {
         event.markHasListeners();
         var specific : Null<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = _listeners.get(event);
@@ -642,6 +645,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         }
         specific.push(listener);
     }
+    #end
 
     public function field() : FieldInterface<L, S> {
         return this;
@@ -704,8 +708,11 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
             }
             var end : Date = Date.now();
             var duration : Int = Math.floor(end.getTime() - start.getTime());
+            var s : String = "Task Done Duration: " + duration;
             #if js
-                js.html.Console.log("Task Done Duration: " + duration);
+                js.html.Console.log(s);
+            #elseif php
+                php.Syntax.code("error_log({0})", s);
             #else
                 // TODO
                 throw "Not supported";
@@ -794,10 +801,12 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         return _maximumNumberOfSprites;
     }
     
+    #if !EXCLUDE_RENDERING
     public function hasListeners(e : Event) : Bool {
         var listeners : Null<NativeArray<EventInfo<Dynamic, Dynamic, Dynamic>->Void>> = _listeners.get(e);
         return listeners != null && listeners.length() > 0;
     }
+    #end
 
     private var _navigator : NavigatorCoreInterface;
 

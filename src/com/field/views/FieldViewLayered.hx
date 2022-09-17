@@ -21,6 +21,8 @@
 */
 
 package com.field.views;
+
+#if !EXCLUDE_RENDERING
 /*
 
 
@@ -81,3 +83,4 @@ class FieldViewLayered extends AbstractView implements FieldViewInterface {
     }
 }
 */
+#end

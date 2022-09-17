@@ -112,10 +112,16 @@
 	margin-top: 100%;
 }
 
-.field_view .field_location, .field_view .field_sprite
+.field_view div.field_location, .field_view div.field_sprite
 {
 	position: absolute;
 	overflow: hidden;
+}
+
+.field_view td.field_location, .field_view td.field_sprite
+{
+	overflow: hidden;
+	padding: 0px;
 }
 
 .field_view .field_location
@@ -252,3 +258,79 @@
 	/* TODO - Generate translateZ, can't use 50% */
 	transform: translateZ(-50%) rotateY(180deg);
 }
+
+.field_view.verticalMenu .field_tile.submenu-true.open-false::before {
+	content: "\2192";
+	display: inline-block;
+	transform: rotate(0deg);
+	transition: transform 0.25s;
+}
+
+.field_view.verticalMenu .field_tile.submenu-true::before {
+	content: "\2192";
+	display: inline-block;
+	transform: rotate(90deg);
+	transition: transform 0.25s;
+}
+
+.field_view.verticalMenu .field_tile::before {
+	content: "+";
+	display: "inline-block";
+}
+
+.field_view.verticalMenu .field_tile.value-::before {
+	content: "";
+	display: "inline-block";
+}
+
+.field_view.verticalMenu .field_tile:hover::before {
+	animation: blinker 1s step-start infinite;
+}
+
+.field_view.verticalMenu .field_tile.indent-0 {
+	z-index: 0;
+}
+
+.field_view.verticalMenu .field_tile.indent-1 {
+	z-index: -1;
+}
+
+.field_view.verticalMenu .field_tile.indent-2 {
+	z-index: -2;
+}
+
+.field_view.verticalMenu .field_tile.indent-3 {
+	z-index: -3;
+}
+
+.field_view.verticalMenu .field_tile.indent-4 {
+	z-index: -4;
+}
+
+.field_view.verticalMenu .field_tile.indent-5 {
+	z-index: -5;
+}
+
+.field_view.verticalMenu .field_tile.indent-6 {
+	z-index: -6;
+}
+
+.field_view.verticalMenu .field_tile.indent-7 {
+	z-index: -7;
+}
+
+.field_view.verticalMenu .field_tile.indent-8 {
+	z-index: -8;
+}
+
+.field_view.verticalMenu .field_tile.indent-9 {
+	z-index: -9;
+}
+
+@keyframes blinker {
+	50% {
+	  opacity: 0;
+	}
+}
+
+.line-segment { transform: rotate(calc(var(--angle) * 1deg)); transform-origin: left bottom; bottom: calc(var(--y1) * 1px); left: calc(var(--x1) * 1px); height: 1px; position: absolute; background-color: black; width: calc(var(--length) * 1px); }

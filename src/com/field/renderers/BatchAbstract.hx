@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -98,3 +99,4 @@ class BatchAbstract implements RendererMode {
     public function schedule(f : Void -> Void) : Void {
     }
 }
+#end

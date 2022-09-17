@@ -33,6 +33,8 @@ abstract NativeVector<V>(
     java.util.Map<Int, V>
 #elseif cs
     cs.system.collections.IDictionary
+#elseif php
+    Dynamic
 #else
     haxe.ds.Vector<V>
 #end
@@ -45,6 +47,8 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            cast php.Syntax.code("new SplFixedArray({0})", i)
         #else
             cast new haxe.ds.Vector<V>(i)
         #end
@@ -58,6 +62,8 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            php.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #else
             this[k] = v;
         #end
@@ -70,6 +76,8 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("{0}[{1}]", this, k);
         #else
             return this[k];
         #end
@@ -82,6 +90,8 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("{0}.getSize()", this);
         #else
             return this.length;
         #end
@@ -94,6 +104,8 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("{0}.toArray()", this);
         #else
             return haxe.ds.Vector.toArray(this);
         #end
@@ -106,6 +118,18 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            var i : Int = 0;
+            while (i < length()) {
+                if (get(i) == v) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= length()) {
+                i = -1;
+            }
+            return i;
         #else
             return this.indexOf(v);
         #end
@@ -118,8 +142,35 @@ abstract NativeVector<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return new NativeVectorIterator<V>(this);
         #else
             return this.iterator();
         #end
     }
 }
+
+#if php
+@:expose
+@:nativeGen
+class NativeVectorIterator<V> {
+    private var _i : Int = 0;
+    private var _v : NativeVector<V>;
+
+    public function new(v : NativeVector<V>) {
+        _v = v;
+    }
+
+    public function next() : V {
+        if (hasNext()) {
+            return _v.get(_i++);
+        } else {
+            return null;
+        }
+    }
+
+    public function hasNext() : Bool {
+        return _i < _v.length();
+    }
+}
+#end

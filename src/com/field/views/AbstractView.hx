@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.NativeArray;
 import com.field.renderers.Element;
 import com.field.renderers.Style;
@@ -160,3 +161,4 @@ class AbstractView extends com.field.renderers.RendererAccessor {
     }
 
 }
+#end

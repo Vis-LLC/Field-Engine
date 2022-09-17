@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -45,3 +46,4 @@ class BatchUpdate extends BatchAbstract {
         });
     }
 }
+#end

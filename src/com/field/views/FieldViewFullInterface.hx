@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 @:expose
 @:nativeGen
 /**
@@ -48,3 +49,4 @@ interface FieldViewFullInterface extends com.field.navigator.NavigatorInterface 
     **/
     function setMainSprite(s : SpriteInterface<Dynamic, Dynamic>) : Void;
 }
+#end

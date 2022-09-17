@@ -22,6 +22,8 @@
 
 package com.field;
 
+#if !EXCLUDE_RENDERING
+
 import com.field.renderers.Element;
 
 @:expose
@@ -136,3 +138,4 @@ class EventInfo<F,L,S> {
         return "field = " + _field;
     }
 }
+#end

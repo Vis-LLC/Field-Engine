@@ -257,8 +257,7 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         #if js
             return cast js.Syntax.code("{0}.x != null", c);
         #else
-            // TODO
-            return false;
+            return Std.is(c, Coordinate);
         #end
     }
 
@@ -266,8 +265,8 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         #if js
             return cast js.Syntax.code("{0}.x", c);
         #else
-            // TODO
-            return -1;
+            var c2 : Coordinate = cast c;
+            return c2.x;
         #end
     }
 
@@ -275,8 +274,8 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         #if js
             return cast js.Syntax.code("{0}.y", c);
         #else
-            // TODO
-            return -1;
+            var c2 : Coordinate = cast c;
+            return c2.y;
         #end
     }
 
@@ -337,25 +336,21 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         _attributesString = null;
         var accessor : AccessorInterface = _field.getDefaultAccessor();
 
-        #if js
-            var m : NativeStringMap<Any> = cast o;
-            for (k in m.keys()) {
-                switch (accessor.getSpriteType(k)) {
-                    case 0, 1, 2:
-                        switch (k) {
-                            case "location":
-                                {
-                                    var v : NativeArray<Dynamic> = m.get(k);
-                                    set(cast v.get(0), cast v.get(1));
-                                }
-                            default:
-                                attribute(k, m.get(k));
-                        }
-                }
+        var m : NativeStringMap<Any> = cast o;
+        for (k in m.keys()) {
+            switch (accessor.getSpriteType(k)) {
+                case 0, 1, 2:
+                    switch (k) {
+                        case "location":
+                            {
+                                var v : NativeArray<Dynamic> = m.get(k);
+                                set(cast v.get(0), cast v.get(1));
+                            }
+                        default:
+                            attribute(k, m.get(k));
+                    }
             }
-        #else
-            // TODO
-        #end
+        }
     }
 
     public function navigator() : NavigatorInterface {

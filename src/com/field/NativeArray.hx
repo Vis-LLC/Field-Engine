@@ -22,6 +22,8 @@
 
 package com.field;
 
+import haxe.Http;
+
 @:nativeGen
 /**
     An Adapter class that allows all native arrays to be used easily.
@@ -33,6 +35,8 @@ abstract NativeArray<V>(
     java.util.Map<Int, V>
 #elseif cs
     cs.system.collections.IDictionary
+#elseif php
+    php.NativeIndexedArray<V>
 #else
     Array<V>
 #end
@@ -44,6 +48,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            new php.NativeIndexedArray<V>()
         #else
             cast new Array<V>()
         #end
@@ -57,6 +63,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            php.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #else
             this[k] = v;
         #end
@@ -69,6 +77,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return this[k];
         #else
             return this[k];
         #end
@@ -81,6 +91,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return php.Syntax.code("count({0})", this);
         #else
             return this.length;
         #end
@@ -93,6 +105,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return this.iterator();
         #else
             return this.iterator();
         #end
@@ -105,6 +119,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            this.push(o);
         #else
             this.push(o);
         #end
@@ -117,6 +133,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("array_pop({0})", this);
         #else
             return this.pop();
         #end
@@ -129,6 +147,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("array_shift({0})", this);
         #else
             return this.shift();
         #end
@@ -141,6 +161,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("SplFixedArray.fromArray({0})", this);
         #else
             return haxe.ds.Vector.fromArray(this);
         #end
@@ -153,6 +175,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            return cast php.Syntax.code("array_merge({0}, {1})", this, arr);
         #else
             return cast this.concat(cast arr);
         #end
@@ -165,6 +189,10 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            while (length() < space) {
+                push(null);
+            }
         #else
             this.resize(space);
         #end
@@ -177,6 +205,8 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            php.Syntax.code("sort({0})", this);
         #else
             this.sort(compare);
         #end
@@ -189,6 +219,18 @@ abstract NativeArray<V>(
             // TODO
         #elseif cs
             // TODO
+        #elseif php
+            var i : Int = 0;
+            while (i < length()) {
+                if (get(i) == v) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= length()) {
+                i = -1;
+            }
+            return i;
         #else
             return this.indexOf(v);
         #end

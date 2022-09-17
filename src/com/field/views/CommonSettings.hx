@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.renderers.Element;
 import com.field.manager.Pool;
 
@@ -111,7 +112,14 @@ class CommonSettings<T> {
     /**
         The object pool to use to keep track of the LocationView/SpriteView instances.
     **/
-    public var views : Pool<T>;    
+    public var views : Pool<T>;   
+    
+    public var tabIndex : Bool;
+    public var calculatedAttributes : Bool;
+    public var click : Bool;
+    public var willChange : Bool;
+    public var rawText : Bool;
 
     public inline function new() { }
 }
+#end

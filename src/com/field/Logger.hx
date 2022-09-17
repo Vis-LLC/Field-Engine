@@ -22,6 +22,8 @@
 
 package com.field;
 
+#if !EXCLUDE_RENDERING
+
 @:nativeGen
 /**
     Handles internal event firing and logging for FieldEngine.
@@ -80,6 +82,8 @@ class Logger {
             var isFunction : Bool =
             #if js
                 cast js.Syntax.code("(typeof {0} === 'function')", entry);
+            #elseif php
+                cast php.Syntax.code("is_callable({0})", o);                
             #else
                 // TODO
             #end
@@ -96,9 +100,12 @@ class Logger {
             sb.add(cast v);
             #if js
                 js.Syntax.code("console.log({0})", sb.toString());
+            #elseif php
+                php.Syntax.code("error_log({0})", sb.toString());
             #else
                 // TODO
             #end
         }
     }
 }
+#end

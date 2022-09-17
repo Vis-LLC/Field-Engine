@@ -34,8 +34,8 @@ class LocationDerived extends UsableAbstractWithData<Dynamic, Dynamic, Dynamic, 
 
     public function new() { }
 
-    public function attributes() : String {
-        return _location.attributes();
+    public function attributes(?calculatedAttributes : Bool = true) : String {
+        return _location.attributes(calculatedAttributes);
     }
 
     public override function clearFieldData() : Void {

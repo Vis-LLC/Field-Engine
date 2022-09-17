@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 // TODO - Put dInnerDiv.style.zIndex = 0; in style
 // TODO - Put dInnerDiv2.style.zIndex = -1; in style
 // TODO - Put dInnerDiv3.style.zIndex = -2; in style
@@ -76,3 +77,4 @@ class FieldView extends FieldViewAbstract implements FieldViewFullInterface {
         return _spriteToViews.get(s.getI());
     }
 }
+#end

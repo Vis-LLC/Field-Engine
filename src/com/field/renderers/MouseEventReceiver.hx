@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Represents a receiver for Mouse Event information.
@@ -32,4 +33,6 @@ interface MouseEventReceiver {
     function ondblclick(e : EventInfoInterface) : Void;
     function onmousedown(e : EventInfoInterface) : Void;
     function onmouseup(e : EventInfoInterface) : Void ;
+    function onwheel(e : EventInfoInterface) : Void;
 }
+#end

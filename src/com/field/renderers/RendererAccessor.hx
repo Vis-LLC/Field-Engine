@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Provides a convenient point to access the current Renderer.
@@ -61,6 +62,22 @@ class RendererAccessor {
             // TODO
         #end
     }
+
+    private inline function getRawContent(o : Element) : String {
+        #if js
+            return cast js.Syntax.code("{0}.innerHTML", o);
+        #else
+            // TODO
+        #end
+    }
+
+    private inline function setRawContent(o : Element, v : String) : Void {
+        #if js
+            js.Syntax.code("{0}.innerHTML = {1}", o, v);
+        #else
+            // TODO
+        #end
+    }    
 
     private inline function removeChildren(o : Element) : Void {
         #if js
@@ -146,6 +163,10 @@ class RendererAccessor {
         renderer().setOnClick(e, r);
     }
 
+    private inline function setOnWheel(e : Element, r : MouseEventReceiver) : Void {
+        renderer().setOnWheel(e, r);
+    }
+
     private inline function setOnDblClick(e : Element, r : MouseEventReceiver) : Void {
         renderer().setOnDblClick(e, r);
     }    
@@ -214,12 +235,8 @@ class RendererAccessor {
         renderer().show(e, f, temp);
     }
 
-    private inline function createElement(?s : Null<String>) : Element {
-        #if js
-            return js.Syntax.code("document.createElement({0})", s == null ? "div" : s);
-        #else
-            // TODO
-        #end
+    public inline function createElement(?s : Null<String>) : Element {
+        return renderer().createElement(s);
     }
 
     private inline function setType(e : Element, s : String) : Void {
@@ -418,6 +435,10 @@ class RendererAccessor {
         renderer().setCaption(e, caption);
     }
 
+    private function setColor(e : Element, color : String) : Void {
+        renderer().setColor(e, color);
+    }
+
     private function createFragment(parent : Element) : Element {
         return renderer().createFragment(parent);
     }
@@ -425,4 +446,9 @@ class RendererAccessor {
     private function mergeFragment(parent : Element, fragment : Element) : Void {
         renderer().mergeFragment(parent, fragment);
     }
+
+    public function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> {
+        return renderer().createStaticRectGrid(parent, rows, columns);
+    }
 }
+#end

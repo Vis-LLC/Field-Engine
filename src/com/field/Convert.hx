@@ -179,6 +179,8 @@ class Convert {
         return
         #if js
             cast js.Syntax.code("(typeof {0} === 'function')", o);
+        #elseif php
+            cast php.Syntax.code("is_callable({0})", o);
         #else
             // TODO
         #end

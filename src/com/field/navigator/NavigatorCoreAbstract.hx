@@ -79,9 +79,17 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
     private function roundX(oddRow : Bool, x : Float) {
         if (oddRow) {
             if (x < 0) {
-                return Math.floor(x);
+                if (x > -1/10000.0) {
+                    return 0;
+                } else {
+                    return Math.floor(x);                    
+                }
             } else {
-                return Math.ceil(x);
+                if (x < 1/10000.0) {
+                    return 0;
+                } else {
+                    return Math.ceil(x);
+                }
             }
         } else {
             if (x < 0) {
@@ -94,10 +102,14 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
 
     public function navigate(sprite : SpriteSystemInterface, direction : DirectionInterface, distance : Int) : Bool {
         var xy : NativeVector<Float> = direction.xy();
-        var s : SpriteInterface<Dynamic, Dynamic> = cast sprite;
-        var oddRow = Math.abs(Math.floor(s.getY(null)) % 2) == 1;
-        var x : Int = roundX(oddRow, (xy.get(0) + direction.shiftX()) * direction.distanceMultiplierX());
-        return sprite.move(x, Math.round((xy.get(1) + direction.shiftY()) * direction.distanceMultiplierY()));
+        if (Std.isOfType(sprite, SpriteInterface)) {
+            var s : SpriteInterface<Dynamic, Dynamic> = cast sprite;
+            var oddRow = Math.abs(Math.floor(s.getY(null)) % 2) == 1;
+            var x : Int = roundX(oddRow, (xy.get(0) + direction.shiftX()) * direction.distanceMultiplierX());
+            return sprite.move(x, Math.round((xy.get(1) + direction.shiftY()) * direction.distanceMultiplierY()));
+        } else {
+            return sprite.move(Math.round((xy.get(0) + direction.shiftX()) * direction.distanceMultiplierX()), Math.round((xy.get(1) + direction.shiftY()) * direction.distanceMultiplierY()));            
+        }
     }
 
     private function getCounterClockwise(direction : Float) : DirectionInterface {

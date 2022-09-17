@@ -22,6 +22,7 @@
 
 package com.field.renderers;
 
+#if !EXCLUDE_RENDERING
 @:native
 /**
     Represents a receiver for Key Event information.
@@ -29,3 +30,4 @@ package com.field.renderers;
 interface KeyEventReceiver {
     function onkeydown(e : EventInfoInterface) : Void;
 }
+#end

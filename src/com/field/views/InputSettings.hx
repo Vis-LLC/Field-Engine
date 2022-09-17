@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+#if !EXCLUDE_RENDERING
 import com.field.views.VirtualGamepadView;
 
 import com.field.renderers.Element;
@@ -117,6 +118,29 @@ class InputSettings extends com.field.renderers.RendererAccessor implements com.
 
     public function ondblclick(e : EventInfoInterface) : Void {
         _mouse("dblclick", e.target());
+    }
+
+    public function onwheel(e : EventInfoInterface) : Void {
+        var delta : NativeVector<Float> = e.wheelDelta();
+        var direction : Null<DirectionInterface> = null;
+        if (delta.get(1) > 0) {
+            switch (_gridType) {
+                case 3:
+                    direction = _fieldView.directions().get(4);
+                default:
+                    direction = _fieldView.directions().get(3);
+            }
+        } else if (delta.get(1) < 0) {
+            switch (_gridType) {
+                case 3:
+                    direction = _fieldView.directions().get(1);
+                default:
+                    direction = _fieldView.directions().get(1);
+            }            
+        }
+        if (direction != null) {
+            _fieldView.navigate(direction, 1);
+        }
     }
 
     public function ontouchend(e : EventInfoInterface) : Void {
@@ -507,3 +531,4 @@ class InputSettings extends com.field.renderers.RendererAccessor implements com.
         _gamepads--;
     }    
 }
+#end

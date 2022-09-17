@@ -132,11 +132,17 @@ this.base64ToBytes = function base64ToBytes(str) {
 	return result.subarray(0, result.length - missingOctets);
 };
 
-this.base64encode = function base64encode(str, encoder = new TextEncoder()) {
+this.base64encode = function base64encode(str, encoder) {
+	if (!encoder) {
+		encoder = new TextEncoder();
+	}
 	return bytesToBase64(encoder.encode(str));
 };
 
-this.base64decode = function base64decode(str, decoder = new TextDecoder()) {
+this.base64decode = function base64decode(str, decoder) {
+	if (!decoder) {
+		decoder = new TextDecoder();
+	}
 	return decoder.decode(base64ToBytes(str));
 };
 }();

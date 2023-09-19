@@ -33,14 +33,14 @@ import com.field.manager.Pool;
 **/
 class FieldWrapperRowFilter<L, S> extends FieldWrapper<L, S> {
     private var _filters : NativeVector<FieldWrapperRowFilterStep>;
-    private var _passThroughLocations : Bool;
+    private var _passThroughLocations : Null<Bool>;
 
     private var _locationManager : com.field.manager.Manager<LocationDerived, LocationDerived, Dynamic>;
     private var _locationAllocator : com.field.manager.Allocator<LocationDerived>;
     private var _discardedLocations : Pool<LocationDerived>;
     private var _locations : Pool<LocationDerived>;
 
-    private var _resultingRows : NativeVector<Int>;
+    private var _resultingRows : NativeVector<Null<Int>>;
     private var _resultingMapping : NativeIntMap<Int>;
 
     private var _previousWrappedFieldHeight : Int = -1;
@@ -119,7 +119,7 @@ class FieldWrapperRowFilter<L, S> extends FieldWrapper<L, S> {
                 setupAllocatorAndManager();
             }
 
-            var resultingRows : NativeArray<Int> = new NativeArray<Int>();
+            var resultingRows : NativeArray<Null<Int>> = new NativeArray<Int>();
             var resultingMapping : NativeIntMap<Int> = new NativeIntMap<Int>();
             var j : Int = 0;
             var height : Int = _field.height();

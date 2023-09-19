@@ -41,6 +41,8 @@ class RendererAbstract implements RendererInterface {
     private static var _alwaysUseCache = true;
     private static var _useAllTransform = false;
 
+    private function new() { }
+
     public static function currentRenderer() : RendererInterface {
         return _renderer;
     }
@@ -50,6 +52,10 @@ class RendererAbstract implements RendererInterface {
     }
 
     public static function currentMode() : RendererMode {
+        return _mode;
+    }
+
+    public function mode() : RendererMode {
         return _mode;
     }
 
@@ -96,19 +102,19 @@ class RendererAbstract implements RendererInterface {
     }
 
     public function getX(e : Element, dRectWidth : Float, dTileWidth : Float, scale : Float) : Float {
-        return null;
+        return -1;
     }
 
     public function getY(e : Element, dRectHeight : Float, dTileHeight : Float, scale : Float) : Float {
-        return null;
+        return -1;
     }
 
     public function getFieldX(e : Element, dRectWidth : Float, dTileWidth : Float) : Float {
-        return null;
+        return -1;
     }
 
     public function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float {
-        return null;
+        return -1;
     }
 
     public function moveSpriteTo(e1 : Element, e2 : Element, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface {
@@ -249,6 +255,9 @@ class RendererAbstract implements RendererInterface {
 
     public function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> { return null; }
 
+    public function getText(e : Element) : String {
+        return null;
+    }
     public function setText(e : Element, s : String) : Void { }
 
     public function createElement(?s : Null<String>) : Element {
@@ -260,5 +269,17 @@ class RendererAbstract implements RendererInterface {
     public function setStyleTop(e : Element, v : TopStyle) : Void { }
 
     public function setStyleBottom(e : Element, v : TopStyle) : Void { }
+
+    public function defaultParent() : Element {
+        return null;
+    }
+
+    public function fixedSizing() : Bool {
+        return false;
+    }
+
+    public function doDisplay() : Void { }
+
+    public function initBufferForInner(e : Element) : Void { }
 }
 #end

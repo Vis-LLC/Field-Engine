@@ -86,6 +86,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
     
     private var _locationAttributesListChanged : Bool = true;
     private var _spriteAttributesListChanged : Bool = true;
+    private var _scaleXY : Float = 1;
 
     private function new(options : FieldOptions<LocationDynamic, SpriteDynamic>) {
         initAllocators();
@@ -96,6 +97,18 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         _defaultAccessor = AccessorDynamic.wrap(accessorData);
         _getLoop = getLoopDefault;
         _loopReset = loopResetDefault;
+        var fom : NativeStringMap<Any> = options.toMap();
+
+        var width : Null<Int> = cast fom.get("width");
+        var height : Null<Int> = cast fom.get("height");
+
+        if (height != null) {
+            setHeight(height);
+        }
+
+        if (width != null) {
+            setWidth(width);
+        }
 
         // TODO - Add options.
         _navigator = NavigatorGrid.instance();        
@@ -115,6 +128,19 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
 
     public function getSpriteDirect(i : Int) : S {
         return _sprites.get(i);
+    }
+
+    public function newSprite() : Int {
+        if (_sprites == null) {
+            _sprites = new NativeArray<S>();
+            _spritesAtLocation = new NativeIntMap<NativeIntMap<Int>>();            
+        }
+        _sprites.push(_spriteAllocator.allocate());
+        var i : Int = _sprites.length() - 1;
+        _maximumNumberOfSprites = i + 1;
+        var s : SpriteDynamic = cast _sprites.get(i);
+        s.init(cast this, i, 0);
+        return i;
     }
 
     public function getLocationDirect(i : Int) : L {
@@ -256,7 +282,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         return -1;
     }
 
-    public function spriteAttribute(name : String, value : Dynamic) : Int {
+    public function spriteAttribute(name : String, value : Dynamic) : Null<Int> {
         var info : Null<AttributeInfoDynamic> = _spriteAttributes.get(name);
 
         if (info != null) {
@@ -349,7 +375,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         return -1;
     }
 
-    public function locationAttribute(name : String, value : Dynamic) : Int {
+    public function locationAttribute(name : String, value : Dynamic) : Null<Int> {
         var info : Null<AttributeInfoDynamic> = _locationAttributes.get(name);
 
         if (info != null) {
@@ -691,7 +717,7 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         return cast this;
     }
 
-    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         var start : Date = Date.now();
         var r : Any = null;
         var err : Any = null;
@@ -814,12 +840,16 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         return _navigator;
     }
 
+    public function unlockedNavigator() : NavigatorCoreInterface {
+        return com.field.navigator.NavigatorUnlocked.instance();
+    }    
+
     // Not useful for this version of a field
     public function registerClass(t : String) : Void { }
     public function registerFunction(f : String) : Void { }
     public function doneWithWorkers() : Void { }
 
-    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         smallOperation(f, callback, whenDone, data, cleanDivide);
     }
 
@@ -871,9 +901,19 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
 
         var fo : FieldOptions<Dynamic, Dynamic>;
         if (!hasValue) {
-            fo = FieldStandard.options().width(_locations.get(0).length()).height(_locations.length());
+            #if cs
+                var o : Any = cast FieldStandard.options().width(_locations.get(0).length()).height(_locations.length());
+                fo = cast o;
+            #else
+                fo = FieldStandard.options().width(_locations.get(0).length()).height(_locations.length());
+            #end
         } else {
-            fo = FieldTextValue.options().width(_locations.get(0).length()).height(_locations.length());
+            #if cs
+                var o : Any = cast FieldTextValue.options().width(_locations.get(0).length()).height(_locations.length());
+                fo = cast o;
+            #else
+                fo = FieldTextValue.options().width(_locations.get(0).length()).height(_locations.length());
+            #end
         }
         
         if (_sprites != null) {
@@ -913,9 +953,19 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
         {
             var field : FieldInterface<Dynamic, Dynamic>;
             if (!hasValue) {
-                field = FieldStandard.create(cast fo);
+                #if cs
+                    var o : Any = cast fo;
+                    field = FieldStandard.create(cast o);
+                #else
+                    field = FieldStandard.create(cast fo);
+                #end
             } else {
-                field = FieldTextValue.create(cast fo);
+                #if cs
+                    var o : Any = cast fo;
+                    field = FieldTextValue.create(cast o);
+                #else
+                    field = FieldTextValue.create(cast fo);
+                #end
             }
             fo = null;
             largeOperation(function (local : AccessorInterface) {
@@ -983,4 +1033,16 @@ class FieldDynamicAbstract<L, S> implements FieldInterface<L, S> implements Fiel
     private function loopResetDefault(x : Int, y : Int) : Bool {
         return false;
     }
+
+    public function isDynamic() : Bool {
+        return true;
+    }    
+
+    public function scaleXY() : Float {
+        return _scaleXY;
+    }
+
+    public function setScaleXY(scaleXY : Float) : Void {
+        _scaleXY = scaleXY;
+    }    
 }

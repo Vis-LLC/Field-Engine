@@ -27,9 +27,14 @@ package com.field;
 /**
     These methods are not generally accessed directly and are considered "system only".  All Sprites should support these operations.
 **/
-interface SpriteSystemInterface {
+interface SpriteSystemInterface<F> {
     /**
         Attempt to move the Sprite the specified distance along each axis.  Return whether the move was successful or not.
     **/
     function move(x : Int, y : Int) : Bool;
+
+    /**
+        Get the Field this Sprite belongs to.
+    **/    
+    function field() : F;
 }

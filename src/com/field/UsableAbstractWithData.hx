@@ -31,6 +31,10 @@ class UsableAbstractWithData<F, L, S, T> extends UsableAbstract<F, L, S, T> {
     private var _data : Null<NativeStringMap<Any>> = null;
     private static var _emptyKeys : NativeVector<String> = new NativeVector<String>(0);
 
+    private function new() {
+        super();
+    }
+
     public function attribute(sName : String, ?oValue : Any = null) : Any {
         var set : Bool = (oValue != null);
         var r : Any = null;

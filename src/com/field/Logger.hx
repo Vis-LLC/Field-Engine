@@ -82,8 +82,24 @@ class Logger {
             var isFunction : Bool =
             #if js
                 cast js.Syntax.code("(typeof {0} === 'function')", entry);
+            #elseif java
+                // TODO
+                false;
+            #elseif python
+                cast python.Syntax.code("hasattr({0}, '__call__')", entry);
+            #elseif cs
+                // TODO
+                false;
+            #elseif lua
+                // TODO
+                false;
+                //cast lua.Syntax.code("type({0}) == 'function'", entry);
             #elseif php
-                cast php.Syntax.code("is_callable({0})", o);                
+                cast php.Syntax.code("is_callable({0})", entry);
+            #elseif hl
+                cast Reflect.isFunction(entry);
+            #elseif cpp
+                false;
             #else
                 // TODO
             #end

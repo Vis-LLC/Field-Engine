@@ -25,6 +25,7 @@ package com.field.views;
 #if !EXCLUDE_RENDERING
 import com.field.NativeObjectMap;
 import com.field.renderers.Element;
+import com.field.renderers.Style;
 
 @:expose
 @:nativeGen
@@ -32,6 +33,7 @@ import com.field.renderers.Element;
     A GraphView is a FieldView that is meant to display a graphing function.
 **/
 class GraphView extends FieldViewAbstract implements com.sdtk.graphs.Grapher.GrapherInterface {
+    public static var GRAPH_VIEW_STYLE : Style = cast "graph_view";
     private var _colors : Array<String>;
     private var _plotFunctions : Array<Float->Float>;
     private var _plotType : Int;
@@ -111,6 +113,7 @@ class GraphView extends FieldViewAbstract implements com.sdtk.graphs.Grapher.Gra
             _plotFunctions[0] = plotForData;
         }
         super(fo);
+        addStyle(_element, GRAPH_VIEW_STYLE);        
     }
 
     public static function create(options : GraphViewOptions) : GraphView {

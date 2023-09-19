@@ -36,6 +36,20 @@ import com.field.NativeStringMap;
 class FindPath {
     private function new() { }
 
+    #if(hl || lua || cpp)
+        private static function findMax() : Int {
+            var prev : Int = 1;
+            var current : Int = 1;
+            try {
+                while (current > 0) {
+                    prev = current;
+                    current = prev << 1;
+                }
+            } catch (ex : Any) { }
+            return prev;
+        }
+    #end
+
     private static function execute(local : AccessorInterface) : Any {
         var fromDirection : NativeVector<Coordinate> = local.directions();
  
@@ -48,6 +62,18 @@ class FindPath {
         var canEnterCache : NativeIntMap<Bool> = new NativeIntMap<Bool>();
         var maxPossible : Int = cast #if js
             js.Syntax.code("Number.MAX_VALUE");
+        #elseif java
+            java.lang.Integer.MAX_VALUE;
+        #elseif python
+            python.Syntax.code("sys.maxsize");
+        #elseif cs
+            cs.system.Int32.MaxValue;
+        #elseif lua
+            findMax();
+        #elseif hl
+            findMax();
+        #elseif cpp
+            findMax();
         #else
             // TODO
         #end
@@ -285,8 +311,12 @@ class FindPath {
         //field.advanced().registerClass(Type.getClassName(UsableAbstractWithData));
         //field.advanced().registerClass(Type.getClassName(SpriteAbstract));
         //field.advanced().registerFunction(Type.getClassName(SpriteAbstract) + ".getAttribute");
-
-        field.advanced().scheduleOperation(execute, options);
+        #if cs
+            var o : Any = cast options;
+            field.advanced().scheduleOperation(execute, cast o);
+        #else
+            field.advanced().scheduleOperation(execute, options);
+        #end
     }
 
     public static function immediate(options : FindPathOptions) : FindPathResult {

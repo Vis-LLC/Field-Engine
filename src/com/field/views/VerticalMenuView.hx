@@ -33,9 +33,9 @@ import com.field.renderers.Element;
 **/
 class VerticalMenuView extends FieldViewAbstract {
     private var _callbacks : NativeVector<Void->Void>;
-    private var _indents : NativeVector<Int>;
+    private var _indents : NativeVector<Null<Int>>;
     private var _items : NativeVector<String>;
-    private var _open : NativeVector<Int>;
+    private var _open : NativeVector<Null<Int>>;
     private var _children : NativeVector<Int>;
     private var _path : String;
 
@@ -124,11 +124,11 @@ class VerticalMenuView extends FieldViewAbstract {
 
     private function new(options : VerticalMenuViewOptions) {
         var fo : NativeStringMap<Any> = options.toMap();
-        var indents : NativeArray<Int> = cast fo.get("indents");
+        var indents : NativeArray<Null<Int>> = cast fo.get("indents");
         _indents = indents.toVector();
         var items : NativeArray<String> = cast fo.get("items");
         _items = items.toVector();
-        var open : NativeArray<Int> = cast fo.get("open");
+        var open : NativeArray<Null<Int>> = cast fo.get("open");
         _open = open.toVector();
         var path : String = cast fo.get("path");
         _path = path;

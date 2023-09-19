@@ -28,6 +28,8 @@ package com.field.util;
     Provides basic functionality for implementing the State interface.
 **/
 class StateAbstract implements State {
+    inline private function new() { }
+
     /**
         Do a callback after completing an operation.
     **/

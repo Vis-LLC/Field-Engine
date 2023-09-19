@@ -29,7 +29,14 @@ package com.field.renderers;
     These functions are not meant to used externally, only internally to the FieldEngine library.
 **/
 class RendererAccessor {
-    private static var _defaultRenderer : RendererInterface = DomTransformPixel._instance;
+    private static var _defaultRenderer : RendererInterface =
+        #if js
+            DomTransformPixel._instance
+        #else
+            Console._instance
+        #end
+    ;
+    private var _renderer : RendererInterface = null;
     private static var _initialized : Bool = false;
 
     private function new() {
@@ -44,30 +51,23 @@ class RendererAccessor {
             return js.Syntax.code("{0}.children.length > 0", o);
         #else
             // TODO
+            return renderer().getChildrenCount(o) > 0;
         #end
     }
 
-    private inline function getTextContent(o : Element) : String {
-        #if js
-            return cast js.Syntax.code("{0}.textContent", o);
-        #else
-            // TODO
-        #end
+    private inline function getText(o : Element) : String {
+        return renderer().getText(o);
     }
 
-    private inline function setTextContent(o : Element, v : String) : Void {
-        #if js
-            js.Syntax.code("{0}.textContent = {1}", o, v);
-        #else
-            // TODO
-        #end
+    private inline function setText(o : Element, v : String) : Void {
+        renderer().setText(o, v);
     }
 
     private inline function getRawContent(o : Element) : String {
         #if js
             return cast js.Syntax.code("{0}.innerHTML", o);
         #else
-            // TODO
+            return getText(o);
         #end
     }
 
@@ -91,6 +91,7 @@ class RendererAccessor {
         #if js
             return js.Syntax.code("{0}.className.replace('.', '').split(' ')", e);
         #else
+            return null;
             // TODO
         #end
     }
@@ -123,12 +124,20 @@ class RendererAccessor {
         renderer().setStyleRotate(e, v);
     }
     
-    private inline function renderer() : RendererInterface {
-        return RendererAbstract.currentRenderer();
+    private function renderer() : RendererInterface {
+        if (_renderer == null) {
+            return RendererAbstract.currentRenderer();
+        } else {
+            return _renderer;
+        }
+    }
+
+    public function setRenderer(renderer : RendererInterface) : Void {
+        _renderer = renderer;
     }
 
     private inline function mode() : RendererMode {
-        return RendererAbstract.currentMode();
+        return renderer().mode();
     }
 
     private inline function now(f : Void -> Void) : Void {

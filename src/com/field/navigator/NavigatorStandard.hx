@@ -25,10 +25,10 @@ package com.field.navigator;
 @:expose
 @:nativeGen
 class NavigatorStandard implements NavigatorInterface {
-    private var _sprite : SpriteSystemInterface;
+    private var _sprite : SpriteSystemInterface<Dynamic>;
     private var _navigator : NavigatorCoreInterface;
 
-    public function new(sprite : SpriteSystemInterface, navigator : NavigatorCoreInterface) {
+    public function new(sprite : SpriteSystemInterface<Dynamic>, navigator : NavigatorCoreInterface) {
         _sprite = sprite;
         _navigator = navigator;
     }

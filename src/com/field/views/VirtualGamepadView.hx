@@ -225,6 +225,7 @@ class VirtualGamepadView extends AbstractView {
                 js.Syntax.code("{0}.tagName", _element);
             #else
                 // TODO
+                null;
             #end
             if (sType != null) {
                 switch (sType.toUpperCase()) {

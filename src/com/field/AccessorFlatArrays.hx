@@ -96,7 +96,7 @@ class AccessorFlatArrays implements AccessorInterface {
         #end
     }
 
-    private inline static function gfa(i : Int, arr : NativeVector<Float>) : Float {
+    private inline static function gfa(i : Int, arr : NativeVector<Null<Float>>) : Float {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
@@ -104,7 +104,7 @@ class AccessorFlatArrays implements AccessorInterface {
         #end
     }
 
-    private inline static function gia(i : Int, arr : NativeVector<Int>) : Int {
+    private inline static function gia(i : Int, arr : NativeVector<Null<Int>>) : Int {
         #if js
         return cast js.Syntax.code("{0}[{1}]", arr, i);
         #else
@@ -467,9 +467,9 @@ class AccessorFlatArrays implements AccessorInterface {
         #if js
             return cast js.Syntax.code("{0}.length", _data.locationMemory);
         #elseif java
-            // TODO
+            return cast _data.locationMemory.length;
         #elseif cs
-            // TODO
+            return cast _data.locationMemory.length;
         #else
             return _data.locationMemory.length();
         #end
@@ -483,11 +483,11 @@ class AccessorFlatArrays implements AccessorInterface {
         return _data.spriteAttributes.divider.get(i);
     }
 
-    public function lookupLocationValue(attribute : String, value : Any) : Int {
+    public function lookupLocationValue(attribute : String, value : Any) : Null<Int> {
         return lookupLocationValueDirect(getLocationAttributePosition(attribute), value);
     }
 
-    public function lookupLocationValueDirect(attribute : Int, value : Any) : Int {
+    public function lookupLocationValueDirect(attribute : Int, value : Any) : Null<Int> {
         switch (getLocationTypeDirect(attribute)) {
             case 0:
                 return lookupLocationStringDirect(attribute, value);
@@ -500,11 +500,11 @@ class AccessorFlatArrays implements AccessorInterface {
         }
     }
 
-    public function lookupSpriteValue(attribute : String, value : Any) : Int {
+    public function lookupSpriteValue(attribute : String, value : Any) : Null<Int> {
         return lookupSpriteValueDirect(getSpriteAttributePosition(attribute), value);
     }
 
-    public function lookupSpriteValueDirect(attribute : Int, value : Any) : Int {
+    public function lookupSpriteValueDirect(attribute : Int, value : Any) : Null<Int> {
         switch (getSpriteTypeDirect(attribute)) {
             case 0:
                 return lookupSpriteStringDirect(attribute, value);

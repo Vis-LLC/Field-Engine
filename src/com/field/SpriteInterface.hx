@@ -132,6 +132,40 @@ interface SpriteInterface<F, S> extends Usable<F, S> extends HasAttributes {
         Represents a collection of Directions that represent how to navigate a Field.
     **/
     function navigator() : NavigatorInterface;
+
+    /**
+        Represents a collection of Directions that represent how to navigate a Field.  This version is unlocked and does not restrict to directions that match the grid perfectly.
+    **/
+    function unlockedNavigator() : NavigatorInterface;
+
+    /**
+        Checks to see if the Sprite has a Value associated with it.
+    **/
+    function hasValue() : Bool;
+
+    /**
+        Checks to see if the Sprite has a Name associated with it.
+    **/
+    // TODO
+    //function hasName() : Bool;
+
+    /**
+        Checks to see if the Sprite is actually Dynamic.
+    **/
+    function isDynamic() : Bool;
+
+    /**
+        Checks to see if the Sprite has an "Actual Value" associated with it.
+    **/
+    function hasActualValue() : Bool;
+
+    /**
+        Checks to see if the Sprite has a "Data Source" associated with it.
+    **/
+    function hasDataSource() : Bool;
+
+
+    function getField() : F;
 }
 /*
 TODO

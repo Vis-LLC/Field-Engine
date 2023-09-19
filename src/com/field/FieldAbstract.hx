@@ -45,7 +45,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private var _id : String;
     private var _width : Int;
     private var _height : Int;
-    private var _maximumNumberOfSprites : Int;
+    private var _maximumNumberOfSprites : Null<Int>;
     
     private var _locationAllocator : com.field.manager.Allocator<L>;
     private var _spriteAllocator : com.field.manager.Allocator<S>;
@@ -90,6 +90,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
     private var _locationArrayView : Null<NativeVector<Int>> = null;
     private var _spriteArrayView : Null<NativeVector<Int>> = null;
     private var _gridType : Int;
+    private var _scaleXY : Float = 1;
 
     private static function withDefault(v : Any, d : Any) : Any {
         if (v == null) {
@@ -207,8 +208,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         var spriteSize : Int = 0;
         var locationsSize : Int = 0;
         var spritesSize : Int = 0;
-        var locationSigned : Bool = null;
-        var spriteSigned : Bool = null;
+        var locationSigned : Null<Bool> = null;
+        var spriteSigned : Null<Bool> = null;
 
         var defaultAccessorData : AccessorFlatArraysData;
         
@@ -366,8 +367,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         attr.size = 0;
 
         var attrReverse : NativeArray<String> = new NativeArray<String>();
-        var attrType : NativeArray<Int> = new NativeArray<Int>();
-        var attrDivider : NativeArray<Float> = new NativeArray<Float>();
+        var attrType : NativeArray<Null<Int>> = new NativeArray<Null<Int>>();
+        var attrDivider : NativeArray<Null<Float>> = new NativeArray<Null<Float>>();
         var attrValueLookup : NativeArray<NativeStringMap<Int>> = new NativeArray<NativeStringMap<Int>>();
         var attrValueReverse : NativeArray<NativeVector<String>> = new NativeArray<NativeVector<String>>();
 
@@ -399,7 +400,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
                 
                 var o : Numerical = numericalAttributes.get(i);
                 var max : Float;
-                var digitsAfterDecimal : Int;
+                var digitsAfterDecimal : Null<Int>;
 
                 max = o.max;
                 digitsAfterDecimal = o.digitsAfterDecimal;
@@ -538,7 +539,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         }
     }
 
-    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         var start : Date = Date.now();
         var r : Any = null;
         var err : Any = null;
@@ -576,7 +577,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         });
     }
 
-    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         if (_memoryBuffer == null || !_isShared || !(com.field.workers.WorkerThread.isSupported())) {
             smallOperation(f, callback, whenDone, data, cleanDivide);
         } else {
@@ -1555,11 +1556,11 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         var fo : NativeStringMap<Any> = options.toMap();
         options = null;
         var callback : String->Void = cast fo.get("callback");
-        var spriteArray : Bool = cast fo.get("spriteArray");
-        var locationArray : Bool = cast fo.get("locationArray");
+        var spriteArray : Null<Bool> = cast fo.get("spriteArray");
+        var locationArray : Null<Bool> = cast fo.get("locationArray");
         var compressSpriteArray : Bool = cast fo.get("compressSpriteArray");
         var compressLocationArray : Bool = cast fo.get("compressLocationArray");
-        var compressJSON : Bool = cast fo.get("compressJSON");
+        var compressJSON : Null<Bool> = cast fo.get("compressJSON");
         var miscInfo : Bool = cast fo.get("miscInfo");
         var sizeInfo : Bool = cast fo.get("sizeInfo");
         var subFields : Bool = cast fo.get("subFields");
@@ -1627,18 +1628,18 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
             }
         });
 
-        wuUntil.wait();
+        wuUntil.mustWait();
 
         // Export raw data
         if (locationArray) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             toB64(_memoryBuffer, 0, locationSize, compressLocationArray, function (s) {
                 data.set("locationArrayView", s);
                 wuUntil.done();
             });
         }
         if (spriteArray) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             toB64(_memoryBuffer, locationSize, accessor._data.maximumNumberOfSprites * accessor._data.spriteSize * accessor._data.spriteAttributes.count, compressSpriteArray, function (s) {
                 data.set("spriteArrayView", s);
                 wuUntil.done();
@@ -1647,7 +1648,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         
         // Export custom/dynamic data
         if (customData) {
-            wuUntil.wait();
+            wuUntil.mustWait();
 
             var locations : Null<NativeIntMap<NativeIntMap<Any>>> = null;
             var sprites : Null<NativeIntMap<Any>> = null;
@@ -1749,7 +1750,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
 
         // Export misc field info
         if (miscInfo) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             data.set("id", _id);
             data.set("locationClass", _locationClass);
             data.set("spriteClass", _spriteClass);
@@ -1758,7 +1759,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
 
         // Export size info
         if (sizeInfo) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             data.set("width", _width);
             data.set("height", _height);
             data.set("maximumNumberOfSprites", _maximumNumberOfSprites);
@@ -1767,7 +1768,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
 
         // Export attribute structures
         if (attributes) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             data.set("locationPredefinedAttributes", _locationPredefinedAttributes);
             data.set("spritePredefinedAttributes", _spritePredefinedAttributes);
             data.set("locationNumericalAttributes", _locationNumericalAttributes);
@@ -1776,7 +1777,7 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
 
         // Export subfields
         if (subFields && _subFields != null) {
-            wuUntil.wait();
+            wuUntil.mustWait();
             var fields : Null<NativeObjectMap<NativeStringMap<Any>>> = null;            
             var i : Int = 0;
             while (i < _subFields.length()) {
@@ -1819,8 +1820,24 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         return _navigator;
     }
 
+    public function unlockedNavigator() : NavigatorCoreInterface {
+        return com.field.navigator.NavigatorUnlocked.instance();
+    }
+
     public function lastMajorChange() : Dynamic {
         return null;
+    }
+
+    public function isDynamic() : Bool {
+        return false;
+    }
+
+    public function scaleXY() : Float {
+        return _scaleXY;
+    }
+
+    public function setScaleXY(scaleXY : Float) : Void {
+        _scaleXY = scaleXY;
     }
 }
 

@@ -22,7 +22,7 @@
 
 package com.field.renderers;
 
-#if !EXCLUDE_RENDERING
+#if(!EXCLUDE_RENDERING && js)
 import com.field.NativeArray;
 
 @:expose
@@ -32,7 +32,9 @@ import com.field.NativeArray;
     These functions are not meant to used externally, only internally to the FieldEngine library.
 **/
 class RendererDomAbstract extends RendererAbstract {
-    private function new() { }
+    private function new() {
+        super();
+    }
 
     private var _alwaysUseCache : Bool = true;
 
@@ -664,6 +666,8 @@ class RendererDomAbstract extends RendererAbstract {
     public override function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> {
         #if js
             var table : Element = cast js.Syntax.code("document.createElement('table')");
+            js.Syntax.code("{0}.cellPadding = \"0x\"", table);
+            js.Syntax.code("{0}.cellSpacing = \"0x\"", table);
             var elements : NativeVector<NativeVector<Element>> = new NativeVector<NativeVector<Element>>(rows);
             var j : Int = 0;
             while (j < rows) {
@@ -690,9 +694,17 @@ class RendererDomAbstract extends RendererAbstract {
         #end
     }
 
+    public override function getText(e : Element) : String {
+        #if js
+            return cast js.Syntax.code("{0}.textContent", e);
+        #else
+            // TODO
+        #end
+    }
+
     public override function setText(e : Element, s : String) : Void {
         #if js
-            js.Syntax.code("{0}.innerText = {1}", e, s);
+            js.Syntax.code("{0}.textContent = {1}", e, s);
         #else
             // TODO
         #end
@@ -701,6 +713,14 @@ class RendererDomAbstract extends RendererAbstract {
     public override function createElement(?s : Null<String>) : Element {
         #if js
             return js.Syntax.code("document.createElement({0})", s == null ? "div" : s);
+        #else
+            // TODO
+        #end
+    }
+
+    public override function defaultParent() : Element {
+        #if js
+            return js.Syntax.code("document.body");
         #else
             // TODO
         #end

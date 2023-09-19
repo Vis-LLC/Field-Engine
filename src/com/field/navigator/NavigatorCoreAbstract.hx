@@ -100,7 +100,7 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
         }
     }
 
-    public function navigate(sprite : SpriteSystemInterface, direction : DirectionInterface, distance : Int) : Bool {
+    public function navigate(sprite : SpriteSystemInterface<Dynamic>, direction : DirectionInterface, distance : Int) : Bool {
         var xy : NativeVector<Float> = direction.xy();
         if (Std.isOfType(sprite, SpriteInterface)) {
             var s : SpriteInterface<Dynamic, Dynamic> = cast sprite;
@@ -113,11 +113,11 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
     }
 
     private function getCounterClockwise(direction : Float) : DirectionInterface {
-        return directions().get(Math.ceil((direction - _start) / 360 * directions().length()));
+        return directions().get(Math.ceil((direction - _start) / 360 * directions().length()) % directions().length());
     }
 
     private function getClockwise(direction : Float) : DirectionInterface {
-        return directions().get(Math.floor((direction - _start) / 360 * directions().length()));
+        return directions().get(Math.floor((direction - _start) / 360 * directions().length()) % directions().length());
     }    
 
     public function directionForDegrees(direction : Float) : DirectionInterface {
@@ -127,7 +127,7 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
             return counterClockwise;
         } else {
             var clockwise : DirectionInterface = getClockwise(direction);
-            if (Math.abs(counterClockwise.degrees() - direction) >= Math.abs(clockwise.degrees() - direction)) {
+            if (Math.abs(counterClockwise.degrees() - direction) <= Math.abs(clockwise.degrees() - direction)) {
                 return counterClockwise;
             } else {
                 return clockwise;
@@ -135,19 +135,19 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
         }
     }
 
-    public function navigateInDegrees(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool {
+    public function navigateInDegrees(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool {
         return navigate(sprite, directionForDegrees(direction), distance);
     }
 
-    public function navigateInRadians(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool {
+    public function navigateInRadians(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool {
         return navigateInDegrees(sprite, direction / Math.PI * 180.0, distance);
     }
 
-    public function navigateInXY(sprite : SpriteSystemInterface, x : Int, y : Int) : Bool {
+    public function navigateInXY(sprite : SpriteSystemInterface<Dynamic>, x : Int, y : Int) : Bool {
         return navigateInRadians(sprite, Math.atan2(y, x), Math.round(Math.sqrt(x * x + y * y)));
     }
 
-    public function navigateInClock(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool {
+    public function navigateInClock(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool {
         return navigateInDegrees(sprite, direction / -12.0 * 360.0 + 90.0, distance);
     }
 }

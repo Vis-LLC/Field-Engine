@@ -31,6 +31,8 @@ abstract NativeIntMap<V>(
     js.lib.Object
 #elseif java
     java.util.Map<Int, V>
+#elseif python
+    python.Dict<Int, V>
 #elseif cs
     cs.system.collections.IDictionary
 #elseif php
@@ -44,6 +46,8 @@ abstract NativeIntMap<V>(
             new js.lib.Object()
         #elseif java
             new java.util.Hashtable<Int, V>()
+        #elseif python
+            new python.Dict<Int, V>()
         #elseif cs
             new cs.system.collections.Hashtable()
         #elseif php
@@ -59,6 +63,8 @@ abstract NativeIntMap<V>(
             js.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #elseif java
             this.put(k, v);
+        #elseif python
+            this.set(k, v);
         #elseif cs
             this.set_Item(k, v);
         #elseif php
@@ -72,6 +78,8 @@ abstract NativeIntMap<V>(
         #if js
             return cast js.Syntax.code("{0}[{1}]", this, k);
         #elseif java
+            return this.get(k);
+        #elseif python
             return this.get(k);
         #elseif cs
             return cast this.get_Item(k);
@@ -87,6 +95,8 @@ abstract NativeIntMap<V>(
             return cast js.lib.Object.keys(this).iterator();
         #elseif java
             return this.keySet().iterator();
+        #elseif python
+            return this.keys().iterator();
         #elseif cs
             return cast this.get_Keys().GetEnumerator();
         #elseif php
@@ -101,6 +111,8 @@ abstract NativeIntMap<V>(
         #if js
             js.Syntax.code("delete {0}[{1}]", this, k);
         #elseif java
+            this.remove(k);
+        #elseif python
             this.remove(k);
         #elseif cs
             this.Remove(k);

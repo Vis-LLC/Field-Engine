@@ -22,7 +22,7 @@
 
 package com.field.renderers;
 
-#if !EXCLUDE_RENDERING
+#if(!EXCLUDE_RENDERING && js)
 @:nativeGen
 /**
     A Bridge for determining how event information is retrieved from DOM (Document Object Model) events.

@@ -34,6 +34,11 @@ interface FieldDynamicInterface<L, S> {
     function getSpriteDirect(i : Int) : S;
 
     /**
+        Create a new Sprite.
+    **/
+    function newSprite() : Int;
+
+    /**
         Get a Location with the Location Index.
     **/
     function getLocationDirect(i : Int) : L;
@@ -116,7 +121,7 @@ interface FieldDynamicInterface<L, S> {
     /**
         Update Sprite Attribute definition to include the specified value.
     **/
-    function spriteAttribute(name : String, value : Dynamic) : Int;
+    function spriteAttribute(name : String, value : Dynamic) : Null<Int>;
 
     /**
         Update Sprite Attribute definition to include the specified value.
@@ -141,7 +146,7 @@ interface FieldDynamicInterface<L, S> {
     /**
         Update Location Attribute definition to include the specified value.
     **/
-    function locationAttribute(name : String, value : Dynamic) : Int;
+    function locationAttribute(name : String, value : Dynamic) : Null<Int>;
 
     /**
         Update Location Attribute definition to include the specified value.

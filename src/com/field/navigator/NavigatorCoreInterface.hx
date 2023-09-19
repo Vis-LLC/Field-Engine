@@ -57,27 +57,27 @@ interface NavigatorCoreInterface {
     /**
         Move a Sprite in a given Direction.
     **/
-    function navigate(sprite : SpriteSystemInterface, direction : DirectionInterface, distance : Int) : Bool;
+    function navigate(sprite : SpriteSystemInterface<Dynamic>, direction : DirectionInterface, distance : Int) : Bool;
 
     /**
         Move a Sprite in a given Direction.
     **/    
-    function navigateInDegrees(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool;
+    function navigateInDegrees(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool;
 
     /**
         Move a Sprite in a given Direction.
     **/    
-    function navigateInRadians(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool;
+    function navigateInRadians(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool;
 
     /**
         Move a Sprite in a given Direction.
     **/    
-    function navigateInClock(sprite : SpriteSystemInterface, direction : Float, distance : Int) : Bool;
+    function navigateInClock(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool;
 
     /**
         Move a Sprite in a given Direction.
     **/    
-    function navigateInXY(sprite : SpriteSystemInterface, x : Int, y : Int) : Bool;
+    function navigateInXY(sprite : SpriteSystemInterface<Dynamic>, x : Int, y : Int) : Bool;
 
     /**
         Get a Direction given a specified degrees.

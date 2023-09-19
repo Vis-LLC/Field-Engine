@@ -32,26 +32,30 @@ abstract NativeObjectMap<V>(
 #if js
     js.lib.Object
 #elseif java
-    java.util.Map<Object, V>
+    java.util.Map<java.lang.Object, V>
+#elseif python
+    python.Dict<Any, V>
 #elseif cs
     cs.system.collections.IDictionary
 #elseif php
     php.NativeArray
 #else
-    haxe.Constraints.IMap<Object,V>
+    haxe.Constraints.IMap<Dynamic,V>
 #end
 ) {
     inline public function new() {
         this = #if js
             new js.lib.Object()
         #elseif java
-            new java.util.Hashtable<Object, V>()
+            new java.util.Hashtable<java.lang.Object, V>()
+        #elseif python
+            new python.Dict<Any, V>()
         #elseif cs
             new cs.system.collections.Hashtable()
         #elseif php
             new php.NativeArray()
         #else
-            cast new haxe.ds.ObjectMap<V>()
+            cast new haxe.ds.ObjectMap<Dynamic, V>()
         #end
         ;
     }
@@ -61,6 +65,8 @@ abstract NativeObjectMap<V>(
             js.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #elseif java
             this.put(k, v);
+        #elseif python
+            this.set(k, v);
         #elseif cs
             this.set_Item(k, v);
         #elseif php
@@ -75,6 +81,8 @@ abstract NativeObjectMap<V>(
             return cast js.Syntax.code("{0}[{1}]", this, k);
         #elseif java
             return this.get(k);
+        #elseif python
+            return this.get(k);
         #elseif cs
             return cast this.get_Item(k);
         #elseif php
@@ -88,7 +96,9 @@ abstract NativeObjectMap<V>(
         #if js
             return cast js.lib.Object.keys(this).iterator();
         #elseif java
-            return this.keySet().iterator();
+            return cast this.keySet().iterator();
+        #elseif python
+            return this.keys().iterator();
         #elseif cs
             return cast this.get_Keys().GetEnumerator();
         #elseif php
@@ -103,6 +113,8 @@ abstract NativeObjectMap<V>(
         #if js
             js.Syntax.code("delete {0}[{1}]", this, k);
         #elseif java
+            this.remove(k);
+        #elseif python
             this.remove(k);
         #elseif cs
             this.Remove(k);

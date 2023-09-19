@@ -33,7 +33,9 @@ class StateStub extends StateAbstract {
     private var _data : Null<StateStubData> = null;
     public static var instance = new StateStub();
 
-    inline private function new() { }
+    inline private function new() {
+        super();
+    }
 
     private function checkFirstLoad() : Void {
         if (_data == null) {
@@ -127,7 +129,7 @@ class StateStub extends StateAbstract {
             _data._achievementsList = new NativeArray<StateAchievementEntry>();
         }
         if (id != null) {
-            var index : Int = _data._achievements.get(id);
+            var index : Null<Int> = _data._achievements.get(id);
             var value : Int;
             if (index == null) {
                 var achievement = new StateAchievementEntry();

@@ -51,7 +51,12 @@ class WorkerGPGPU {
     private static function initInstance() : Dynamic {
         if (_gpu != null) {
             #if js
-                return js.Syntax.code("new {0}()", _gpu);
+                try {
+                    return js.Syntax.code("new {0}()", _gpu);
+                } catch (ex : Any) {
+                    js.html.Console.log(ex);
+                    return null;
+                }
             #else
                 // TODO - Others
                 return null;

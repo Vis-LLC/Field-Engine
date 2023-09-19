@@ -24,8 +24,8 @@ package com.field.navigator;
 
 @:expose
 @:nativeGen
-class DirectionGridUp extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridUp();
+class DirectionGridDown extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridDown();
 
     private function new() {
         super();
@@ -52,8 +52,8 @@ class DirectionGridRight extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridDown extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridDown();
+class DirectionGridUp extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridUp();
 
     private function new() {
         super();
@@ -80,20 +80,6 @@ class DirectionGridLeft extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridDiagonalRightUpCorner extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridDiagonalRightUpCorner();
-
-    private function new() {
-        super();
-    }
-
-    public static function instance() : DirectionInterface {
-        return _instance;
-    }
-}
-
-@:expose
-@:nativeGen
 class DirectionGridDiagonalRightDownCorner extends DirectionAbstract {
     private static var _instance : DirectionInterface = new DirectionGridDiagonalRightDownCorner();
 
@@ -108,8 +94,8 @@ class DirectionGridDiagonalRightDownCorner extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridDiagonalLeftDownCorner extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridDiagonalLeftDownCorner();
+class DirectionGridDiagonalRightUpCorner extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridDiagonalRightUpCorner();
 
     private function new() {
         super();
@@ -136,22 +122,8 @@ class DirectionGridDiagonalLeftUpCorner extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridAllUp extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridAllUp();
-
-    private function new() {
-        super();
-    }
-
-    public static function instance() : DirectionInterface {
-        return _instance;
-    }
-}
-
-@:expose
-@:nativeGen
-class DirectionGridAllRight extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridAllRight();
+class DirectionGridDiagonalLeftDownCorner extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridDiagonalLeftDownCorner();
 
     private function new() {
         super();
@@ -178,8 +150,8 @@ class DirectionGridAllDown extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridAllLeft extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridAllLeft();
+class DirectionGridAllRight extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridAllRight();
 
     private function new() {
         super();
@@ -192,8 +164,22 @@ class DirectionGridAllLeft extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridAllRightUpCorner extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridAllRightUpCorner();
+class DirectionGridAllUp extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridAllUp();
+
+    private function new() {
+        super();
+    }
+
+    public static function instance() : DirectionInterface {
+        return _instance;
+    }
+}
+
+@:expose
+@:nativeGen
+class DirectionGridAllLeft extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridAllLeft();
 
     private function new() {
         super();
@@ -220,8 +206,8 @@ class DirectionGridAllRightDownCorner extends DirectionAbstract {
 
 @:expose
 @:nativeGen
-class DirectionGridAllLeftDownCorner extends DirectionAbstract {
-    private static var _instance : DirectionInterface = new DirectionGridAllLeftDownCorner();
+class DirectionGridAllRightUpCorner extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridAllRightUpCorner();
 
     private function new() {
         super();
@@ -236,6 +222,20 @@ class DirectionGridAllLeftDownCorner extends DirectionAbstract {
 @:nativeGen
 class DirectionGridAllLeftUpCorner extends DirectionAbstract {
     private static var _instance : DirectionInterface = new DirectionGridAllLeftUpCorner();
+
+    private function new() {
+        super();
+    }
+
+    public static function instance() : DirectionInterface {
+        return _instance;
+    }
+}
+
+@:expose
+@:nativeGen
+class DirectionGridAllLeftDownCorner extends DirectionAbstract {
+    private static var _instance : DirectionInterface = new DirectionGridAllLeftDownCorner();
 
     private function new() {
         super();
@@ -281,14 +281,14 @@ class NavigatorGrid extends NavigatorCoreAbstract {
         var directions : NativeArray<DirectionAbstract> = new NativeArray<DirectionAbstract>();
 
         directions.push(cast DirectionGridRight.instance());
-        directions.push(cast DirectionGridUp.instance());
-        directions.push(cast DirectionGridLeft.instance());
         directions.push(cast DirectionGridDown.instance());
+        directions.push(cast DirectionGridLeft.instance());
+        directions.push(cast DirectionGridUp.instance());
 
         directions.get(0).init("Right", directions.get(3), directions.get(1), directions.get(2), directions.get(2), 0, 0, 4, 1, 1, 0, 0);
-        directions.get(1).init("Up", directions.get(2), directions.get(0), directions.get(3), directions.get(3), 0, 1, 4, 1, 1, 0, 0);
+        directions.get(1).init("Down", directions.get(2), directions.get(0), directions.get(3), directions.get(3), 0, 1, 4, 1, 1, 0, 0);
         directions.get(2).init("Left", directions.get(1), directions.get(3), directions.get(0), directions.get(0), 0, 2, 4, 1, 1, 0, 0);
-        directions.get(3).init("Down", directions.get(0), directions.get(2), directions.get(1), directions.get(1), 0, 3, 4, 1, 1, 0, 0);
+        directions.get(3).init("Up", directions.get(0), directions.get(2), directions.get(1), directions.get(1), 0, 3, 4, 1, 1, 0, 0);
 
         return cast directions.toVector();
     }
@@ -301,7 +301,7 @@ class NavigatorGridDiagonal extends NavigatorCoreAbstract {
     private static var _instance : NavigatorCoreInterface = new NavigatorGridDiagonal();
 
     private function new() {
-        super(0);
+        super(45);
         _directions = initDirections();
     }
 
@@ -328,15 +328,15 @@ class NavigatorGridDiagonal extends NavigatorCoreAbstract {
     private static function initDirections() : NativeVector<DirectionInterface> {
         var directions : NativeArray<DirectionAbstract> = new NativeArray<DirectionAbstract>();
 
-        directions.push(cast DirectionGridDiagonalRightUpCorner.instance());
-        directions.push(cast DirectionGridDiagonalLeftUpCorner.instance());
-        directions.push(cast DirectionGridDiagonalLeftDownCorner.instance());
         directions.push(cast DirectionGridDiagonalRightDownCorner.instance());
+        directions.push(cast DirectionGridDiagonalLeftDownCorner.instance());
+        directions.push(cast DirectionGridDiagonalLeftUpCorner.instance());
+        directions.push(cast DirectionGridDiagonalRightUpCorner.instance());
 
-        directions.get(0).init("RightUpCorner", directions.get(3), directions.get(1), directions.get(2), directions.get(2), 45, 0, 4, 1, 1, 0, 0);
-        directions.get(1).init("LeftUpCorner", directions.get(2), directions.get(0), directions.get(3), directions.get(3), 45, 1, 4, 1, 1, 0, 0);
-        directions.get(2).init("LeftDownCorner", directions.get(1), directions.get(3), directions.get(0), directions.get(0), 45, 2, 4, 1, 1, 0, 0);
-        directions.get(3).init("RightDownCorner", directions.get(0), directions.get(2), directions.get(1), directions.get(1), 45, 3, 4, 1, 1, 0, 0);
+        directions.get(0).init("RightDownCorner", directions.get(3), directions.get(1), directions.get(2), directions.get(2), 45, 0, 4, 1, 1, 0, 0);
+        directions.get(1).init("LeftDownCorner", directions.get(2), directions.get(0), directions.get(3), directions.get(3), 45, 1, 4, 1, 1, 0, 0);
+        directions.get(2).init("LeftUpCorner", directions.get(1), directions.get(3), directions.get(0), directions.get(0), 45, 2, 4, 1, 1, 0, 0);
+        directions.get(3).init("RightUpCorner", directions.get(0), directions.get(2), directions.get(1), directions.get(1), 45, 3, 4, 1, 1, 0, 0);
 
         return cast directions.toVector();
     }
@@ -377,22 +377,22 @@ class NavigatorGridAllDirections extends NavigatorCoreAbstract {
         var directions : NativeArray<DirectionAbstract> = new NativeArray<DirectionAbstract>();
 
         directions.push(cast DirectionGridAllRight.instance());
-        directions.push(cast DirectionGridAllRightUpCorner.instance());
-        directions.push(cast DirectionGridAllUp.instance());
-        directions.push(cast DirectionGridAllLeftUpCorner.instance());
-        directions.push(cast DirectionGridAllLeft.instance());
-        directions.push(cast DirectionGridAllLeftDownCorner.instance());
-        directions.push(cast DirectionGridAllDown.instance());
         directions.push(cast DirectionGridAllRightDownCorner.instance());
+        directions.push(cast DirectionGridAllDown.instance());
+        directions.push(cast DirectionGridAllLeftDownCorner.instance());
+        directions.push(cast DirectionGridAllLeft.instance());
+        directions.push(cast DirectionGridAllLeftUpCorner.instance());
+        directions.push(cast DirectionGridAllUp.instance());
+        directions.push(cast DirectionGridAllRightUpCorner.instance());
 
         directions.get(0).init("Right", directions.get(7), directions.get(1), directions.get(4), directions.get(4), 0, 0, 8, 1, 1, 0, 0);
-        directions.get(1).init("RightUpCorner", directions.get(0), directions.get(2), directions.get(5), directions.get(5), 0, 1, 8, 1, 1, 0, 0);
-        directions.get(2).init("Up", directions.get(1), directions.get(3), directions.get(6), directions.get(6), 0, 2, 8, 1, 1, 0, 0);
-        directions.get(3).init("LeftUpCorner", directions.get(2), directions.get(4), directions.get(7), directions.get(7), 0, 3, 8, 1, 1, 0, 0);
+        directions.get(1).init("RightDownCorner", directions.get(0), directions.get(2), directions.get(5), directions.get(5), 0, 1, 8, 1, 1, 0, 0);
+        directions.get(2).init("Down", directions.get(1), directions.get(3), directions.get(6), directions.get(6), 0, 2, 8, 1, 1, 0, 0);
+        directions.get(3).init("LeftDownCorner", directions.get(2), directions.get(4), directions.get(7), directions.get(7), 0, 3, 8, 1, 1, 0, 0);
         directions.get(4).init("Left", directions.get(3), directions.get(5), directions.get(0), directions.get(0), 0, 4, 8, 1, 1, 0, 0);
-        directions.get(5).init("LeftDownCorner", directions.get(4), directions.get(6), directions.get(1), directions.get(1), 0, 5, 8, 1, 1, 0, 0);
-        directions.get(6).init("Down", directions.get(5), directions.get(7), directions.get(2), directions.get(2), 0, 6, 8, 1, 1, 0, 0);
-        directions.get(7).init("RightDownCorner", directions.get(6), directions.get(0), directions.get(3), directions.get(3), 0, 7, 8, 1, 1, 0, 0);
+        directions.get(5).init("LeftUpCorner", directions.get(4), directions.get(6), directions.get(1), directions.get(1), 0, 5, 8, 1, 1, 0, 0);
+        directions.get(6).init("Up", directions.get(5), directions.get(7), directions.get(2), directions.get(2), 0, 6, 8, 1, 1, 0, 0);
+        directions.get(7).init("RightUpCorner", directions.get(6), directions.get(0), directions.get(3), directions.get(3), 0, 7, 8, 1, 1, 0, 0);
 
         return cast directions.toVector();
     }

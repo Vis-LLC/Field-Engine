@@ -32,9 +32,9 @@ abstract Element (
 #if js
     js.html.DOMElement
 #elseif java
-    
+    java.lang.Object
 #elseif cs
-    
+    Any
 #else
     Any
 #end

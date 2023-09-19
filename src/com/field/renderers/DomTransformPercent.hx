@@ -22,7 +22,7 @@
 
 package com.field.renderers;
 
-#if !EXCLUDE_RENDERING
+#if(!EXCLUDE_RENDERING && js)
 @:expose
 @:nativeGen
 /**

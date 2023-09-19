@@ -32,13 +32,19 @@ import com.field.AccessorInterface;
     Provides access to a Thread.
     These functions are not meant to used externally, only internally to the FieldEngine library.
 **/
-class WorkerThread {
+class WorkerThread
+/*#if java
+    implements java.lang.Runnable
+#end*/
+{
     #if js
         private var _thread : js.html.Worker;
     #elseif (target.threaded)
         private var _lock : sys.thread.Mutex = new sys.thread.Mutex();
         private var _queue : NativeArray<Any> = new NativeArray<Any>();
         private var _thread : sys.thread.Thread;
+    #else
+        private var _thread : Any;
     #end
 
     @:allow(WorkerThreadPool.initPool)
@@ -267,11 +273,19 @@ class WorkerThread {
                 }");
             #end
         }
+    #else
+        private function convertToObject(o : Any) : Any {
+            return o;
+        }
     #end
 
     private function start() : 
         #if js
             js.html.Worker
+            /* TODO
+        #elseif java
+            java.lang.Thread
+            */
         #elseif (target.threaded)
             sys.thread.Thread
         #else
@@ -280,8 +294,11 @@ class WorkerThread {
     {
         #if js
             return new js.html.Worker(WorkerThreadPool._exports);
+        /*#elseif java
+            return new java.lang.Thread(this);
+            */
         #elseif (target.threaded)
-            return new sys.thread.Thread.create(run);
+            return sys.thread.Thread.create(run);
         #else
             throw "Not supported";
         #end
@@ -294,8 +311,8 @@ class WorkerThread {
                 Dynamic = null;
                 throw "Not supported";
             #elseif (target.threaded)
-                Work = cast sys.thread.Thread.readMessage(_thread, true);
-                process(work);
+                Work = cast sys.thread.Thread.readMessage(true);
+                processWork(work);
             #else
                 Dynamic = null;
                 throw "Not supported";
@@ -425,7 +442,7 @@ class WorkerThread {
         #if js
             _thread.postMessage(o);
         #elseif (target.threaded)
-            sys.thead.Thread.sendMessage(_thread, o);
+            _thread.sendMessage(o);
         #else
             throw "Not supported";
         #end
@@ -462,15 +479,13 @@ class WorkerThread {
     public function new(pool : WorkerThreadPool) {
         if (pool != null) {
             _pool = pool;
-            if (WorkerThreadPool._exports == null) {
-                WorkerThreadPool._exports = pool.initExports(
-                    #if js    
-                        js.Syntax.code("this.workerInit")
-                    #else
-                        workerInit
-                    #end
-                );
-            }
+            #if js    
+                if (WorkerThreadPool._exports == null) {
+                    WorkerThreadPool._exports = pool.initExports(
+                            js.Syntax.code("this.workerInit")
+                    );
+                }
+            #end
             _thread = start();
         }
     }

@@ -37,7 +37,7 @@ import com.field.renderers.Style;
 /**
     The functions used by all FieldViews.
 **/
-interface FieldViewInterface extends com.field.navigator.NavigatorInterface {
+interface FieldViewInterface extends com.field.navigator.NavigatorInterface extends DisplayInterface {
     /**
 
     **/

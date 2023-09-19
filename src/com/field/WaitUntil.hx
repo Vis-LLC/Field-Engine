@@ -41,7 +41,7 @@ class WaitUntil {
     /**
         Indicate that an operation is being waited on.
     **/
-    public function wait() : Void {
+    public function mustWait() : Void {
         _wait++;
     }
 

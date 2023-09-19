@@ -85,4 +85,14 @@ interface FieldSystemInterface<L, S> {
         Represents a collection of Directions that represent how to navigate a Field.
     **/
     function navigator() : NavigatorCoreInterface;
+
+    /**
+        Represents a collection of Directions that represent how to navigate a Field.  This version is unlocked and does not restrict to directions that match the grid perfectly.
+    **/
+    function unlockedNavigator() : NavigatorCoreInterface;
+
+    /**
+        Sets scaleXY to the specified value.
+    **/
+    function setScaleXY(scaleXY : Float) : Void;
 }

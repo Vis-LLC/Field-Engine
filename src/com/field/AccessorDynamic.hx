@@ -67,7 +67,7 @@ class AccessorDynamic implements AccessorInterface {
         return -1;
     }
     
-    public function lookupLocationValue(attribute : String, value : Any) : Int {
+    public function lookupLocationValue(attribute : String, value : Any) : Null<Int> {
         var info : AttributeInfoDynamic = _data.fd.getLocationAttribute(attribute);
         switch (info.type) {
             case 0:
@@ -82,7 +82,7 @@ class AccessorDynamic implements AccessorInterface {
         }
     }
 
-    public function lookupLocationValueDirect(attribute : Int, value : Any) : Int {
+    public function lookupLocationValueDirect(attribute : Int, value : Any) : Null<Int> {
         var info : AttributeInfoDynamic = _data.fd.getLocationAttributeDirect(attribute);
         switch (info.type) {
             case 0:
@@ -97,7 +97,7 @@ class AccessorDynamic implements AccessorInterface {
         }
     }
 
-    public function lookupSpriteValue(attribute : String, value : Any) : Int {
+    public function lookupSpriteValue(attribute : String, value : Any) : Null<Int> {
         var info : AttributeInfoDynamic = _data.fd.getSpriteAttribute(attribute);
         switch (info.type) {
             case 0:
@@ -112,7 +112,7 @@ class AccessorDynamic implements AccessorInterface {
         }
     }
     
-    public function lookupSpriteValueDirect(attribute : Int, value : Any) : Int {
+    public function lookupSpriteValueDirect(attribute : Int, value : Any) : Null<Int> {
         var info : AttributeInfoDynamic = _data.fd.getSpriteAttributeDirect(attribute);
         switch (info.type) {
             case 0:
@@ -160,34 +160,51 @@ class AccessorDynamic implements AccessorInterface {
     }
 
     public function setLocationString(i : Int, attribute : String, value : String) : Void {
-        _data.fd.getLocationDirect(i).attribute(attribute, value);
+        getLocationDirect(i).attribute(attribute, value);
+    }
+
+    private function getLocationDirect(i : Int) : com.field.LocationDynamic {
+        if (getLocationAttributeCount() <= 0) {
+            return _data.fd.getLocationDirect(i);
+        } else {
+            return _data.fd.getLocationDirect(cast i / getLocationAttributeCount());
+        }
+    }
+
+    private function getSpriteDirect(i : Int) : com.field.SpriteDynamic {
+        if (getSpriteAttributeCount() <= 0) {
+            return _data.fd.getSpriteDirect(i);
+        } else {
+            return _data.fd.getSpriteDirect(cast i / getSpriteAttributeCount());
+        }
     }
 
     public function setSpriteString(i : Int, attribute : String, value : String) : Void {
-        _data.fd.getSpriteDirect(i).attribute(attribute, value);
+        getSpriteDirect(i).attribute(attribute, value);
     }
 
     public function setLocationStringDirect(i : Int, attribute : Int, value : String) : Void {
-        _data.fd.getLocationDirect(i).attributeDirect(attribute, value);
+        getLocationDirect(i).attributeDirect(attribute, value);
     }
 
     public function setSpriteStringDirect(i : Int, attribute : Int, value : String) : Void {
-        _data.fd.getSpriteDirect(i).attributeDirect(attribute, value);
+        getSpriteDirect(i).attributeDirect(attribute, value);
     }
 
     public function getLocationString(i : Int, attribute : String) : String {
-        return _data.fd.getLocationDirect(i).attribute(attribute);
+        return getLocationDirect(i).attribute(attribute);
     }
+
     public function getSpriteString(i : Int, attribute : String) : String {
-        return _data.fd.getSpriteDirect(i).attribute(attribute);
+        return getSpriteDirect(i).attribute(attribute);
     }
 
     public function getLocationStringDirect(i : Int, attribute : Int) : String {
-        return _data.fd.getLocationDirect(i).attributeDirect(attribute);
+        return getLocationDirect(i).attribute(_data.fd.getLocationAttributeDirect(attribute).name);
     }
 
     public function getSpriteStringDirect(i : Int, attribute : Int) : String {
-        return _data.fd.getSpriteDirect(i).attribute(attribute);
+        return getSpriteDirect(i).attribute(_data.fd.getSpriteAttributeDirect(attribute).name);
     }
 
     public function lookupLocationFloat(attribute : String, value : Float) : Int {
@@ -231,67 +248,67 @@ class AccessorDynamic implements AccessorInterface {
     }
 
     public function setLocationFloat(i : Int, attribute : String, value : Float) : Void {
-        _data.fd.getLocationDirect(i).attribute(attribute, value);
+        getLocationDirect(i).attribute(attribute, value);
     }
 
     public function setSpriteFloat(i : Int, attribute : String, value : Float) : Void {
-        _data.fd.getSpriteDirect(i).attribute(attribute, value);
+        getSpriteDirect(i).attribute(attribute, value);
     }
 
     public function setLocationFloatDirect(i : Int, attribute : Int, value : Float) : Void {
-        _data.fd.getLocationDirect(i).attributeDirect(attribute, value);
+        getLocationDirect(i).attributeDirect(attribute, value);
     }
 
     public function setSpriteFloatDirect(i : Int, attribute : Int, value : Float) : Void {
-        _data.fd.getSpriteDirect(i).attributeDirect(attribute, value);
+        getSpriteDirect(i).attributeDirect(attribute, value);
     }
 
     public function getLocationFloat(i : Int, attribute : String) : Float {
-        return _data.fd.getLocationDirect(i).attribute(attribute);
+        return getLocationDirect(i).attribute(attribute);
     }
 
     public function getSpriteFloat(i : Int, attribute : String) : Float {
-        return _data.fd.getSpriteDirect(i).attribute(attribute);
+        return getSpriteDirect(i).attribute(attribute);
     }
 
     public function getLocationFloatDirect(i : Int, attribute : Int) : Float {
-        return _data.fd.getLocationDirect(i).attributeDirect(attribute);
+        return getLocationDirect(i).attributeDirect(attribute);
     }
 
     public function getSpriteFloatDirect(i : Int, attribute : Int) : Float {
-        return _data.fd.getSpriteDirect(i).attributeDirect(attribute);
+        return getSpriteDirect(i).attributeDirect(attribute);
     }
     
     public function setLocationInteger(i : Int, attribute : String, value : Int) : Void {
-        _data.fd.getLocationDirect(i).attribute(attribute, value);
+        getLocationDirect(i).attribute(attribute, value);
     }
 
     public function setSpriteInteger(i : Int, attribute : String, value : Int) : Void {
-        _data.fd.getSpriteDirect(i).attribute(attribute, value);
+        getSpriteDirect(i).attribute(attribute, value);
     }
 
     public function setLocationIntegerDirect(i : Int, attribute : Int, value : Int) : Void {
-        _data.fd.getLocationDirect(i).attributeDirect(attribute, value);
+        getLocationDirect(i).attributeDirect(attribute, value);
     }
 
     public function setSpriteIntegerDirect(i : Int, attribute : Int, value : Int) : Void {
-        _data.fd.getSpriteDirect(i).attributeDirect(attribute, value);
+        getSpriteDirect(i).attributeDirect(attribute, value);
     }
 
     public function getLocationInteger(i : Int, attribute : String) : Int {
-        return cast _data.fd.getLocationDirect(i).attribute(attribute);
+        return cast getLocationDirect(i).attribute(attribute);
     }
 
     public function getSpriteInteger(i : Int, attribute : String) : Int {
-        return cast _data.fd.getSpriteDirect(i).attribute(attribute);
+        return cast getSpriteDirect(i).attribute(attribute);
     }
 
     public function getLocationIntegerDirect(i : Int, attribute : Int) : Int {
-        return cast _data.fd.getLocationDirect(i).attributeDirect(attribute);
+        return cast getLocationDirect(i).attributeDirect(attribute);
     }
 
     public function getSpriteIntegerDirect(i : Int, attribute : Int) : Int {
-        return cast _data.fd.getSpriteDirect(i).attributeDirect(attribute);
+        return cast getSpriteDirect(i).attributeDirect(attribute);
     }
 
     public function getLocationType(attribute : String) : Int {
@@ -311,35 +328,35 @@ class AccessorDynamic implements AccessorInterface {
     }
 
     public function getLocationAttribute(i : Int, attribute : String) : Any {
-        return _data.fd.getLocationDirect(i).attribute(attribute);
+        return getLocationDirect(i).attribute(attribute);
     }
 
     public function getSpriteAttribute(i : Int, attribute : String) : Any {
-        return _data.fd.getSpriteDirect(i).attribute(attribute);
+        return getSpriteDirect(i).attribute(attribute);
     }
 
     public function getLocationAttributeDirect(i : Int, attribute : Int) : Any {
-        return _data.fd.getLocationDirect(i).attributeDirect(attribute);
+        return getLocationDirect(i).attributeDirect(attribute);
     }
 
     public function getSpriteAttributeDirect(i : Int, attribute : Int) : Any {
-        return _data.fd.getSpriteDirect(i).attributeDirect(attribute);
+        return getSpriteDirect(i).attributeDirect(attribute);
     }
 
     public function setLocationAttribute(i : Int, attribute : String, value : Any) : Void {
-        _data.fd.getLocationDirect(i).attribute(attribute, value);
+        getLocationDirect(i).attribute(attribute, value);
     }
 
     public function setSpriteAttribute(i : Int, attribute : String, value : Any) : Void {
-        _data.fd.getSpriteDirect(i).attribute(attribute, value);
+        getSpriteDirect(i).attribute(attribute, value);
     }
 
     public function setLocationAttributeDirect(i : Int, attribute : Int, value : Any) : Void {
-        _data.fd.getLocationDirect(i).attributeDirect(attribute, value);
+        getLocationDirect(i).attributeDirect(attribute, value);
     }
 
     public function setSpriteAttributeDirect(i : Int, attribute : Int, value : Any) : Void {
-        _data.fd.getSpriteDirect(i).attributeDirect(attribute, value);
+        getSpriteDirect(i).attributeDirect(attribute, value);
     }
 
     public function locationAttributesLookupCount() : Int {

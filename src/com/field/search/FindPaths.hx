@@ -101,8 +101,8 @@ class FindPaths {
         }
     }
 
-    private static function paramList(width : Int, height : Int, dest : Int, impassable : Int) : NativeVector<Int> {
-        var arr : NativeArray<Int> = new NativeArray<Int>();
+    private static function paramList(width : Int, height : Int, dest : Int, impassable : Int) : NativeVector<Null<Int>> {
+        var arr : NativeArray<Null<Int>> = new NativeArray<Null<Int>>();
         arr.push(width);
         arr.push(height);
         arr.push(dest);
@@ -110,8 +110,8 @@ class FindPaths {
         return arr.toVector();
     }
 
-    private static function initParamList(width : Int, height : Int, dest : Int, impassable : Int, dests : NativeArray<Int>) : NativeVector<Int> {
-        var arr : NativeArray<Int> = new NativeArray<Int>();
+    private static function initParamList(width : Int, height : Int, dest : Int, impassable : Int, dests : NativeArray<Null<Int>>) : NativeVector<Null<Int>> {
+        var arr : NativeArray<Null<Int>> = new NativeArray<Null<Int>>();
         arr.push(width);
         arr.push(height);
         arr.push(dest);
@@ -120,7 +120,7 @@ class FindPaths {
         return arr.toVector();
     }    
    
-    private static function initMap(locationMemory : NativeVector<Int>, locationAttributes : Int, fieldWidth : Int, fieldHeight : Int, params : NativeVector<Int>) : Int {
+    private static function initMap(locationMemory : NativeVector<Null<Int>>, locationAttributes : Int, fieldWidth : Int, fieldHeight : Int, params : NativeVector<Null<Int>>) : Int {
         var thread_x : Int = 0;
         var thread_y : Int = 0;
         var width : Int = params.get(0);
@@ -188,7 +188,29 @@ class FindPaths {
             }
         }
 
-        code.execute(field, initParamList(width, width, dest, impassable, dests), paramList(width, width, dest, impassable), null, function (result : WorkerGPGPUResult) {
+        var pl1 : NativeVector<Null<Int>> = initParamList(width, width, dest, impassable, dests);
+        var pl2 : NativeVector<Null<Int>> = paramList(width, width, dest, impassable);
+
+        #if java
+            var pl1b : NativeVector<Int> = new NativeVector<Int>(pl1.length());
+            var pl2b : NativeVector<Int> = new NativeVector<Int>(pl2.length());
+        
+            var i : Int = 0;
+            while (i < pl1.length()) {
+                pl1b.set(i, pl1.get(i));
+                i++;
+            }
+            i = 0;
+            while (i < pl2.length()) {
+                pl2b.set(i, pl2.get(i));
+                i++;
+            }
+        #else
+            var pl1b : NativeVector<Int> = cast pl1;
+            var pl2b : NativeVector<Int> = cast pl2;
+        #end
+
+        code.execute(field, pl1b, pl2b, null, function (result : WorkerGPGPUResult) {
             var result2 : FindPathsResult = new FindPathsResult();
             callback(result2);
         });

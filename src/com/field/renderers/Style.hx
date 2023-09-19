@@ -32,9 +32,9 @@ abstract Style (
 #if js
     String
 #elseif java
-    
+    NativeArray<String>
 #elseif cs
-    
+    Any
 #else
     Any
 #end

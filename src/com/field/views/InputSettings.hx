@@ -45,8 +45,8 @@ class InputSettings extends com.field.renderers.RendererAccessor implements com.
     private var _gamepadOnTouch : Bool;
     private var _gridType : Int;
 
-    public var _thresholdX : Float;
-    public var _thresholdY : Float;
+    public var _thresholdX : Null<Float>;
+    public var _thresholdY : Null<Float>;
     public var _unknownKey : Null<Int->Void>;
     public var _gamepad : Null<Int->NativeIntMap<Float>->Void>;
     public var _mouse : Null<String->Element->Void>;
@@ -383,6 +383,7 @@ class InputSettings extends com.field.renderers.RendererAccessor implements com.
                     cast js.Syntax.code("navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : [])");
                 #else
                     // TODO
+                    new NativeVector<GamepadInfo>(0);
                 #end
                 for (i in _oldGPState.keys()) {
                     if (i > gamepads.length()) {

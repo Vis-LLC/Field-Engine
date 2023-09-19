@@ -30,31 +30,35 @@ import com.field.manager.Allocator;
 **/
 @:nativeGen
 class PoolVector2D<T> implements Pool<T> {
-    private var _data : haxe.ds.Vector<Null<haxe.ds.Vector<Null<T>>>>;
+    private var _data : NativeVector<Null<NativeVector<Null<T>>>>;
     private var _allocator : Allocator<T>;
     private var _count : Int = 0;
     private var _x : Int;
 
     public function new(allocator : Allocator<T>, x : Int, y : Int) {
-        _data = new haxe.ds.Vector<Null<haxe.ds.Vector<Null<T>>>>(y);
+        #if java
+            _data = cast new NativeVector<Null<NativeVector<Null<Any>>>>(y);
+        #else
+            _data = new NativeVector<Null<NativeVector<Null<T>>>>(y);
+        #end
         _allocator = allocator;
     }
 
     public function add(o : T) : Void { }
 
     public function get(x : Int, y : Int, create : Bool, getFrom : Pool<T>) : T {
-        var row : Null<haxe.ds.Vector<Null<T>>>;
+        var row : Null<NativeVector<Null<T>>>;
         
-        if (y >= _data.length) {
+        if (y >= _data.length()) {
             row = null;
         } else {
-            row = _data[y];
+            row = _data.get(y);
         }
 
         if (row == null) {
             if (create) {
-                row = new haxe.ds.Vector<Null<T>>(x);
-                _data[y] = row;
+                row = new NativeVector<Null<T>>(x);
+                _data.set(y, row);
             } else {
                 return null;
             }
@@ -62,10 +66,10 @@ class PoolVector2D<T> implements Pool<T> {
 
         var o : Null<T>;
         
-        if (x >= row.length) {
+        if (x >= row.length()) {
             o = null;
         } else {
-            o = row[x];
+            o = row.get(x);
         }
         
         if (o == null) {
@@ -76,7 +80,7 @@ class PoolVector2D<T> implements Pool<T> {
                     o = _allocator.allocate();
                 }
                 _count++;
-                row[x] = o;
+                row.set(x, o);
             } else {
                 return null;
             }
@@ -97,25 +101,25 @@ class PoolVector2D<T> implements Pool<T> {
         var x : Int = _allocator.getX(o);
         var y : Int = _allocator.getY(o);
 
-        var row : Null<haxe.ds.Vector<Null<T>>>;
+        var row : Null<NativeVector<Null<T>>>;
         
-        if (y >= _data.length) {
+        if (y >= _data.length()) {
             row = null;
         } else {
-            row = _data[y];
+            row = _data.get(y);
         }
 
         if (row != null) {
             var o;
             
-            if (x >= row.length) {
+            if (x >= row.length()) {
                 o = null;
             } else {
-                o = row[x];
+                o = row.get(x);
             }
             
             if (o != null) {
-                row[x] = null;
+                row.set(x, null);
                 _count--;
             }
         }
@@ -123,11 +127,11 @@ class PoolVector2D<T> implements Pool<T> {
 
     public function forEach(f : Int->Int->T->Void) : Void {
         var j : Int = 0;
-        while (j < _data.length) {
-            var row : Null<haxe.ds.Vector<Null<T>>> = _data.get(j);
+        while (j < _data.length()) {
+            var row : Null<NativeVector<Null<T>>> = _data.get(j);
             if (row != null) {
                 var i : Int = 0;
-                while (i < row.length) {
+                while (i < row.length()) {
                     f(i, j, row.get(i));
                     i++;
                 }

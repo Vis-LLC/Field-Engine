@@ -93,10 +93,16 @@ interface RendererInterface {
     function createFragment(parent : Element) : Element;
     function mergeFragment(parent : Element, fragment : Element) : Void;
     function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>>;
+    function getText(e : Element) : String;
     function setText(e : Element, s : String) : Void;
     function createElement(?s : Null<String>) : Element;
     function setStyleLeft(e : Element, v : LeftStyle) : Void;
     function setStyleTop(e : Element, v : TopStyle) : Void;
     function setStyleBottom(e : Element, v : TopStyle) : Void;
+    function defaultParent() : Element;
+    function fixedSizing() : Bool;
+    function doDisplay() : Void;
+    function initBufferForInner(e : Element) : Void;
+    function mode() : RendererMode;
 }
 #end

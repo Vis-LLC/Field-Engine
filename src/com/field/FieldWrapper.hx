@@ -148,11 +148,11 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
         _field.advanced().scheduleOperation(f, options);
     }
 
-    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         _field.advanced().smallOperation(f, callback, whenDone, data, cleanDivide);
     }
 
-    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         _field.advanced().largeOperation(f, callback, whenDone, data, cleanDivide);
     }
 
@@ -275,6 +275,11 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
         return field.navigator();
     }
 
+    public function unlockedNavigator() : NavigatorCoreInterface {
+        var field : FieldSystemInterface<L, S> = cast _field;
+        return field.unlockedNavigator();
+    }
+
     public function lastMajorChange() : Dynamic {
         return _field.lastMajorChange();
     }
@@ -282,6 +287,11 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
     public function getSpriteDirect(i : Int) : S {
         var fd : FieldDynamicInterface<L, S> = cast _field;
         return fd.getSpriteDirect(i);
+    }
+
+    public function newSprite() : Int {
+        var fd : FieldDynamicInterface<L, S> = cast _field;
+        return fd.newSprite();
     }
 
     public function getLocationDirect(i : Int) : L {
@@ -364,7 +374,7 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
         return fd.spriteAttributeWithFloat(name, value);
     }
 
-    public function spriteAttribute(name : String, value : Dynamic) : Int {
+    public function spriteAttribute(name : String, value : Dynamic) : Null<Int> {
         var fd : FieldDynamicInterface<L, S> = cast _field;
         return fd.spriteAttribute(name, value);
     }
@@ -389,7 +399,7 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
         return fd.locationAttributeWithFloat(name, value);
     }
 
-    public function locationAttribute(name : String, value : Dynamic) : Int {
+    public function locationAttribute(name : String, value : Dynamic) : Null<Int> {
         var fd : FieldDynamicInterface<L, S> = cast _field;
         return fd.locationAttribute(name, value);
     }
@@ -427,5 +437,18 @@ class FieldWrapper<L, S> implements FieldInterface<L, S> implements FieldAdvance
                 callback(this);
             }
         });
+    }
+
+    public function isDynamic() : Bool {
+        return _field.isDynamic();
+    }
+
+    public function scaleXY() : Float {
+        return _field.scaleXY();
+    }
+
+    public function setScaleXY(scaleXY : Float) : Void {
+        var field : FieldSystemInterface<L, S> = cast _field;
+        field.setScaleXY(scaleXY);
     }
 }

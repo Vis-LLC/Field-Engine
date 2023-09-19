@@ -5,6 +5,6 @@ cd "%~dp0"
 cd $(dirname "$0")
 mkdir out 2> NUL
 haxe -cs out -cp src com.field -D fast_cast
-sh ./Build_Docs
-cmd /c .\Build_Docs
+move out\bin\out.dll out\fe.dll > NUL 2> NUL
+
 popd

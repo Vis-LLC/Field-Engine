@@ -37,10 +37,10 @@ interface AccessorInterface {
     function getSpriteAttributeCount() : Int;
     function getLocationAttributePosition(attribute : String) : Int;
     function getSpriteAttributePosition(attribute : String) : Int;
-    function lookupLocationValue(attribute : String, value : Any) : Int;
-    function lookupLocationValueDirect(attribute : Int, value : Any) : Int;
-    function lookupSpriteValue(attribute : String, value : Any) : Int;
-    function lookupSpriteValueDirect(attribute : Int, value : Any) : Int;    
+    function lookupLocationValue(attribute : String, value : Any) : Null<Int>;
+    function lookupLocationValueDirect(attribute : Int, value : Any) : Null<Int>;
+    function lookupSpriteValue(attribute : String, value : Any) : Null<Int>;
+    function lookupSpriteValueDirect(attribute : Int, value : Any) : Null<Int>;    
     function lookupLocationString(attribute : String, value : String) : Int;
     function lookupSpriteString(attribute : String, value : String) : Int;
     function lookupLocationStringDirect(attribute : Int, value : String) : Int;

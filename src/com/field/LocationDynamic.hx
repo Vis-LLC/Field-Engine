@@ -30,7 +30,9 @@ package com.field;
 class LocationDynamic extends LocationDynamicAbstract<FieldDynamic, LocationDynamic, SpriteDynamic> {
     private static var _allocator = new LocationDynamicAllocator();
 
-    public function new() { }
+    public function new() {
+        super();
+    }
 
     public static function getAllocator() : com.field.manager.AllocatorLocation<LocationDynamic> {
         return _allocator;

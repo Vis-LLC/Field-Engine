@@ -23,6 +23,7 @@
 package com.field;
 
 import com.field.navigator.NavigatorInterface;
+import com.field.navigator.NavigatorInterface;
 import com.field.navigator.NavigatorStandard;
 
 import haxe.Exception;
@@ -32,11 +33,12 @@ import haxe.Exception;
 /**
     Defines most of the functionality for the standard Sprite.
 **/
-class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> implements SpriteInterface<F, S> implements SpriteSystemInterface {
+class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> implements SpriteInterface<F, S> implements SpriteSystemInterface<F> {
     private var _s : S;
     private var _i : Null<Int> = null;
     private var _attributesString : Null<String> = null;
     private var _navigator : Null<NavigatorInterface> = null;
+    private var _unlockedNavigator : Null<NavigatorInterface> = null;
 
     private static function append(s : StringBuf, n : String, o : Any) : Void {
         s.add(" ");
@@ -187,7 +189,7 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
             y = 0;
         }
         var accessor : AccessorInterface = _field.getDefaultAccessor();
-        var current : Int = accessor.getSpriteInteger(accessor.moveSprite(0, _i), "location");
+        var current : Null<Int> = accessor.getSpriteInteger(accessor.moveSprite(0, _i), "location");
         var j : Int = x + y * accessor.getColumns();
 
         accessor.setSpriteInteger(accessor.moveSprite(0, _i), "location", j + 1);
@@ -195,8 +197,13 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         var spritesAtLocation = _field.getSpritesAtLocation();
         if (current != 0)
         {
-            current--;
-            var currentLocation = spritesAtLocation.get(current);
+            var currentLocation;
+            if (current == null) {
+                currentLocation = null;
+            } else {
+                current--;
+                currentLocation = spritesAtLocation.get(current);
+            }
             if (currentLocation == null) {
                 // Intentionally Left Blank
             } /*else if (currentLocation.length <= 1) {
@@ -359,6 +366,55 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
             _navigator = new NavigatorStandard(this, s.navigator());
         }
         return _navigator;
+    }
+
+    public function unlockedNavigator() : NavigatorInterface {
+        if (_unlockedNavigator == null) {
+            var s : FieldSystemInterface<L, S> = cast field();
+            _unlockedNavigator = new NavigatorStandard(this, s.unlockedNavigator());
+        }
+        return _unlockedNavigator;
+    }
+
+    public function hasValue() : Bool {
+        #if js
+            return cast js.Syntax.code("!!({0}.value)", this);
+        #else
+            return Std.is(this, SpriteExtendedInterface);
+        #end
+    }
+
+    public function isDynamic() : Bool {
+        return false;
+    }
+    
+    public function hasActualValue() : Bool {
+        #if js
+            return cast js.Syntax.code("!!({0}.actualValue)", this);
+        #else
+            return Std.is(this, SpriteExtendedInterface);
+        #end
+    }
+    
+    public function hasDataSource() : Bool {
+        #if js
+            if (cast js.Syntax.code("!!({0}.dataSource)", this)) {
+                return cast js.Syntax.code("!!({0}.dataSource())", this);
+            } else {
+                return false;
+            }
+        #else
+            if (Std.is(this, SpriteExtendedInterface)) {
+                var le : SpriteExtendedInterface = cast this;
+                return le.dataSource() != null;
+            } else {
+                return false;
+            }
+        #end
+    } 
+    
+    public function getField() : F {
+        return cast _field;
     }
 }
 /*

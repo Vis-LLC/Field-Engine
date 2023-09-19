@@ -31,12 +31,12 @@ interface FieldAdvancedInterface extends HasAccessor {
     /**
         These operations are generally run in parallel on multiple threads.
     **/
-    function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void;
+    function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void;
 
     /**
         These operations are generally run sequentially.
     **/
-    function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void;
+    function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void;
     
     /**
         These operations are "batched".  Normally, they run sequentially as "small operations", but when there are multiple requested at one time, they are run in a set as a "large operation".

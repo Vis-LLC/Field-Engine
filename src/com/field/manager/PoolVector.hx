@@ -30,25 +30,25 @@ import com.field.manager.Allocator;
 **/
 @:nativeGen
 class PoolVector<T> implements Pool<T> {
-    private var _data : haxe.ds.Vector<Null<T>>;
+    private var _data : NativeVector<Null<T>>;
     private var _allocator : Allocator<T>;
     private var _count = 0;
 
     public function new(allocator : Allocator<T>, size : Int) {
-        _data = new haxe.ds.Vector<T>(size);
+        _data = new NativeVector<Null<T>>(size);
         _allocator = allocator;
     }
 
     public function add(o : T) : Void {
-        _data[_count++];
+        _data.set(_count++, o);
     }
 
     public function get(x : Int, y : Int, create : Bool, getFrom : Pool<T>) : T {
-        var o : Null<T> = _data[x];
+        var o : Null<T> = _data.get(x);
         if (o == null) {
             o = _allocator.allocate();
             _count++;
-            _data[x] = o;
+            _data.set(x, o);
         }
         return o;
     }
@@ -59,8 +59,8 @@ class PoolVector<T> implements Pool<T> {
 
     public function pop() : T {
         _count--;
-        var o = _data[_count];
-        _data[_count] = null;
+        var o = _data.get(_count);
+        _data.set(_count, null);
         return o;
     }
 
@@ -68,8 +68,9 @@ class PoolVector<T> implements Pool<T> {
 
     public function forEach(f : Int->Int->T->Void) : Void {
         var i : Int = 0;
-        while (i < _data.length) {
-            f(i, 0, _data.get(i));
+        while (i < _data.length()) {
+            var v : Any = _data.get(i);
+            f(i, 0, cast v);
             i++;
         }
     }

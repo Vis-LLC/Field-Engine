@@ -219,4 +219,14 @@ interface FieldInterface<L, S> extends HasAccessor extends FrameOfReference {
         Provides access to the "advanced" Field functions.
     **/
     function advanced() : FieldAdvancedInterface;
+
+    /**
+        Checks to see if the Field is actually Dynamic.
+    **/
+    function isDynamic() : Bool;
+
+    /**
+        The ratio of the X coordinate to the Y coordinate, when displaying per location.  Default is 1.
+    **/
+    function scaleXY() : Float;
 }

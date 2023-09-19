@@ -112,6 +112,7 @@ class AbstractView extends com.field.renderers.RendererAccessor {
             return js.Syntax.code("{0}.originalClassName", e);
         #else
             // TODO
+            return null;
         #end
     }    
   
@@ -120,6 +121,7 @@ class AbstractView extends com.field.renderers.RendererAccessor {
             return cast js.Syntax.code("!!({0}.value)", lLocation);
         #else
             // TODO
+            return false;
         #end
     }
 
@@ -128,6 +130,16 @@ class AbstractView extends com.field.renderers.RendererAccessor {
             return cast js.Syntax.code("{0}.value()", lLocation);
         #else
             // TODO
+            return null;
+        #end
+    }
+
+    private inline function getSpriteValue(sSprite : SpriteInterface<Dynamic, Dynamic>) : Any {
+        #if js
+            return cast js.Syntax.code("{0}.value()", sSprite);
+        #else
+            // TODO
+            return null;
         #end
     }
 
@@ -136,6 +148,7 @@ class AbstractView extends com.field.renderers.RendererAccessor {
             return cast js.Syntax.code("!!({0}.dataSource)", lLocation);
         #else
             // TODO
+            return false;
         #end
     }
 
@@ -144,12 +157,13 @@ class AbstractView extends com.field.renderers.RendererAccessor {
             return cast js.Syntax.code("{0}.dataSource()", lLocation);
         #else
             // TODO
+            return true;
         #end
     }    
 
     private inline function setDataSource(o : Element, v : Any) : Void {
         #if js
-            setTextContent(o, "");
+            setText(o, "");
             js.Syntax.code("
                 var ifFrame = document.createElement(\"iframe\");
                 ifFrame.src = {1};

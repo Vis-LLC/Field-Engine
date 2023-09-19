@@ -30,7 +30,9 @@ package com.field;
 class SpriteStandard extends SpriteAbstract<FieldStandard, LocationStandard, SpriteStandard> {
     private static var _allocator = new SpriteStandardAllocator();
 
-    public function new() { }
+    public function new() {
+        super();
+    }
 
     public static function getAllocator() : com.field.manager.AllocatorSprite<SpriteStandard> {
         return _allocator;

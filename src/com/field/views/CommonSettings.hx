@@ -92,7 +92,7 @@ class CommonSettings<T> {
     /**
          Move element focus when moving.
     **/
-    public var triggerFocusOnElement : Bool;
+    public var triggerFocusOnElement : Null<Bool>;
 
     /**
         The memory manager to use to manage the LocationView/SpriteView instances.
@@ -119,6 +119,8 @@ class CommonSettings<T> {
     public var click : Bool;
     public var willChange : Bool;
     public var rawText : Bool;
+    public var draggable : Bool;
+    public var resizable : Bool;
 
     public inline function new() { }
 }

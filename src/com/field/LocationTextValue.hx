@@ -30,7 +30,9 @@ package com.field;
     Defines a Location that can also contain a text value.
 **/
 class LocationTextValue extends LocationAbstract<FieldStandard, LocationTextValue, Dynamic> implements LocationExtendedInterface {
-    public function new() { }
+    public function new() {
+        super();
+    }
 
     public function value(?oNew : Any = null) : Any {
         return attribute("value", oNew);

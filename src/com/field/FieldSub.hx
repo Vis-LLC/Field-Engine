@@ -185,11 +185,11 @@ class FieldSub<L, S> implements FieldInterface<L, S> implements FieldAdvancedInt
         _parent.advanced().scheduleOperation(f, options);
     }
 
-    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function smallOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         _parent.advanced().smallOperation(f, callback, whenDone, data, cleanDivide);
     }
 
-    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Int) : Void {
+    public function largeOperation(f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, cleanDivide : Null<Int>) : Void {
         _parent.advanced().largeOperation(f, callback, whenDone, data, cleanDivide);
     }
 
@@ -312,7 +312,25 @@ class FieldSub<L, S> implements FieldInterface<L, S> implements FieldAdvancedInt
         return field.navigator();
     }
 
+    public function unlockedNavigator() : NavigatorCoreInterface {
+        var field : FieldSystemInterface<L, S> = cast _parent;
+        return field.unlockedNavigator();
+    }    
+
     public function lastMajorChange() : Dynamic {
         return null;
+    }    
+
+    public function isDynamic() : Bool {
+        return _parent.isDynamic();
+    }
+
+    public function scaleXY() : Float {
+        return _parent.scaleXY();
+    }
+
+    public function setScaleXY(scaleXY : Float) : Void {
+        var field : FieldSystemInterface<L, S> = cast _parent;
+        field.setScaleXY(scaleXY);
     }    
 }

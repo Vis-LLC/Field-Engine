@@ -45,22 +45,12 @@ class LocationDynamicAbstract<F, L, S> extends LocationAbstract<F, L, S> impleme
             if (_attributes == null) {
                 _attributes = new NativeStringMap<Any>();
             }
-            _attributes.set(sName, iValue);
+            _attributes.set(sName, oValue);
             return oValue;
         } else {
             var field : FieldDynamicInterface<L, S> = cast _field;
             var info : AttributeInfoDynamic = field.getLocationAttribute(sName);
-            var iValue : Int = _attributes.get(info.name);
-            switch (info.type) {
-                case 0:
-                    return info.reverse.get(iValue);
-                case 1:
-                    return iValue;
-                case 2:
-                    return iValue * info.divider;
-                default:
-                    return  -1;
-            }
+            return _attributes.get(info.name);
         }     
     }
 
@@ -74,6 +64,10 @@ class LocationDynamicAbstract<F, L, S> extends LocationAbstract<F, L, S> impleme
             r = oValue;
             var field : FieldDynamicInterface<L, S> = cast _field;
             field.locationAttributeDirect(attribute, oValue);
+            if (_attributes == null) {
+                _attributes = new NativeStringMap<Any>();
+            }
+            _attributes.set(field.getLocationAttributeDirect(attribute).name, oValue);
         } else {
             var field : FieldDynamicInterface<L, S> = cast _field;
             var info : AttributeInfoDynamic = field.getLocationAttributeDirect(attribute);
@@ -83,17 +77,7 @@ class LocationDynamicAbstract<F, L, S> extends LocationAbstract<F, L, S> impleme
                 case "value":
                     return value();
                 default:
-                    var iValue : Int = _attributes.get(info.name);
-                    switch (info.type) {
-                        case 0:
-                            return info.reverse.get(iValue);
-                        case 1:
-                            return iValue;
-                        case 2:
-                            return iValue * info.divider;
-                        default:
-                            return  -1;
-                    }
+                    return _attributes.get(info.name);
             }
         }     
         return r;

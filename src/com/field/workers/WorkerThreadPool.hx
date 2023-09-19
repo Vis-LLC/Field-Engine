@@ -114,6 +114,7 @@ class WorkerThreadPool implements WorkerThreadPoolInterface {
             return accessorIds;
         #else
             // TODO
+            return null;
         #end
     }
 
@@ -639,7 +640,7 @@ class WorkerThreadPool implements WorkerThreadPoolInterface {
             }
         }
 
-        private function addToCacheIfNotFound(o : Dynamic, ?convert : Null<Bool>, ?storeId : Null<Bool>) : String {
+        private function addToCacheIfNotFound(o : Dynamic, ?convert : Null<Bool>, ?storeId : Null<Bool>) : Any {
             var i : Null<Int> = searchCacheFor(o, storeId);
 
             if (i == null) {
@@ -709,6 +710,17 @@ class WorkerThreadPool implements WorkerThreadPoolInterface {
 
             return o;
         }
+    #else
+        public function registerObjectToGlobal(k : String) {
+        }
+
+        private function addToCacheIfNotFound(o : Dynamic, ?convert : Null<Bool>, ?storeId : Null<Bool>) : Any {
+            return o;
+        }
+
+        private function convertObject(o : Any) : Any {
+            return o;
+        }
     #end
 
     public function splitWork(processors : Null<Int>, f : AccessorInterface -> Any, callback : Null<Any->Any->Int->Int->Void>, whenDone : NativeVector<Any>->NativeVector<Any>->NativeVector<Int>->Int->Void, data : Any, ?cleanDivide : Null<Int>) : Void {
@@ -717,7 +729,7 @@ class WorkerThreadPool implements WorkerThreadPoolInterface {
         }
 
         var start : Date = Date.now();
-        var fToSend : String = addToCacheIfNotFound(f, null, true);
+        var fToSend : Any = addToCacheIfNotFound(f, null, true);
         var dataToSend : Any = convertObject(data);
 
         if (cleanDivide != null) {

@@ -22,6 +22,7 @@
 
 package com.field.views;
 
+import com.field.renderers.RendererInterface;
 #if !EXCLUDE_RENDERING
 import com.field.navigator.DirectionInterface;
 
@@ -305,6 +306,18 @@ class FieldViewOptionsAbstract<T> extends OptionsAbstract<T> {
 
     public function fixedGrid(fixedGrid : Bool) : T {
         return set("fixedGrid", fixedGrid);
+    }
+
+    public function draggableSprites() : T {
+        return set("spritesDraggable", true);
+    }
+
+    public function resizableSprites() : T {
+        return set("spritesResizable", true);
+    }    
+
+    public function renderer(renderer : RendererInterface) : T {
+        return set("renderer", renderer);
     }
 }
 #end

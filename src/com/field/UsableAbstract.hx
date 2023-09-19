@@ -31,6 +31,8 @@ class UsableAbstract<F, L, S, T> implements Usable<F, T> {
     private var _field : Null<FieldInterface<L, S>> = null;
     private var _inUse : Int = 0;
 
+    private function new() {}
+
     public function doneWith() : Void {
         _field.doneWith(cast this);
     }

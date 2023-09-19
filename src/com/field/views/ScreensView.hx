@@ -34,7 +34,7 @@ import com.field.renderers.Element;
 class ScreensView extends FieldViewAbstract {
     private var _start : Int;
     private var _end : Int;
-    private var _time : Int;
+    private var _time : Null<Int>;
     private var _onStart : Void->Void;
     private var _onEach : Int->Void;
     private var _onEnd : Void->Void;

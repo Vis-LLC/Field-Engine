@@ -43,16 +43,16 @@ class Convert {
     **/
     public static function array2DToFieldNoIndexes(foOptions : Array2DToFieldNoIndexesOptions) : FieldInterface<Dynamic, Dynamic> {
         var oValues : NativeVector<NativeVector<Any>>;
-        var iColumns : Int;
-        var iRows : Int;
-        var iStartColumn : Int;
+        var iColumns : Null<Int>;
+        var iRows : Null<Int>;
+        var iStartColumn : Null<Int>;
         var iStartRow : Null<Int>;
         var bByRow : Null<Bool>;
 
         {
             var fo : NativeStringMap<Any> = foOptions.toMap();
-            var width : Int = cast fo.get("width");
-            var height : Int = cast fo.get("height");
+            var width : Null<Int> = cast fo.get("width");
+            var height : Null<Int> = cast fo.get("height");
 
             oValues = cast fo.get("value");
             iColumns = cast fo.get("columns");
@@ -103,7 +103,12 @@ class Convert {
         }
 
         {
-            var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast foOptions);
+            #if cs
+                var o : Any = cast foOptions;
+                var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast o);
+            #else
+                var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast foOptions);
+            #end
             foOptions = null;
             var iEnd : Int = bByRow ? iRows : iColumns;
             var jEnd : Int = bByRow ? iColumns : iRows;
@@ -181,6 +186,23 @@ class Convert {
             cast js.Syntax.code("(typeof {0} === 'function')", o);
         #elseif php
             cast php.Syntax.code("is_callable({0})", o);
+        #elseif java
+            // TODO
+            return false;
+        #elseif python
+            cast python.Syntax.code("hasattr({0}, '__call__')", o);
+        #elseif cs
+            // TODO
+            false;
+        #elseif lua
+            // TODO
+            false;
+            //cast lua.Syntax.code("type({0}) == 'function'", entry);
+        #elseif hl
+            Reflect.isFunction(o);
+        #elseif cpp
+            // TODO
+            false;
         #else
             // TODO
         #end
@@ -236,7 +258,12 @@ class Convert {
             fo = null;
         }
         {
-            var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast foOptions);
+            #if cs
+                var o : Any = cast foOptions;
+                var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast o);
+            #else
+                var fField : FieldInterface<Dynamic, Dynamic> = cast FieldStandard.create(cast foOptions);
+            #end
             foOptions = null;
             var iCurrentColumn : Int = 0;
             var iCurrentRow : Int = 0;

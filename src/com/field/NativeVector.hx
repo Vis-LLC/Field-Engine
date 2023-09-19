@@ -29,10 +29,14 @@ package com.field;
 abstract NativeVector<V>(
 #if js
     Array<V>
+/* TODO
 #elseif java
-    java.util.Map<Int, V>
+    java.NativeArray<V>
+*/
+#elseif python
+    Any
 #elseif cs
-    cs.system.collections.IDictionary
+    cs.system.Array
 #elseif php
     Dynamic
 #else
@@ -43,10 +47,14 @@ abstract NativeVector<V>(
         this = #if js
             new Array<V>();
             this.resize(i)
+        /* TODO
         #elseif java
-            // TODO
+            new java.NativeArray<V>(i)
+        */
+        #elseif python
+            python.Syntax.code("[None] * {0}", i)
         #elseif cs
-            // TODO
+            new cs.NativeArray(i)
         #elseif php
             cast php.Syntax.code("new SplFixedArray({0})", i)
         #else
@@ -58,10 +66,14 @@ abstract NativeVector<V>(
     inline public function set(k : Int, v : Null<V>) : Void {
         #if js
             js.Syntax.code("{0}[{1}] = {2}", this, k, v);
+        /* TODO
         #elseif java
-            // TODO
+            this[k] = v;
+        */
+        #elseif python
+            python.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #elseif cs
-            // TODO
+            this.SetValue(v, k);
         #elseif php
             php.Syntax.code("{0}[{1}] = {2}", this, k, v);
         #else
@@ -72,10 +84,14 @@ abstract NativeVector<V>(
     inline public function get(k : Int) : Null<V> {
         #if js
             return this[k];
+        /* TODO
         #elseif java
-            // TODO
+            return this[k];
+        */
+        #elseif python
+            return cast python.Syntax.code("{0}[{1}]", this, k);
         #elseif cs
-            // TODO
+            return cast this.GetValue(k);
         #elseif php
             return cast php.Syntax.code("{0}[{1}]", this, k);
         #else
@@ -86,10 +102,14 @@ abstract NativeVector<V>(
     inline public function length() : Int {
         #if js
             return this.length;
+        /* TODO
         #elseif java
-            // TODO
+            return this.length;
+        */
+        #elseif python
+            return cast python.Syntax.code("len({0})", this);
         #elseif cs
-            // TODO
+            return this.Length;
         #elseif php
             return cast php.Syntax.code("{0}.getSize()", this);
         #else
@@ -100,24 +120,33 @@ abstract NativeVector<V>(
     inline public function toArray() : NativeArray<V> {
         #if js
             return cast js.Syntax.code("{0}.slice()", this);
+        /* TODO
         #elseif java
-            // TODO
+            return cast java.util.Arrays.asList(this);
+        */
+        #elseif python
+            return cast python.Syntax.code("{0}.copy()", this);
         #elseif cs
-            // TODO
+            //return cast new cs.system.collections.ArrayList(cast this);
+            return cast null;
         #elseif php
             return cast php.Syntax.code("{0}.toArray()", this);
         #else
-            return haxe.ds.Vector.toArray(this);
+            return cast this.toArray();
         #end
     }
 
     inline public function indexOf(v : V) : Int {
         #if js
             return this.indexOf(v);
+        /* TODO
         #elseif java
-            // TODO
+            return java.util.Arrays.binarySearch(this, v);
+        */
+        #elseif python
+            return cast python.Syntax.code("{0}.index({1})", this, v);
         #elseif cs
-            // TODO
+            return cs.system.Array.IndexOf(cast this, v);
         #elseif php
             var i : Int = 0;
             while (i < length()) {
@@ -131,26 +160,42 @@ abstract NativeVector<V>(
             }
             return i;
         #else
-            return this.indexOf(v);
+            var i : Int = 0;
+            while (i < length()) {
+                if (get(i) == v) {
+                    break;
+                }
+                i++;
+            }
+            if (i >= length()) {
+                i = -1;
+            }
+            return i;
         #end
     }    
 
     inline public function iterator() : Iterator<V> {
         #if js
             return this.iterator();
+        /* TODO
         #elseif java
-            // TODO
+            return new NativeVectorIterator<V>(cast this);
+        */
+        #elseif python
+            var it : python.NativeIterator<V> = cast python.Syntax.code("{0}.__iter__", this);
+            return it.toHaxeIterator();
         #elseif cs
-            // TODO
+            // return this.GetEnumerator();
+            return new NativeVectorIterator<V>(cast this);
         #elseif php
-            return new NativeVectorIterator<V>(this);
+            return new NativeVectorIterator<V>(cast this);
         #else
-            return this.iterator();
+            return new NativeVectorIterator<V>(cast this);
         #end
     }
 }
 
-#if php
+#if(php || hl || cs || java || lua || cpp)
 @:expose
 @:nativeGen
 class NativeVectorIterator<V> {

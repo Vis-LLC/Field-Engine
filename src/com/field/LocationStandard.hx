@@ -30,7 +30,9 @@ package com.field;
 class LocationStandard extends LocationAbstract<FieldStandard, LocationStandard, SpriteStandard> {
     private static var _allocator = new LocationStandardAllocator();
 
-    public function new() { }
+    public function new() {
+        super();
+    }
 
     public static function getAllocator() : com.field.manager.AllocatorLocation<LocationStandard> {
         return _allocator;

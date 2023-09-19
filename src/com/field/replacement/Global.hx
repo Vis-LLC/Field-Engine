@@ -87,12 +87,17 @@ class Global {
                 var view = options.parent(wrapper).show(true).execute();
             });
             register("field-gamepad", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
-                e.replaceWith(com.field.views.VirtualGamepadView.instance().get().toElement());
+                e.replaceWith(com.field.views.VirtualGamepadView.get().toElement());
             });
             register("field-pyramid", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
                 var options : com.field.views.PyramidViewOptions = com.field.views.PyramidView.options();
                 switch (rows.length()) {
-                    
+                    case 0:
+                        // Intentionally empty
+                    case 1:
+
+                    case 2:
+                    default:
                 }
             });
             register("field-split", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {

@@ -180,7 +180,64 @@ class GraphView extends FieldViewAbstract implements com.sdtk.graphs.Grapher.Gra
 
     private function plotForData(x : Float) {
         return com.sdtk.graphs.Grapher._plotForData(x, _convertedData);
-    }    
+    }
+
+    public static function register() : Void {
+        com.field.replacement.Global.instance().register("field-graph", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
+            var options = com.field.views.GraphView.options();
+            var x : String = e.getAttribute("x");
+            var y : String = e.getAttribute("y");
+            var x2 : Dynamic = null;
+            var y2 : Dynamic = null;
+
+            if (x != null && StringTools.trim(x).length > 0) {
+                x2 = js.Syntax.code("eval({0})", StringTools.trim(x));
+            }
+
+            if (y != null && StringTools.trim(y).length > 0) {
+                y2 = js.Syntax.code("eval({0})", StringTools.trim(y));
+            }
+
+            if (x2 != null) {
+                if (Std.is(x2, Array)) {
+                    options.plotFunctionsForX(cast x2);
+                } else {
+                    options.plotFunctionForX(cast x2);
+                }
+            } else if (y2 != null) {
+                if (Std.is(y2, Array)) {
+                    options.plotFunctionsForX(cast y2);
+                } else {
+                    options.plotFunctionForX(cast y2);
+                }                    
+            }
+
+            var width : Int = e.getAttribute("columns") == null ? e.clientWidth : Std.parseInt(e.getAttribute("columns"));
+            var height : Int = e.getAttribute("rows") == null ? e.clientHeight : Std.parseInt(e.getAttribute("columns"));
+
+            /* TODO -
+                positiveOnlyY()
+                negativeOnlyY()
+                positiveAndNegativeY()
+                positiveOnlyX()
+                negativeOnlyX()
+                positiveAndNegativeX()
+                matchWidth()
+                matchHeight()
+                colors(colors : Array<String>)
+            */
+            options
+                .width(width)
+                .height(height)
+                .parent(e)
+                .id(e.id)
+                .show(true)
+                .execute();
+            var view = options.execute();
+            e.replaceWith(view.toElement());
+        });        
+    }
+  
 }
 
 @:nativeGen

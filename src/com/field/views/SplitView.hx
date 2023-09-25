@@ -55,8 +55,8 @@ class SplitView extends AbstractView {
     /**
         Returns the possible options for creating a MirrorView.
     **/
-    public static function options() : PyramidViewOptions {
-        return new PyramidViewOptions();
+    public static function options() : SplitViewOptions {
+        return new SplitViewOptions();
     }
 
     private function loadFieldSheet() : Element {

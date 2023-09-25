@@ -133,7 +133,7 @@
 	transform: rotate(-45deg);
 }
 
-.field_view .field_sprite.field_shape-hex, .field_view .field_location.field_shape-hex {
+.field_view .field_sprite.field_shape-hex, .field_view .field_location.field_shape-hex, .field_view.hex_grid .field_location {
 	/*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
 	clip-path: polygon(35% 0%, 65% 0%, 85% 50%, 65% 100%, 35% 100%, 15% 50%);
     overflow: hidden;
@@ -156,12 +156,6 @@
 	border: 0px;
 }
 
-.field_view.hex_grid .field_location {
-	/*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
-	clip-path: polygon(35% 0%, 65% 0%, 85% 50%, 65% 100%, 35% 100%, 15% 50%);
-    overflow: hidden;
-}
-
 .field_view_inner {
 	z-index: 0;
 }
@@ -178,7 +172,14 @@ table.field_view_inner {
 	z-index: -2;
 }
 
-.field_view_frame, .field_view_frame_left, .field_view_right, .field_view_top, .field_view_bottom, .field_view_lt, .field_view_rt, .field_view_lb, .field_view_rb
+.field_view_frame
+{
+	/*TODO - Remove? - position: absolute;*/
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.field_view_frame_left, .field_view_right, .field_view_top, .field_view_bottom, .field_view_lt, .field_view_rt, .field_view_lb, .field_view_rb
 {
 	position: absolute;
 	overflow: hidden;

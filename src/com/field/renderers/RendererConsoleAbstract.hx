@@ -401,9 +401,28 @@ class RendererConsoleAbstract extends RendererAbstract {
         return b;
     }
 
+    #if JS_WSH
+        private static var _fso : Dynamic;
+        private static var _stdout : Dynamic;
+    #end
+
+    private function write(s : String) : Void {
+        #if sys
+            Sys.stdout().writeString(s);
+        #elseif JS_WSH
+            if (_fso == null) {
+                _fso = js.Syntax.code("new ActiveXObject(\"Scripting.FileSystemObject\")");
+                _stdout = js.Syntax.code("{0}.GetStandardStream(1)", _fso);
+            }
+            js.Syntax.code("{0}.Write(\"{1}\")", _stdout, s);
+        #end
+    }
+
     private function displaySlice(s : String) {
         #if JS_BROWSER
             js.html.Console.log(s);
+        #elseif JS_WSH
+            write(s + "\n");
         #else
             Sys.println(s);
         #end

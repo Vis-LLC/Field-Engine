@@ -94,12 +94,12 @@ class ANSI extends RendererConsoleAbstract {
     }
 
     public override function clear() {
-		Sys.stdout().writeString("\x1B[2J");
+		write("\x1B[2J");
     }
 
     public override function hideCursor() {
 		moveCursor(width() + 1, height() + 1);
-		Sys.stdout().writeString("\x1B[?25l");
+		write("\x1B[?25l");
     }
 
 /* TODO

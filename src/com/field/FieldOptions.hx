@@ -260,4 +260,10 @@ class FieldOptions<L, S> extends OptionsAbstract<FieldOptions<L, S>> {
         return setOnce("gridType", 1);
     }    
 
+    /**
+        Create the Field using these options.
+    **/
+    public function execute() : FieldInterface<L, S> {
+        return cast FieldStandard.create(cast this);
+    }    
 }

@@ -45,7 +45,7 @@ class DictionaryToFieldOptions extends FieldOptions<Dynamic, Dynamic> {
     /**
         Create the Field using these options.
     **/
-    public function execute() : FieldInterface<Dynamic, Dynamic> {
+    public override function execute() : FieldInterface<Dynamic, Dynamic> {
         return Convert.dictionaryToField(this);
     }
 }

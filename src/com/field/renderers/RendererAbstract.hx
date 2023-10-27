@@ -281,5 +281,21 @@ class RendererAbstract implements RendererInterface {
     public function doDisplay() : Void { }
 
     public function initBufferForInner(e : Element) : Void { }
+
+    public function smoothScroll(e : Element, x : Float, y : Float, dRectWidth : Float, dRectHeight : Float, dTileBuffer : Float, dTileWidth : Float, dTileHeight : Float, time : Int, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface {
+        return this;
+    }
+
+    public function smoothScrollOn(e : Element) : Bool {
+        return false;
+    }
+
+    public function clearSmoothScroll(e : Element) : RendererInterface {
+        return this;
+    }
+
+    public function hasSmoothScroll() : Bool {
+        return false;
+    }
 }
 #end

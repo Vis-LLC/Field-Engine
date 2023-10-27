@@ -104,5 +104,9 @@ interface RendererInterface {
     function doDisplay() : Void;
     function initBufferForInner(e : Element) : Void;
     function mode() : RendererMode;
+    function smoothScroll(e : Element, x : Float, y : Float, dRectWidth : Float, dRectHeight : Float, dTileBuffer : Float, dTileWidth : Float, dTileHeight : Float, time : Int, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface;
+    function smoothScrollOn(e : Element) : Bool;
+    function clearSmoothScroll(e : Element) : RendererInterface;
+    function hasSmoothScroll() : Bool;
 }
 #end

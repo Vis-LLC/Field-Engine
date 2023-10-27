@@ -229,15 +229,14 @@ class GraphView extends FieldViewAbstract implements com.sdtk.graphs.Grapher.Gra
             options
                 .width(width)
                 .height(height)
-                .parent(e)
+                .parent(e.parentElement)
                 .id(e.id)
                 .show(true)
                 .execute();
             var view = options.execute();
             e.replaceWith(view.toElement());
         });        
-    }
-  
+    }  
 }
 
 @:nativeGen

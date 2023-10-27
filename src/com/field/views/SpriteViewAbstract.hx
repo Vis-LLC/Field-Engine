@@ -53,6 +53,8 @@ class SpriteViewAbstract<F, S> extends AbstractView implements com.field.rendere
     private var _shell : NativeVector<Element>;
     private var _hasText : Bool = false;
     private var _field : FieldViewAbstract;
+    public var _history : ViewHistory;
+
 
     #if js
         // Intentionally empty
@@ -177,6 +179,14 @@ class SpriteViewAbstract<F, S> extends AbstractView implements com.field.rendere
 
             view._sprite = sSprite;
             view._sprite.nowInUse();
+
+            if (view.renderer().hasSmoothScroll()) {
+                if (view._history == null) {
+                    view._history = new ViewHistory();
+                } else {
+                    view._history.clear();
+                }
+            }
 
             // TODO
             //_location.State(Field.LocationStateDisplayed);

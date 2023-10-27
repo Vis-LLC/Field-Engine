@@ -1,12 +1,8 @@
 #!/bin/sh
-@ECHO OFF
-pushd .
-cd "%~dp0"
-cd $(dirname "$0")
-mkdir out 2> NUL
-haxe -python out/fe.py -cp src com.field -D fast_cast
-MOVE out\fe.py out\fe.tmp
-TYPE Append_To_Beginning.py > out\fe.py
-TYPE out\fe.tmp >> out\fe.py
-DEL out\fe.tmp
+@ECHO OFF 2> NUL
+pushd . 2> NUL
+cd "%~dp0" 2> NUL
+cd $(dirname "$0") 2> NUL
+python Build.py --python STANDARD
+python3 Build.py --python STANDARD
 popd

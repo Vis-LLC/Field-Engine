@@ -105,6 +105,20 @@ class FieldViewOptions extends FieldViewOptionsAbstract<FieldViewOptions> {
     }
 
     /**
+        Make FieldView display a grid of hexagons.
+    **/
+    public function gridTypeHexFlatTopped() : FieldViewOptions {
+        return setOnce("gridType", 3);
+    }
+
+    /**
+        Make FieldView display a grid of hexagons.
+    **/
+    public function gridTypeHexPointyTopped() : FieldViewOptions {
+        return setOnce("gridType", 4);
+    }    
+
+    /**
         Make FieldView display a grid of squares.
     **/
     public function gridTypeSquare() : FieldViewOptions {
@@ -122,7 +136,7 @@ class FieldViewOptions extends FieldViewOptionsAbstract<FieldViewOptions> {
         Make FieldView display a grid of triangles.
     **/    
     public function gridTypeTriangle() : FieldViewOptions {
-        return setOnce("gridType", 4);
+        return setOnce("gridType", 5);
     }
 
     /**

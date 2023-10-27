@@ -1,8 +1,8 @@
 #!/bin/sh
-@ECHO OFF
-pushd .
-cd "%~dp0"
-cd $(dirname "$0")
-mkdir out 2> NUL
-haxe -lua out\fe.lua com.field -cp src -D %* $*
+@ECHO OFF 2> NUL
+pushd . 2> NUL
+cd "%~dp0" 2> NUL
+cd $(dirname "$0") 2> NUL
+python Build.py -lua STANDARD
+python3 Build.py -lua STANDARD
 popd

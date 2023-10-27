@@ -22,6 +22,7 @@
 
 package com.field.navigator;
 
+import com.field.SpriteSystemInterface;
 import com.field.navigator.NavigatorCoreInterface;
 
 @:expose
@@ -57,7 +58,7 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
         return this;
     }
 
-    public override function navigate(sprite : SpriteSystemInterface<Dynamic>, direction : DirectionInterface, distance : Int) : Bool {
+    private function navigateI(sprite : SpriteSystemInterface<Dynamic>, direction : DirectionInterface, distance : Int) : Array<Int> {
         // TODO - Add additional grid types
         var scaleX : Float = 1;
         var scaleY : Float = 1;
@@ -97,12 +98,12 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
         var oy : Float;
         if (s != null) {
             overrideXY = s.attribute("overrideXY");
-            if (overrideXY == null) {
+            if (overrideXY == null || overrideXY == false) {
                 ox = s.getX(null);
                 oy = s.getY(null);
                 s.attribute("overrideXY", true);
-                s.attribute("overrideX", ox);
-                s.attribute("overrideY", oy);
+                s.attribute("overrideX", s.getX(null));
+                s.attribute("overrideY", s.getY(null));
             } else {
                 ox = cast s.attribute("overrideX");
                 oy = cast s.attribute("overrideY");
@@ -120,10 +121,14 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
                 s.attribute("overrideX", x);
                 s.attribute("overrideY", y);
             }
-            return true;
+            return [rX, rY];
         } else {
-            return false;
+            return null;
         }
+    }
+
+    public override function navigate(sprite : SpriteSystemInterface<Dynamic>, direction : DirectionInterface, distance : Int) : Bool {
+        return navigateI(sprite, direction, distance) != null;
     }
 
     public override function directionForDegrees(direction : Float) : DirectionInterface {

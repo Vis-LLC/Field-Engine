@@ -35,7 +35,7 @@ class Global {
                 }
 
                 var width : Int = e.getAttribute("columns") == null ? rows.get(0).length() : Std.parseInt(e.getAttribute("columns"));
-                var height : Int = e.getAttribute("rows") == null ? rows.length() : Std.parseInt(e.getAttribute("columns"));
+                var height : Int = e.getAttribute("rows") == null ? rows.length() : Std.parseInt(e.getAttribute("rows"));
 
                 var wrapper = js.Browser.document.createElement("div");
                 wrapper.id = e.id;
@@ -149,17 +149,18 @@ class Global {
                 //options.backgroundColor("#FFFFFF");
                 //options.foregroundColor("#000000");
                 options
-                    .parent(e)
+                    .parent(e.parentElement)
                     .id(e.id)
                     .show(true);
                 var view = options.execute();
                 e.replaceWith(view.toElement());
             }, true);
-            register("field-hex", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
+
+            var createHexGrid = function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>, t : String) : Void {
                 var field = com.field.Convert.array2DToFieldNoIndexesOptions().value(rows).gridTypeHex().execute();
 
                 var width : Int = e.getAttribute("columns") == null ? rows.get(0).length() : Std.parseInt(e.getAttribute("columns"));
-                var height : Int = e.getAttribute("rows") == null ? rows.length() : Std.parseInt(e.getAttribute("columns"));
+                var height : Int = e.getAttribute("rows") == null ? rows.length() : Std.parseInt(e.getAttribute("rows"));
 
                 var wrapper = js.Browser.document.createElement("div");
                 wrapper.id = e.id;
@@ -169,16 +170,24 @@ class Global {
                 wrapper.style.width = e.clientWidth + "px";
 
                 e.replaceWith(wrapper);
+                var options = com.field.views.FieldView.options();
+                switch (t) {
+                    case "hex":
+                        options = options.gridTypeHex();
+                    case "hex-flat-topped":
+                        options = options.gridTypeHexFlatTopped();
+                    case "hex-pointy-topped":
+                        options = options.gridTypeHexPointyTopped();
+                }
 
                 var view = com.field.views.FieldView.create(
-                    com.field.views.FieldView.options()
+                    options
                         .field(field)
                         .parent(wrapper)
                         .show(true)
                         .tileWidth(width)
                         .tileHeight(height)
                         .tileBuffer(0)
-                        .gridTypeHex()
                         .show(true)
                         .noAreaXY(true)
                         .autoUpdate(true)
@@ -186,11 +195,21 @@ class Global {
                         .movementForValidOnly()
                         .scrollOnWheel(true)
                 );
+                options = null;
 
                 if (width != rows.get(0).length() || height != rows.length()) {
                     view.startDefaultListeners(view.startDefaultListenersOptions());
                 }                
+            }
+            register("field-hex", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
+                createHexGrid(e, header, rows, "hex");
             });
+            register("field-hex-flat-topped", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
+                createHexGrid(e, header, rows, "hex-flat-topped");
+            });
+            register("field-hex-pointy-topped", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
+                createHexGrid(e, header, rows, "hex-pointy-topped");
+            });            
             register("field-split", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
                 var options = com.field.views.SplitView.options();
                 var device : String = e.getAttribute("device");
@@ -207,7 +226,7 @@ class Global {
                     }
                 }
                 var view = options
-                    .parent(e)
+                    .parent(e.parentElement)
                     .id(e.id)
                     .show(true)
                     .execute();
@@ -216,7 +235,7 @@ class Global {
             register("field-circle", function (e: Dynamic, header : NativeVector<NativeVector<Any>>, rows : NativeVector<NativeVector<Any>>) : Void {
                 var view = com.field.views.CircleView.options()
                     .DreamMeOrbit()
-                    .parent(e)
+                    .parent(e.parentElement)
                     .id(e.id)
                     .show(true)
                     .execute();

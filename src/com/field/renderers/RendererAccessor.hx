@@ -459,5 +459,21 @@ class RendererAccessor {
     public function createStaticRectGrid(parent : Element, rows : Int, columns : Int) : NativeVector<NativeVector<Element>> {
         return renderer().createStaticRectGrid(parent, rows, columns);
     }
+
+    private function smoothScroll(e : Element, x : Float, y : Float, dRectWidth : Float, dRectHeight : Float, dTileBuffer : Float, dTileWidth : Float, dTileHeight : Float, time : Int, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface {
+        return renderer().smoothScroll(e, x, y, dRectWidth, dRectHeight, dTileBuffer, dTileWidth, dTileHeight, time, f, temp);
+    }
+
+    private function clearSmoothScroll(e : Element) : RendererInterface {
+        return renderer().clearSmoothScroll(e);
+    }
+
+    private function hasSmoothScroll() : Bool {
+        return renderer().hasSmoothScroll();
+    }
+
+    private function smoothScrollOn(e : Element) : Bool {
+        return renderer().smoothScrollOn(e);
+    }
 }
 #end

@@ -59,7 +59,7 @@ class FieldDynamic extends FieldDynamicAbstract<LocationDynamic, SpriteDynamic> 
         Options for creating a dynamic Field.
     **/
     public static function options() : FieldOptions<LocationDynamic, SpriteDynamic> {
-        return new FieldOptions<LocationDynamic, SpriteDynamic>();
+        return new FieldDynamicOptions();
     }
 
     /**
@@ -68,4 +68,12 @@ class FieldDynamic extends FieldDynamicAbstract<LocationDynamic, SpriteDynamic> 
     public override function newBlank() : FieldDynamicAbstract<LocationDynamic, SpriteDynamic> {
         return new FieldDynamic(null);
     }
+}
+
+
+@:nativeGen
+class FieldDynamicOptions extends FieldOptions<LocationDynamic, SpriteDynamic> {
+    public override function execute() : FieldInterface<LocationDynamic, SpriteDynamic> {
+        return cast FieldDynamic.create(cast this);
+    }    
 }

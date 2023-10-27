@@ -187,6 +187,11 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
         if (x == null && y == null) {
             x = -1;
             y = 0;
+            if (attribute("overrideXY") == true) {
+                attribute("overrideXY", false);
+                attribute("overrideX", -1);
+                attribute("overrideY", 0);                
+            }
         }
         var accessor : AccessorInterface = _field.getDefaultAccessor();
         var current : Null<Int> = accessor.getSpriteInteger(accessor.moveSprite(0, _i), "location");

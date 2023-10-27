@@ -725,6 +725,26 @@ class RendererDomAbstract extends RendererAbstract {
             // TODO
         #end
     }
+
+    public override function smoothScroll(e : Element, x : Float, y : Float, dRectWidth : Float, dRectHeight : Float, dTileBuffer : Float, dTileWidth : Float, dTileHeight : Float, time : Int, f : Null<Void -> Void>, temp : Null<RendererMode>) : RendererInterface {
+        var t : String = "" + time + "ms";
+        var transition : String = "width linear " + t + ", height linear " + t + ", left linear " + t + ", top linear " + t + ", transform linear " + t;
+        styleTransition(e, transition);
+        return moveTo(e, x, y, dRectWidth, dRectHeight, dTileBuffer, dTileWidth, dTileHeight, null, null, f, temp);
+    }
+
+    public override function smoothScrollOn(e : Element) : Bool {
+        return js.Syntax.code("{0}.style.transition != null && {0}.style.transition != \"\"", e);
+    }
+
+    public override function clearSmoothScroll(e : Element) : RendererInterface {
+        styleTransition(e, null);
+        return this;
+    }
+
+    public override function hasSmoothScroll() : Bool {
+        return true;
+    }
 }
 
 /* TODO

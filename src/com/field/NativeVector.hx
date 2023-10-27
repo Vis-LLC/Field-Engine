@@ -63,6 +63,10 @@ abstract NativeVector<V>(
         ;
     }
 
+    inline public static function fromIterator<V>(it : Iterator<V>) : NativeVector<V> {
+        return NativeArray.fromIterator(it).toVector();
+    }
+
     inline public function set(k : Int, v : Null<V>) : Void {
         #if js
             js.Syntax.code("{0}[{1}] = {2}", this, k, v);

@@ -44,7 +44,8 @@ import com.field.renderers.Style;
 **/
 class FieldViewAbstract extends AbstractView implements FieldViewInterface implements MirrorableInterface {
     public static var FIELD_VIEW_STYLE : Style = cast "field_view";
-    public static var FIELD_VIEW_HEX : Style = cast "hex_grid";
+    public static var FIELD_VIEW_HEX : Style = cast "hex_grid_flat_topped";
+    public static var FIELD_VIEW_HEX_POINTY_TOPPED : Style = cast "hex_grid_pointy_topped";
     public static var TRANSITIONS_ENABLED_STYLE : Style = cast "transitions_enabled";
     public static var FIELD_VIEW_INNER_STYLE : Style = cast "field_view_inner";
     public static var FIELD_VIEW_INNER_STYLE2 : Style = cast "field_view_inner background";
@@ -139,6 +140,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
 
     private var _cachedOffsetHeight : Null<Float>;
     private var _cachedOffsetWidth : Null<Float>;
+    private var _cachedElementHeight : Null<Int>;
+    private var _cachedElementWidth : Null<Int>;
     private var _hasSprites : Bool;
     private var _isometric : Null<Int>;
 
@@ -227,7 +230,20 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                 case 3:
                     //_tileHeight *= 2;
                     //_tileWidth /= 2/3;
-                    _tileWidth *= 1.5;
+                    //_tileWidth *= 1.5;
+                    //_tileWidth *= 1.5;
+                    _tileWidth = _tileWidth * 1.5 - 0.5;
+                    if (_tileHeight > 1) {
+                        _tileWidth += 0.75;
+                    }
+                    _tileHeight = _tileHeight / 2 + .5; 
+                    //_tileWidth *= 2/3;
+                    _tileBuffer *= 2;
+                case 4:
+                    if (_tileHeight > 1) {
+                        _tileWidth += 0.5;
+                    }
+                    _tileHeight = _tileHeight - 0.25 * (_tileHeight - 1);
                     _tileBuffer *= 2;
             }
             {
@@ -276,7 +292,12 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             _locationSettings.calculatedAttributes = cast withDefault(fo.get("calculatedAttributes"), true);
             _locationSettings.willChange = cast withDefault(fo.get("willChange"), true);
             _locationSettings.rawText = cast withDefault(fo.get("locationRawText"), false);
+
+            // TODO - Remove?
             if (_gridType == 3) {
+                //_locationSettings.shellElements = 3;
+                _locationSettings.shellElements = 0;
+            } else if (_gridType == 4) {
                 //_locationSettings.shellElements = 3;
                 _locationSettings.shellElements = 0;
             } else {
@@ -307,7 +328,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             _spriteSettings.draggable = cast withDefault(fo.get("spritesDraggable"), false);
             _spriteSettings.resizable = cast withDefault(fo.get("spritesResizable"), false);
 
+            // TODO - Remove?
             if (_gridType == 3) {
+                //_spriteSettings.shellElements = 3;
+                _spriteSettings.shellElements = 0;
+            } else if (_gridType == 4) {
                 //_spriteSettings.shellElements = 3;
                 _spriteSettings.shellElements = 0;
             } else {
@@ -392,6 +417,9 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         _spriteMoverNull = function (direction : DirectionInterface, distance : Int) : Bool { return true; };
         _moveSprite = _spriteMoverNull;
         _element = getElement();
+        #if js
+            js.Syntax.code("{0}.fieldView = {1}", _element, this);
+        #end
         setTabIndex(_element, 0);
 
         // TODO - Move
@@ -404,6 +432,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         switch (_gridType) {
             case 3:
                 addStyle(_element, FIELD_VIEW_HEX);
+            case 4:
+                addStyle(_element, FIELD_VIEW_HEX_POINTY_TOPPED);
         }
         switch (_isometric) {
             case 1:
@@ -436,11 +466,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
     }
 
     public function width() : Float {
-        return _tileWidth;
+        return _specifiedTileWidth; // TODO - Remove - _tileWidth;
     }
 
     public function height() : Float {
-        return _tileHeight;
+        return _specifiedTileHeight; // TODO - Remove - _tileHeight;
     }
 
     private static function isElementALocation(e : Element) : Bool {
@@ -487,6 +517,32 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         }
     }
 
+    private function getActualPixelWidthElement() : Int {
+        var width = getActualPixelWidth(_element);
+        if (width == 0 && getParent(_element) != null) {
+            width = getActualPixelWidth(getParent(_element));
+        }
+        if (width == 0 && _cachedElementWidth != null) {
+            width = _cachedElementWidth;
+        } else {
+            _cachedElementWidth = width;
+        }
+        return width;
+    }
+
+    private function getActualPixelHeightElement() : Int {
+        var height = getActualPixelHeight(_element);
+        if (height == 0 && getParent(_element) != null) {
+            height = getActualPixelHeight(getParent(_element));
+        }
+        if (height == 0 && _cachedElementHeight != null) {
+            height = _cachedElementHeight;
+        } else {
+            _cachedElementHeight = height;
+        }
+        return height;
+    }    
+
     public function fullRefresh() : Void {
         if (renderer().fixedSizing()) {
             resizeFrame();
@@ -528,7 +584,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
             var squareHeight : Float = _cachedOffsetHeight / _tileHeight;
             var squareWidth : Float = _cachedOffsetWidth / _tileWidth;
-/*
+/* TODO - Remove?
             switch (_gridType) {
                 case 3:
                     //squareHeight *= 2;
@@ -550,16 +606,16 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
 
         if (_innerElement != null) {
             if (renderer().fixedSizing()) {
-                forceWidth(_innerElement, "" + Math.floor(getActualPixelWidth(_element) * _field.width() / _tileWidth));
-                forceHeight(_innerElement, "" + Math.floor(getActualPixelHeight(_element) * _field.height() / _tileHeight));
+                forceWidth(_innerElement, "" + Math.floor(getActualPixelWidthElement() * _field.width() / _tileWidth));
+                forceHeight(_innerElement, "" + Math.floor(getActualPixelHeightElement() * _field.height() / _tileHeight));
                 renderer().initBufferForInner(_innerElement);
             }
             clear();
         } else {
             _innerElement = getElement();
             if (renderer().fixedSizing()) {
-                forceWidth(_innerElement, "" + Math.floor(getActualPixelWidth(_element) * _field.width() / _tileWidth));
-                forceHeight(_innerElement, "" + Math.floor(getActualPixelHeight(_element) * _field.height() / _tileHeight));
+                forceWidth(_innerElement, "" + Math.floor(getActualPixelWidthElement() * _field.width() / _tileWidth));
+                forceHeight(_innerElement, "" + Math.floor(getActualPixelHeightElement() * _field.height() / _tileHeight));
             }
             willChange(_innerElement);
             if (!_noBackground) {
@@ -607,7 +663,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
 
             if (_fixedGrid) {
-                _fixedGridElements = createStaticRectGrid(_innerElement, cast _tileHeight, cast _tileWidth);
+                _fixedGridElements = createStaticRectGrid(_innerElement, cast _specifiedTileHeight, cast _specifiedTileWidth);
                 if (_locationSettings.click || _locationSettings.setOnMouseOver) {
                     var j : Int = 0;
                     var i : Int = 0;
@@ -648,6 +704,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             var scrollX : Float = originX();
             var scrollY : Float = originY();
             var oddRow : Bool = Math.abs(Math.floor(oy) % 2) == 1;
+            var oddColumn : Bool = Math.abs(Math.floor(ox) % 2) == 1;
             switch (_gridType) {
                 case 3:
                     scrollX *= 1.5;
@@ -656,11 +713,18 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                         scrollX += 0.75;
                     }
                     scrollY *= 0.5;
+                case 4:
+                    scrollY *= 1.5;
+                    if (oddColumn)
+                    {
+                        scrollY += 0.75;
+                    }
+                    scrollX *= 0.5;
             }
 
             scrollX -= getFieldX(_innerElement, _rectWidth, _tileWidth);
             scrollY -= getFieldY(_innerElement, _rectHeight, _tileHeight);
-/*
+/* TODO - Remove?
             switch (_gridType) {
                 case 3:
                     scrollX -= 1.75;
@@ -670,9 +734,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             scroll(_innerElement, scrollX, scrollY, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
         }
 
-        var fullHeight : Int = Math.floor(_tileHeight + _tileBuffer * 2);
+        //var fullHeight : Int = Math.floor(_tileHeight + _tileBuffer * 2);
+        var fullHeight : Int = Math.floor(_specifiedTileHeight + _tileBuffer * 2);
         // TODO - *2?
-        var fullWidth : Int = Math.floor(_tileWidth + _tileBuffer);
+        //var fullWidth : Int = Math.floor(_tileWidth + _tileBuffer);
+        var fullWidth : Int = Math.floor(_specifiedTileWidth + _tileBuffer * 2);
         var leftCache : NativeVector<LeftStyle>;
         if (!_fixedGrid) {
             leftCache = new NativeVector<LeftStyle>(fullWidth);
@@ -682,6 +748,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
 
         var j : Int = 0;
         var oddRow : Bool = Math.abs(Math.floor(j + oy) % 2) == 1;
+        var oddColumn : Bool = Math.abs(Math.floor(ox) % 2) == 1;
         var fragment : Dynamic = null;
 
         while (j < fullHeight) {
@@ -690,6 +757,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             switch (_gridType) {
                 case 3:
                     j2 /= 2;
+                case 4:
+                    j2 = j2 - 0.25 * j2;
             }
             var top : TopStyle;
             if (!_fixedGrid) {
@@ -707,12 +776,17 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                         i2 *= 1.5;
                         if (oddRow) {
                             i2 += 0.75;
-                        }                        
+                        }
+                    case 4:
+                        if (oddRow) {
+                            i2 += 0.5;
+                        }
                 }
                 var left : LeftStyle = null;
                 if (!_fixedGrid) {
                     switch (_gridType) {
                         case 3:
+                        case 4:
                         default:
                             left = leftCache.get(i2o);
                     }
@@ -721,6 +795,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                         left = this.left(i2, _rectWidth, _tileBuffer, _tileWidth);
                         switch (_gridType) {
                             case 3:
+                            case 4:
                             default:
                                 leftCache.set(i2o, left);
                         }
@@ -920,10 +995,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
     }
 
     public function updateStyles() : Void {
-        var fHeight = 100.0 / _specifiedTileHeight;
-        var fWidth = 100.0 / _specifiedTileWidth;
-        var actualHeight = getActualPixelHeight(this._element);
-        /*
+        var fHeight = _rectHeight;
+        var fWidth = _rectWidth;
+        var actualWidth = getActualPixelWidthElement();
+        var actualHeight = getActualPixelHeightElement();
+        /* TODO - Remove
         switch (_gridType) {
             case 3:
                 //fHeight *= 2;
@@ -934,23 +1010,23 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         */
         var sHeight;
         switch (_gridType) {
-            case 3:
+            case 3, 4:
                 // TODO
                 // sHeight = fHeight + "%"; //(fHeight * 1.03) + "%";
                 //sHeight = (fHeight * this._cachedOffsetHeight / 100.0) + "px";
                 if (actualHeight == 0) {
-                    sHeight = (fHeight * 2) + "%";
+                    sHeight = 100 * (fHeight / actualHeight) + "%";
                 } else {
-                    sHeight = (fHeight * actualHeight * 2 / 100.0) + "px";
+                    sHeight = fHeight + "px";
                 }
             default:
                 // TODO
                 // sHeight = fHeight + "%";
                 //sHeight = (fHeight * this._cachedOffsetHeight / 100.0) + "px";
                 if (actualHeight == 0) {
-                    sHeight = fHeight + "%";
+                    sHeight = 100 * (fHeight / actualHeight) + "%";
                 } else {
-                    sHeight = (fHeight * actualHeight / 100.0) + "px";
+                    sHeight = fHeight + "px";
                 }
         }
         var sShift : String = "";
@@ -972,7 +1048,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
             sShift += sb.toString();
         }        
-        var sWidth = fWidth + "%";
+        var sWidth : String;
+        if (actualWidth == 0) {
+            sWidth = 100 * (fHeight / actualWidth) + "%";
+        } else {
+            sWidth = fWidth + "px";
+        }
+        
         now(function() {
             #if js
             try {
@@ -1003,13 +1085,20 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                     x2 += 0.75;
                 }
                 y2 *= 0.5;
+            case 4:
+                y2 *= 1.5;
+                y2 += .75;
+                x2 *= 0.5;
         }
         var update : Void->Void = function () {
             start();
             switch (_gridType) {
                 case 3:
-                    _tileHeight *= 2;
-                    _tileWidth /= 2/3;
+                    _tileHeight *= 2; // TODO - ?
+                    _tileWidth /= 2/3; // TODO - ?
+                case 4:
+                    _tileWidth *= 2; // TODO - ?
+                    _tileHeight /= 2/3; // TODO - ?
             }
 
             scroll(_innerElement, -x2, -y2, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
@@ -1088,21 +1177,49 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
     }
 
     private function overrideXY(eSprite : Element, sSprite : SpriteInterface<Dynamic, Dynamic>, f : Null<Void -> Void>) {
-        var x : Float = sSprite.attribute("overrideX");
-        var y : Float = sSprite.attribute("overrideY");
+        var ox : Float = sSprite.attribute("overrideX");
+        var oy : Float = sSprite.attribute("overrideY");
+        var x : Float = ox;
+        var y : Float = oy;
         var oddRow : Bool = Math.abs(Math.floor(y) % 2) == 1;
+        var useSmooth : Null<Bool> = false;
+        //x = getActualPixelWidth(this._frame) / _tileWidth * x;
+        //y = getActualPixelHeight(this._frame) / _tileHeight * y;
+        var sv : SpriteViewAbstract<Dynamic, Dynamic> = cast SpriteViewAbstract.toSpriteView(eSprite);
+        var ss1 : Null<Bool> = sv._history.update(ox, oy);
+        if (hasSmoothScroll() && sv != null && ss1 != null) {
+            var ss2 : Bool = smoothScrollOn(eSprite);
+            if (ss1 == false || ss2 == false) {
+                useSmooth = true;
+                var smoothMultiply = 1000;
+                x = (sv._history.currentX - sv._history.previousX) * smoothMultiply + sv._history.currentX;
+                y = (sv._history.currentY - sv._history.previousY) * smoothMultiply + sv._history.currentY;
+            } else {
+                useSmooth = null;
+            }
+        }
+
         switch (_gridType) {
             case 3:
                 y /= 2;
-                x *= 1.5;
+                x *= 1.5; // TODO - Revisit
                 //if (oddRow) {
                 //    x -= 0.75;
                 //}
+            case 4:
+                x /= 2;
+                y *= 1.5; // TODO - Revisit
         }
-        //x = getActualPixelWidth(this._frame) / _tileWidth * x;
-        //y = getActualPixelHeight(this._frame) / _tileHeight * y;
 
-        moveTo(eSprite, x, y, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, null, null, f, null);
+        if (useSmooth == true) {
+            // TODO - If this works for overrideXY, copy to moveSpriteTo
+            var smoothMultiply = 1000;
+            // TODO - Double check * 2 multiplier
+            var time : Int = (sv._history.currentUpdate - sv._history.previousUpdate) * smoothMultiply;
+            smoothScroll(eSprite, x, y, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, time, f, null);
+        } else if (useSmooth == false) {
+            moveTo(eSprite, x, y, _rectWidth, _rectHeight, _tileBuffer, _tileWidth, _tileHeight, null, null, f, null);
+        }
     }
 
     private function addSpritesForLocation(lLocation : LocationInterface<Dynamic, Dynamic>, ?eLocation : Null<Element>, fragment : Dynamic, ?update : Bool = false) : Dynamic {
@@ -1121,7 +1238,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                     if (svSprite != null) {
                         if (eLocation == null) {
                             var lvLocation : LocationView = _locationToViews.get(lLocation.getI());
-                            eLocation = lvLocation.toElement();
+                            try {
+                                eLocation = lvLocation.toElement();
+                            } catch(ex : Any) {
+                                // TODO - On occassion this occurs.  Figure out why.
+                            }
                         }
                         var sAttributes : Style = getStyleFor(sSprite.attributes());
                         var eSprite : Element = svSprite.toElement();
@@ -1149,7 +1270,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                                     showElement(eSprite);
                                 }
                             });
-                        } else {
+                        } else if (eLocation != null) {
                             moveSpriteTo(eSprite, eLocation, function () {
                                 later(function () {
                                     setStyle(eSprite, combineStyles(svSprite.originalStyle(), sAttributes));
@@ -1273,14 +1394,20 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         var dInnerX : Float = ox;//getFieldX(_innerElement, _rectWidth, _tileWidth);
         var dInnerY : Float = oy;//getFieldY(_innerElement, _rectHeight, _tileWidth);
         var j2 : Float = j + dInnerY;
+        var oddRow : Bool = Math.abs(Math.floor(j) % 2) == 1;
+        var oddColumn : Bool = Math.abs(Math.floor(dFirstX) % 2) == 1;
         switch (_gridType) {
             case 3:
                 j2 /= 2;
+            case 4:
+                j2 *= 1.5;
+                if (oddColumn) {
+                    j2 += 0.75;
+                }
         }
         var sTop : TopStyle = top(j2, _rectHeight, _tileBuffer, _tileHeight);
         var i2 : Float = dLastX;
         var i : Float = dFirstX;
-        var oddRow : Bool = Math.abs(Math.floor(j) % 2) == 1;
 
         while (i <= i2) {
             var i3 : Float = i + dInnerX;
@@ -1290,6 +1417,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                     if (oddRow) {
                         i3 += 0.75;
                     }
+                case 4:
+                    i3 /= 2;
             }
             var sLeft : LeftStyle = left(i3, _rectWidth, _tileBuffer, _tileWidth);
             fragment = AddLocation(i, j, sTop, sLeft, ox, oy, fragment);
@@ -1322,6 +1451,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                 }
                 sLeft2 = left(i2, _rectWidth, _tileBuffer, _tileWidth);
                 sLeft.push(sLeft2);
+            case 4:
+                // TODO
             default:
                 var sLeft2 : LeftStyle = left(i2, _rectWidth, _tileBuffer, _tileWidth);
                 sLeft.push(sLeft2);
@@ -1334,6 +1465,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             switch (_gridType) {
                 case 3:
                     j3 /= 2;
+                case 4:
+                    // TODO
             }
 
             var sTop : TopStyle = top(j3, _rectHeight, _tileBuffer, _tileHeight);
@@ -1347,32 +1480,40 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
 
     private override function getX(e : Element, dRectWidth : Float, dTileWidth : Float, scale : Float) : Float {
         var x : Float = super.getX(e, dRectWidth, dTileWidth, scale);
+        // TODO - Remove or Optional?
         switch (_gridType) {
             case 3:
+            case 4:
         }
         return x;
     }
 
     private override function getY(e : Element, dRectHeight : Float, dTileHeight : Float, scale : Float) : Float {
         var y : Float = super.getY(e, dRectHeight, dTileHeight, scale);
+        // TODO - Remove or Optional?
         switch (_gridType) {
             case 3:
+            case 4:
         }        
         return y;
     }
 
     private override function getFieldX(e : Element, dRectWidth : Float, dTileWidth : Float) : Float {
         var x : Float = super.getFieldX(e, dRectWidth, dTileWidth);
+        // TODO - Remove or Optional?
         switch (_gridType) {
             case 3:
+            case 4:
         }        
         return x;
     }
 
     private override function getFieldY(e : Element, dRectHeight : Float, dTileHeight : Float) : Float {
         var y : Float = super.getFieldY(e, dRectHeight, dTileHeight);
+        // TODO - Remove or Optional?
         switch (_gridType) {
             case 3:
+            case 4:
         }        
         return y;
     }
@@ -1410,7 +1551,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                 fullRefresh();
                 end();
                 return;
-            } else if (Math.abs(ox - _lastUpdateX) > _tileWidth || Math.abs(oy - _lastUpdateY) > _tileHeight) {
+            } else if (Math.abs(ox - _lastUpdateX) > _specifiedTileWidth || Math.abs(oy - _lastUpdateY) > _specifiedTileHeight) {
                 fullRefresh();
                 end();
                 return;
@@ -1442,11 +1583,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
         }
 
-        var tileBuffer : Float = _tileBuffer * (_gridType == 3 ? 2 : 1);
+        var tileBuffer : Float = _tileBuffer * ((_gridType == 3 || _gridType == 4) ? 2 : 1);
         var dTop : Float = 0 - tileBuffer;
         var dLeft : Float = 0 - tileBuffer;
-        var dBottom : Float = _tileHeight + tileBuffer;
-        var dRight : Float = _tileWidth + tileBuffer;
+        var dBottom : Float = _specifiedTileHeight + tileBuffer;
+        var dRight : Float = _specifiedTileWidth + tileBuffer;
         var dFirstY : Float = dBottom + 1;
         var dFirstYDiv : Null<Float> = null;
         var dLastY : Float = dTop - 1;
@@ -1467,6 +1608,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             var scrollX : Float = ox;
             var scrollY : Float = oy;
             var oddRow : Bool = Math.abs(Math.floor(oy) % 2) == 1;
+            var oddColumn : Bool = Math.abs(Math.floor(ox) % 2) == 1;
             switch (_gridType) {
                 case 3:
                     scrollX *= 1.5;
@@ -1475,11 +1617,18 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                         scrollX += 0.75;
                     }
                     scrollY *= 0.5;
+                case 4:
+                    scrollY *= 1.5;
+                    if (oddColumn)
+                    {
+                        scrollY += 0.75;
+                    }
+                    scrollX *= 0.5;
             }
 
             scrollX -= getFieldX(_innerElement, _rectWidth, _tileWidth);
             scrollY -= getFieldY(_innerElement, _rectHeight, _tileHeight);
-/*
+/* TODO - Remove?
             switch (_gridType) {
                 case 3:
                     scrollX -= 1.75;
@@ -1506,10 +1655,16 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             var children : NativeVector<Element> = _childrenAsVector;
             var i : Int = 0;
             var yMultiplier : Float;
+            var xMultiplier : Float;
             switch (_gridType) {
                 case 3:
                     yMultiplier = 2;
+                    xMultiplier = 1;
+                case 4:
+                    xMultiplier = 2;
+                    yMultiplier = 1;
                 default:
+                    xMultiplier = 1;
                     yMultiplier = 1;
             }
             while (i < children.length()) {
@@ -1519,8 +1674,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                 } else {
                     var lvView : Null<LocationView> = LocationView.toLocationView(e);
                     if (lvView != null && lvView.useCount() > 0) {
-                        var y : Float = Math.round(getY(e, _rectHeight, _tileWidth, 1) - dInnerY) * yMultiplier;
-                        var x : Float = Math.round(getX(e, _rectWidth, _tileWidth, 1) - dInnerX);
+                        var y : Float = Math.round(getY(e, _rectHeight, _specifiedTileHeight, 1) - dInnerY) * yMultiplier;
+                        var x : Float = Math.round(getX(e, _rectWidth, _specifiedTileWidth, 1) - dInnerX) * xMultiplier;
                         switch (_gridType) {
                             case 3:
                                 var oddRow = Math.abs(Math.floor(y) % 2) == 1;
@@ -1528,6 +1683,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                                 {
                                     x -= 0.75;
                                 }
+                            case 4:
+                                // TODO
                         }
 
                         if (x < dLeft || x >= dRight || y < dTop || y >= dBottom) {
@@ -1662,8 +1819,6 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                             }
                         }
                     }
-        
-                    _spritesAdded = new NativeArray<SpriteInterface<Dynamic, Dynamic>>();
                 }
         
                 var i : Int = eSprites.length() - 1;
@@ -1831,7 +1986,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         if (_locationSettings.triggerFocusOnElement) {
             var e  : Element = getActiveElement();
             if (e != null && hasStyle(getStyle(e), LocationView.FIELD_LOCATION_STYLE) && containsElement(_element, e)) {
-                var l : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(getX(e, _rectWidth, _tileWidth, 1) - x),  Math.floor(getY(e, _rectHeight, _tileWidth, 1) - y));
+                var l : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(getX(e, _rectWidth, _specifiedTileWidth, 1) - x),  Math.floor(getY(e, _rectHeight, _specifiedTileHeight, 1) - y));
                 if (l == null) {
                     bScroll = false;
                     bEvent = false;
@@ -2015,15 +2170,15 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         var landscape : Style = getStyleFor("landscape");
         var portrait : Style = getStyleFor("portrait");
 
-        if (_tileWidth == _tileHeight && _lockSquareOrientation) {
+        if (_specifiedTileWidth == _specifiedTileHeight && _lockSquareOrientation && _gridType != 3 && _gridType != 4) {
             var sAspect : Style;
             var sSize : String;
             var parent : Element = getParent(_element);
             if (parent == null) {
                 parent = renderer().defaultParent();
             }            
-            var actualWidth : Int = getActualPixelWidth(parent);
-            var actualHeight : Int = getActualPixelHeight(parent);
+            var actualWidth : Int = getActualPixelWidthElement();
+            var actualHeight : Int = getActualPixelHeightElement();
             var left : Int;
             var top : Int;
 
@@ -2070,18 +2225,13 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             var sWidth : String;
             var sHeight : String;
             var parent : Element = getParent(_element);
-            var actualWidth : Int = getActualPixelWidth(parent);
-            var actualHeight : Int = getActualPixelHeight(parent);
+            var actualWidth : Int = getActualPixelWidthElement();
+            var actualHeight : Int = getActualPixelHeightElement();
             var left : Int;
             var top : Int;
 
             var tileHeight : Int = Math.floor(actualHeight / _tileHeight);
             var tileWidth : Int = Math.floor(actualWidth / _tileWidth);
-            switch (_gridType) {
-                case 3:
-                    tileHeight = tileHeight * 2;
-            }
-
             var width : Int;
             var height : Int;
 
@@ -2099,10 +2249,11 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
 
             left = Math.floor((actualWidth - width) / 2);
+            /* TODO - Remove
             switch (_gridType) {
                 case 3:
                     height = Math.floor(height / 2);
-            }
+            }*/
 
             sWidth = width + "px";
             sHeight = height + "px";

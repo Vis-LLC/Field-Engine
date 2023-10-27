@@ -133,9 +133,14 @@
 	transform: rotate(-45deg);
 }
 
-.field_view .field_sprite.field_shape-hex, .field_view .field_location.field_shape-hex, .field_view.hex_grid .field_location {
-	/*clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);*/
-	clip-path: polygon(35% 0%, 65% 0%, 85% 50%, 65% 100%, 35% 100%, 15% 50%);
+.field_view .field_sprite.field_shape-hex, .field_view .field_location.field_shape-hex, .field_view.hex_grid_flat_topped .field_location, .field_view.hex_grid_flat_topped .field_sprite {
+	clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+	/*clip-path: polygon(35% 0%, 65% 0%, 85% 50%, 65% 100%, 35% 100%, 15% 50%);*/
+    overflow: hidden;
+}
+
+.field_view .field_sprite.field_shape-hex-pointy-topped, .field_view .field_location.field_shape-hex-pointy-topped, .field_view.hex_grid_pointy_topped .field_location, .field_view.hex_grid_pointy_topped .field_sprite {
+	clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
     overflow: hidden;
 }
 
@@ -175,6 +180,7 @@ table.field_view_inner {
 .field_view_frame
 {
 	/*TODO - Remove? - position: absolute;*/
+	position: relative;
 	overflow: hidden;
 	box-sizing: border-box;
 }

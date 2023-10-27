@@ -63,7 +63,7 @@ class FieldTextValue extends FieldAbstract<LocationTextValue, SpriteStandard> {
         Options for creating a standard Field.
     **/
     public static function options() : FieldOptions<LocationTextValue, SpriteStandard> {
-        return new FieldOptions<LocationTextValue, SpriteStandard>();
+        return new FieldTextValueOptions();
     }
 
     /**
@@ -71,5 +71,12 @@ class FieldTextValue extends FieldAbstract<LocationTextValue, SpriteStandard> {
     **/
     public override function newBlank() : FieldAbstract<LocationTextValue, SpriteStandard> {
         return new FieldTextValue(null);
+    }    
+}
+
+@:nativeGen
+class FieldTextValueOptions extends FieldOptions<LocationTextValue, SpriteStandard> {
+    public override function execute() : FieldInterface<LocationTextValue, SpriteStandard> {
+        return cast FieldTextValue.create(cast this);
     }    
 }

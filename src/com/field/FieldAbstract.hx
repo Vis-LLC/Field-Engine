@@ -26,6 +26,7 @@ import com.field.manager.Pool;
 import com.field.navigator.NavigatorCoreInterface;
 import com.field.navigator.NavigatorGrid;
 import com.field.navigator.NavigatorHex;
+import com.field.navigator.NavigatorHexPointyTopped;
 
 @:expose
 @:nativeGen
@@ -171,6 +172,8 @@ class FieldAbstract<L, S> implements FieldInterface<L, S> implements FieldAdvanc
         switch (_gridType) {
             case 3:
                 _navigator = NavigatorHex.instance();
+            case 4:
+                _navigator = NavigatorHexPointyTopped.instance();
             default:
                 _navigator = NavigatorGrid.instance();
         }

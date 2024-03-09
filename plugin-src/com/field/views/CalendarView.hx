@@ -23,6 +23,8 @@
 package com.field.views;
 
 #if !EXCLUDE_RENDERING
+@:expose
+@:nativeGen
 class CalendarView extends AbstractView {
     private var _monthView : MonthView;
     private var _dayView : DayView;

@@ -297,5 +297,13 @@ class RendererAbstract implements RendererInterface {
     public function hasSmoothScroll() : Bool {
         return false;
     }
+
+    public function enable(e : Element) : Void {
+        // TODO
+    }
+
+    public function disable(e : Element) : Void {   
+        // TODO
+    }
 }
 #end

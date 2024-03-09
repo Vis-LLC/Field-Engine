@@ -244,6 +244,14 @@ class RendererAccessor {
         renderer().show(e, f, temp);
     }
 
+    private inline function enableElement(e : Element) : Void {
+        renderer().enable(e);
+    }
+
+    private inline function disableElement(e : Element) : Void {
+        renderer().disable(e);
+    }
+
     public inline function createElement(?s : Null<String>) : Element {
         return renderer().createElement(s);
     }
@@ -475,5 +483,78 @@ class RendererAccessor {
     private function smoothScrollOn(e : Element) : Bool {
         return renderer().smoothScrollOn(e);
     }
+
+    private function toMouseEventReceiver(callback : EventInfoInterface -> Void) : MouseEventReceiver {
+        return new MouseEventReceiverAdapter(callback);
+    }
+
+    private function toMouseEventReceiverNoArgs(callback : Void -> Void) : MouseEventReceiver {
+        return new MouseEventReceiverAdapterNoArgs(callback);
+    }
+}
+
+class MouseEventReceiverAdapter implements MouseEventReceiver {
+    private var _callback : EventInfoInterface -> Void;
+
+    public function new(callback : EventInfoInterface -> Void) {
+        _callback = callback;
+    }
+
+    public function onclick(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+
+    public function onmouseover(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+
+    public function ondblclick(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+
+    public function onmousedown(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+    
+    public function onmouseup(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+
+    public function onwheel(e : EventInfoInterface) : Void {
+        _callback(e);
+    }
+}
+
+class MouseEventReceiverAdapterNoArgs implements MouseEventReceiver {
+    private var _callback : Void -> Void;
+
+    public function new(callback : Void -> Void) {
+        _callback = callback;
+    }
+
+    public function onclick(e : EventInfoInterface) : Void {
+        _callback();
+    }
+
+    public function onmouseover(e : EventInfoInterface) : Void {
+        _callback();
+    }
+
+    public function ondblclick(e : EventInfoInterface) : Void {
+        _callback();
+    }
+
+    public function onmousedown(e : EventInfoInterface) : Void {
+        _callback();
+    }
+    
+    public function onmouseup(e : EventInfoInterface) : Void {
+        _callback();
+    }
+
+    public function onwheel(e : EventInfoInterface) : Void {
+        _callback();
+    }
 }
 #end
+

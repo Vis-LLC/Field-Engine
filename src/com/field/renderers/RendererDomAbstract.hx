@@ -745,6 +745,18 @@ class RendererDomAbstract extends RendererAbstract {
     public override function hasSmoothScroll() : Bool {
         return true;
     }
+
+    public override function enable(e : Element) : Void {
+        #if js
+            js.Syntax.code("{0}.disabled = false", e);
+        #end
+    }
+
+    public override function disable(e : Element) : Void {
+        #if js
+            js.Syntax.code("{0}.disabled = true", e);
+        #end
+    }
 }
 
 /* TODO

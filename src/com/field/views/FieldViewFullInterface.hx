@@ -48,5 +48,10 @@ interface FieldViewFullInterface extends com.field.navigator.NavigatorInterface 
         Sets the Sprite which is the "main character".  This is the sprite that we use for reference for scrolling.
     **/
     function setMainSprite(s : SpriteInterface<Dynamic, Dynamic>) : Void;
+
+    /**
+        Adds a method to be called when navigating a FieldView.
+    **/
+    function addToOnNavigate(onNavigate : com.field.navigator.DirectionInterface->Int->Bool) : Void;
 }
 #end

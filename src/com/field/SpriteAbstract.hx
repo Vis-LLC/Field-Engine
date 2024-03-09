@@ -39,6 +39,7 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
     private var _attributesString : Null<String> = null;
     private var _navigator : Null<NavigatorInterface> = null;
     private var _unlockedNavigator : Null<NavigatorInterface> = null;
+    private var _canEnter : Any->Any->Any->Any->Bool = null;
 
     private static function append(s : StringBuf, n : String, o : Any) : Void {
         s.add(" ");
@@ -341,7 +342,15 @@ class SpriteAbstract<F, L, S> extends UsableAbstractWithData<F, L, S, S> impleme
     }
 
     public function canEnter(accessor : Any, ?x : Any = null, ?y : Any = null, ?name : Any = null) : Bool {
-        return false;
+        if (_canEnter == null) {
+            return false;
+        } else {
+            return _canEnter(accessor, x, y, name);
+        }
+    }
+
+    public function setCanEnter(f : Any->Any->Any->Any->Bool) : Void {
+        _canEnter = f;
     }
 
     public function copyAttributesFrom(o : Any) : Void {

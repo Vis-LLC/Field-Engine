@@ -42,6 +42,9 @@ class ViewHistory {
     public var currentX : Null<Float>;
     public var currentY : Null<Float>;
 
+    private static var _pauseTime : Int = 0;
+    private static var _pauseDuration : Int = 0;
+
     public function new() { }
 
     public function update(x : Float, y : Float) : Null<Bool> {
@@ -56,6 +59,9 @@ class ViewHistory {
             r = currentUpdate != null ? true : null;
         }
         previousUpdate = currentUpdate;
+        if (previousUpdate < _pauseTime) {
+            previousUpdate += _pauseDuration;
+        }
         previousX = currentX;
         previousY = currentY;
         currentUpdate = now;
@@ -71,6 +77,11 @@ class ViewHistory {
         currentUpdate = null;
         currentX = null;
         currentY = null;
+    }
+
+    public static function addPauseDuration(pauseTime : Int, pauseDuration : Int) : Void {
+        _pauseTime = pauseTime;
+        _pauseDuration = pauseDuration;
     }
 }
 #end

@@ -354,6 +354,14 @@ class RendererAWT extends RendererAbstract {
     public override function hasSmoothScroll() : Bool {
         return false;
     }
+
+    public function enable(e : Element) : Void {
+        // TODO
+    }
+
+    public function disable(e : Element) : Void {   
+        // TODO
+    }
 }
 
 @:nativeGen

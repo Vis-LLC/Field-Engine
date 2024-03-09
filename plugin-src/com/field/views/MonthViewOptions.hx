@@ -64,6 +64,8 @@ class MonthViewOptions extends CalendarOptionsAbstract<MonthViewOptions> {
         if (_values.get("slots") == null) {
             _values.set("slots", 0);
         }
+        _fieldOptions.scrollOnMove(true);
+        _fieldOptions.scrollOnWheel(true);        
         _fieldOptions.tileHeight(6 * (1 + (cast _values.get("slots"))));
         if (_fieldOptions._values.get("tileBuffer") == null) {
             _fieldOptions.tileBuffer(0);

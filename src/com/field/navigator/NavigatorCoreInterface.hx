@@ -88,4 +88,24 @@ interface NavigatorCoreInterface {
         The collection of directions for an Accessor.
     **/
     function directionsForAccessor() : NativeVector<Coordinate>;
+
+    /**
+        Shift that occurs on odd rows to get all objects to fit.
+    **/
+    function oddRowShift() : Float;
+
+    /**
+        Shift that occurs on odd columns to get all objects to fit.
+    **/
+    function oddColumnShift() : Float;
+
+    /**
+        Scale X for the Navigator.
+    **/
+    function scaleX() : Float;
+
+    /**
+        Scale Y for the Navigator.
+    **/
+    function scaleY() : Float;
 }

@@ -64,22 +64,29 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
         var scaleY : Float = 1;
         var shiftX : Float = 0;
         var shiftY : Float = 0;
+        var oddRowShift : Float = 0;
+        var oddColumnShift : Float = 0;
         {
             var defaultNavigator : NavigatorCoreInterface = sprite.field().navigator();
             var firstDirection : DirectionInterface = defaultNavigator.directions().get(0);
             shiftX = firstDirection.shiftX();
             shiftY = firstDirection.shiftY();
+            scaleX = defaultNavigator.scaleX();
+            scaleY = defaultNavigator.scaleY();
+            oddRowShift = defaultNavigator.oddRowShift();
+            oddColumnShift = defaultNavigator.oddColumnShift();
             firstDirection = null;
             defaultNavigator = null;
         }
         {
             var scaleXY : Float = sprite.field().scaleXY();
             if (scaleXY > 1) {
-                scaleX = 1 / scaleXY;
+                scaleX *= 1 / scaleXY;
             } else {
-                scaleY = scaleXY;
+                scaleY *= scaleXY;
             }
         }
+        /*
         {
             if (shiftX != 0) {
                 scaleY = scaleY * Math.abs(shiftX);
@@ -88,6 +95,7 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
                 scaleX = scaleX * Math.abs(shiftY);
             }
         }
+        */
         var s : SpriteInterface<Dynamic, Dynamic> = null;
         if (Std.isOfType(sprite, SpriteInterface)) {
             s = cast sprite;
@@ -114,8 +122,13 @@ class NavigatorUnlocked extends NavigatorCoreAbstract {
         }
         var x : Float = ox + xy.get(0) * distance / scaleX;
         var y : Float = oy + xy.get(1) * distance / scaleY;
-        var rX : Int = Math.round((x - ox));// + shiftX);
-        var rY : Int = Math.round((y - oy));// + shiftY);
+		/*
+		if ((Math.round(y) % 2) == 1) {
+			x -= oddColumnShift;
+		}
+		*/        
+        var rX : Int = Math.round((x - ox));
+        var rY : Int = Math.round((y - oy));
         if (sprite.move(rX, rY)) {
             if (s != null) {
                 s.attribute("overrideX", x);

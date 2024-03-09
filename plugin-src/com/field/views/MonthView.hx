@@ -134,6 +134,9 @@ class MonthView extends FieldViewAbstract {
                 monthEvent(e);
             }
         });
+        startDefaultListeners(
+            startDefaultListenersOptions()        
+         );        
     }
 
     private function monthEvent(e : com.field.EventInfo<Dynamic, Dynamic, Dynamic>) : Void {
@@ -379,5 +382,22 @@ class MonthView extends FieldViewAbstract {
     public function previousMonth() : Void {
         monthChange(new Date(_date.getFullYear(), _date.getMonth() - 1, 1, 0, 0, 0));
     }
+
+    public override function scrollView(x : Float, y : Float) : Void {
+        var mainHeaderRow : Int = (_showControls || _showCurrentMonth || _showCurrentYear || _showWeekDays || _showCurrentDay ? 0 : -1);
+        var headerRows : Int = (mainHeaderRow == -1 ? 0 : 1);
+
+        if ((originY() - y) < 0 || x < 0) {
+            originY(0);
+            originX(0);
+            previousMonth();
+        } else if ((originY() - y) > 0 || x > 0) {
+            originY(0);
+            originX(0);
+            nextMonth();
+        } else {
+            super.scrollView(x, y);
+        }
+    }    
 }
 #end

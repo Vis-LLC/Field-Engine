@@ -43,7 +43,7 @@ class CalendarViewOptions extends CalendarOptionsAbstract<CalendarViewOptions> {
         return cast setOnce("dayView", dayView);
     }    
 
-    public function weekView(monthView : Bool) : CalendarViewOptions {
+    public function weekView(weekView : Bool) : CalendarViewOptions {
         return cast setOnce("weekView", weekView);
     }
 

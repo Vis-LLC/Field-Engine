@@ -20,25 +20,4 @@
     FieldEngine - Source code can be found on SourceForge.net
 */
 
-package com.field.util;
-
-@:expose
-@:nativeGen
-class SimpleGame extends SimpleApp {
-    private static var _instances : Array<SimpleGame> = new Array<SimpleGame>();
-
-    private function new() {
-        super(false);
-        _instances.push(this);
-    }
-
-    public function init() : Void { }
-    
-    public static function beginLoad() : Void {
-        SimpleApp.initSystem();
-        SimpleApp.loadInstancesOf(SimpleGame);
-        if (_instances.length == 1) {
-            _instances[0].Load();
-        }        
-    }
-}
+package com.field.views;

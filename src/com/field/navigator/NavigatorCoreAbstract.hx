@@ -82,7 +82,7 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
                 if (x > -1/10000.0) {
                     return 0;
                 } else {
-                    return Math.floor(x);                    
+                    return Math.ceil(x);                    
                 }
             } else {
                 if (x < 1/10000.0) {
@@ -93,9 +93,17 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
             }
         } else {
             if (x < 0) {
-                return Math.ceil(x);
+                if (x > -0.0001) {
+                    return 0;
+                } else {
+                    return Math.floor(x);
+                }
             } else {
-                return Math.floor(x);
+                if (x < 0.0001) {
+                    return 0;
+                } else {
+                    return Math.floor(x);
+                }
             }
         }
     }
@@ -149,5 +157,21 @@ class NavigatorCoreAbstract implements NavigatorCoreInterface {
 
     public function navigateInClock(sprite : SpriteSystemInterface<Dynamic>, direction : Float, distance : Int) : Bool {
         return navigateInDegrees(sprite, direction / -12.0 * 360.0 + 90.0, distance);
+    }
+
+    public function oddRowShift() : Float {
+        return 0.0;
+    }
+
+    public function oddColumnShift() : Float {
+        return 0.0;
+    }
+
+    public function scaleX() : Float {
+        return 1.0;
+    }
+
+    public function scaleY() : Float {
+        return 1.0;
     }
 }

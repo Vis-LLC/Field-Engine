@@ -108,5 +108,7 @@ interface RendererInterface {
     function smoothScrollOn(e : Element) : Bool;
     function clearSmoothScroll(e : Element) : RendererInterface;
     function hasSmoothScroll() : Bool;
+    function enable(e : Element) : Void;
+    function disable(e : Element) : Void;
 }
 #end

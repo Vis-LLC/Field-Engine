@@ -20,6 +20,19 @@
     Field Engine CSS Implementation - FieldEngine-Defaults.css
 */
 
+.paused .field_view, .paused .field_view .field_sprite, .paused .field_view .field_location, .paused .field_view .field_tile, .paused .field_view .field_effect, .paused .field_view .field_select, .paused .field_view .field_view_inner, .paused .field_view .field_view_overlay  {
+	animation-play-state: paused;
+	transition: none !important;
+}
+
+.code_view .code {
+	font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace;
+}
+
+.code_view .keyword {
+	color: red;
+}
+
 .circle_view {
 	border-radius: 50%;
 	overflow: hidden;

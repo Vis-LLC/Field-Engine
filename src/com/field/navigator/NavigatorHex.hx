@@ -403,13 +403,25 @@ class NavigatorHex extends NavigatorCoreAbstract {
 
         directions.get(0).init("RightDown", directions.get(5), directions.get(1), directions.get(3), directions.get(3), 30, 0, 6, 1, 2, -0.5, 0);
         directions.get(1).init("CenterDown", directions.get(0), directions.get(2), directions.get(4), directions.get(4), 30, 1, 6, 1, 2, 0, 0);
-        directions.get(2).init("LeftDown", directions.get(1), directions.get(3), directions.get(5), directions.get(5), 30, 2, 6, 1, 2, -0.5, 0);
-        directions.get(3).init("LeftUp", directions.get(2), directions.get(4), directions.get(0), directions.get(0), 30, 3, 6, 1, 2, -0.5, 0);
+        directions.get(2).init("LeftDown", directions.get(1), directions.get(3), directions.get(5), directions.get(5), 30, 2, 6, 1, 2, 0.5, 0);
+        directions.get(3).init("LeftUp", directions.get(2), directions.get(4), directions.get(0), directions.get(0), 30, 3, 6, 1, 2, 0.5, 0);
         directions.get(4).init("CenterUp", directions.get(3), directions.get(5), directions.get(1), directions.get(1), 30, 4, 6, 1, 2, 0, 0);
         directions.get(5).init("RightUp", directions.get(4), directions.get(0), directions.get(2), directions.get(2), 30, 5, 6, 1, 2, -0.5, 0);
 
         return cast directions.toVector();
     }
+
+    public override function oddRowShift() : Float {
+        return 0.75;
+    }
+
+    public override function scaleX() : Float {
+        return 1.5;
+    }
+
+    public override function scaleY() : Float {
+        return 0.5;
+    }    
 }
 
 @:expose
@@ -461,6 +473,18 @@ class NavigatorHexDiagonal extends NavigatorCoreAbstract {
         directions.get(5).init("RightUpCorner", directions.get(4), directions.get(0), directions.get(2), directions.get(2), 0, 5, 6, 1, 2, 0, -0.5);
 
         return cast directions.toVector();
+    }
+
+    public override function oddRowShift() : Float {
+        return 0.75;
+    }
+
+    public override function scaleX() : Float {
+        return 1.5;
+    }
+
+    public override function scaleY() : Float {
+        return 0.5;
     }
 }
 
@@ -516,14 +540,26 @@ class NavigatorHexAllDirections extends NavigatorCoreAbstract {
         directions.get( 2).init("RightDownCorner", directions.get(1), directions.get(3), directions.get(8), directions.get(8), 0, 2, 12, 1, 2, 5, 0.5);
         directions.get( 3).init("CenterDown", directions.get(2), directions.get(4), directions.get(9), directions.get(9), 0, 3, 12, 1, 2, 0, 0);
         directions.get( 4).init("LeftDownCorner", directions.get(3), directions.get(5), directions.get(10), directions.get(10), 0, 4, 12, 1, 2, -1, 0.5);
-        directions.get( 5).init("LeftDown", directions.get(4), directions.get(6), directions.get(11), directions.get(11), 0, 5, 12, 1, 2, -0.5, 0);
-        directions.get( 6).init("LeftCenterCorner", directions.get(5), directions.get(7), directions.get(0), directions.get(0), 0, 6, 12, 1, 2, -0.5, 0);
-        directions.get( 7).init("LeftUp", directions.get(6), directions.get(8), directions.get(1), directions.get(1), 0, 7, 12, 1, 2, -0.5, 0);
+        directions.get( 5).init("LeftDown", directions.get(4), directions.get(6), directions.get(11), directions.get(11), 0, 5, 12, 1, 2, 0.5, 0);
+        directions.get( 6).init("LeftCenterCorner", directions.get(5), directions.get(7), directions.get(0), directions.get(0), 0, 6, 12, 1, 2, 0, 0);
+        directions.get( 7).init("LeftUp", directions.get(6), directions.get(8), directions.get(1), directions.get(1), 0, 7, 12, 1, 2, 0.5, 0);
         directions.get( 8).init("LeftUpCorner", directions.get(7), directions.get(9), directions.get(2), directions.get(2), 0, 8, 12, 1, 2, -0.5, -0.5);
         directions.get( 9).init("CenterUp", directions.get(8), directions.get(10), directions.get(3), directions.get(3), 0, 9, 12, 1, 2, 0, 0);
         directions.get(10).init("RightUpCorner", directions.get(9), directions.get(11), directions.get(4), directions.get(4), 0, 10, 12, 1, 2, 0, -0.5);
         directions.get(11).init("RightUp", directions.get(10), directions.get(0), directions.get(5), directions.get(5), 0, 11, 12, 1, 2, -0.5, 0);
 
         return cast directions.toVector();
+    }
+
+    public override function oddRowShift() : Float {
+        return 0.75;
+    }
+
+    public override function scaleX() : Float {
+        return 1.5;
+    }
+
+    public override function scaleY() : Float {
+        return 0.5;
     }
 }

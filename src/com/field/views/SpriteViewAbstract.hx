@@ -159,6 +159,8 @@ class SpriteViewAbstract<F, S> extends AbstractView implements com.field.rendere
                     // TODO
                     #if js                    
                         var ta : Element = js.Syntax.code("document.createElement(\"textarea\")");
+                        var s : SpriteExtendedInterface = cast sSprite;
+                        js.Syntax.code("{0}.value = {1}", ta, s.value());
                         js.Syntax.code("{0}.style = {1}", ta, "width: 100%; height: 100%; resize:none;background: none;");
                         js.Syntax.code("{0}.onchange = {1}", ta, view.onChangeValue);
                         js.Syntax.code("{0}.appendChild({1})", view._tile == null ? view._element : view._tile, ta);

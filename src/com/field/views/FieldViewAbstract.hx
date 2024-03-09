@@ -165,6 +165,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
     private var _fixedGridElements : NativeVector<NativeVector<Element>>;
     private var _scrollOnWheel : Bool;
     private var _mirrors : NativeArray<MirrorViewInterface> = null;
+    private var _inNavigate : Bool = false;
+    private var _onNavigate : NativeArray<DirectionInterface->Int->Void> = null;
 
     public function attachMirror(mirror : MirrorViewInterface) : Void {
         if (_mirrors == null) {
@@ -548,7 +550,19 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             resizeFrame();
             forceWidth(_element, "" + getActualPixelWidth(_frame));
             forceHeight(_element, "" + getActualPixelHeight(_frame));
+        } else {
+            var parentElement = getParent(_element);
+            if (parentElement == null) {
+                parentElement = renderer().defaultParent();
+            }
+            if (
+                _cachedOffsetHeight != getOffsetHeight(parentElement) ||
+                _cachedOffsetWidth != getOffsetWidth(parentElement)    
+            ) {
+                resizeFrame();
+            }
         }
+
         if (_field.isDynamic()) {
             var s : FieldSystemInterface<Dynamic, Dynamic> = cast _field;
             _hasSprites = s.getMaximumNumberOfSprites() > 0;
@@ -1814,7 +1828,7 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                             };
                             if (sSprite.attribute("overrideXY") == true) {
                                 overrideXY(e, sSprite, fDone);
-                            } else {
+                            } else if (dLocation != null) {
                                 moveSpriteTo(e, dLocation.toElement(), fDone);
                             }
                         }
@@ -1851,7 +1865,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
                                 }
                 
                                 if (s.changed()) {
-                                    setStyle(e, combineStyles(v.originalStyle(), getStyleFor(s.attributes())));
+                                    v.update(s);
+                                    //setStyle(e, combineStyles(v.originalStyle(), getStyleFor(s.attributes())));
                                 }
 
                                 s.doneWith();
@@ -1953,7 +1968,18 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         }
     }
 
+    public function addToOnNavigate(onNavigate : DirectionInterface->Int->Void) : Void {
+        if (_onNavigate == null) {
+            _onNavigate = new NativeArray<DirectionInterface->Int->Void>();
+        }
+        _onNavigate.push(onNavigate);
+    }
+
     private function navigateI(direction : DirectionInterface, distance : Int) : Bool {
+        if (_inNavigate) {
+            return true;
+        }
+        _inNavigate = true;
         var fPrevious : Null<FieldInterface<Dynamic, Dynamic>> = null;
         var fCurrent : Null<FieldInterface<Dynamic, Dynamic>> = null;
         var bScroll : Bool = _scrollOnMove;
@@ -2018,8 +2044,15 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
             }
         }
 
+        if (_onNavigate != null) {
+            for (listener in _onNavigate) {
+                listener(direction, distance);
+            }
+        }
+
         _inputSettings._delay += _inputSettings._delayAfterInteraction;
         setTimeout(ReduceDelay, _inputSettings._reduceDelayIntervals);
+        _inNavigate = false;
 
         return bEvent;
     }
@@ -2069,66 +2102,6 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
         }
     }
 
-/*
-    public function move(x : Null<Float>, y : Null<Float>) {
-        if ((x != null && x != 0) || (y != null && y != 0))
-        {
-            var fPrevious : Null<FieldInterface<Dynamic, Dynamic>> = null;
-            var fCurrent : Null<FieldInterface<Dynamic, Dynamic>> = null;
-            var bScroll : Bool = _scrollOnMove;
-            var bEvent : Bool = true;
-
-            if (_mainSprite != null) {
-                fPrevious = _field.getSubfieldForSprite(_mainSprite, 0);
-                if (_moveSprite(Math.floor(-x), Math.floor(-y))) {
-                    fCurrent = _field.getSubfieldForSprite(_mainSprite, 0);
-                    if (_selectOnMove) {
-                        findViewForSprite(_mainSprite).onclick(null);
-                    }
-                } else {
-                    bScroll = false;
-                    bEvent = false;
-                }
-            } 
-
-            if (_locationSettings.triggerFocusOnElement) {
-                var e  : Element= getActiveElement();
-                if (e != null && hasStyle(getStyle(e), LocationView.FIELD_LOCATION_STYLE) && containsElement(_element, e)) {
-                    x = getX(e, _rectWidth, _tileWidth, null) - x;
-                    y = getY(e, _rectHeight, _tileWidth, null) - y;
-                    var l : LocationInterface<Dynamic, Dynamic> = _field.get(Math.floor(x), Math.floor(y));
-                    if (l == null) {
-                        bScroll = false;
-                        bEvent = false;
-                    } else {
-                        var d : LocationView = findViewForLocation(l);
-                        focusOnElement(d.toElement());
-                        if (_selectOnMove) {-
-                            d.onclick(null);
-                        }
-                        l.doneWith();
-                    }
-                } else {
-                    focusOnElement(getElementsWithStyle(_element, LocationView.FIELD_LOCATION_STYLE).get(0));
-                }
-            }
-
-            if (bEvent) {
-                if (_onmove != null) {
-                    _onmove(Math.floor(-x), Math.floor(-y), _field, fCurrent, fPrevious);
-                }
-            }
-            if (bScroll) {
-                //scroll(_innerElement, x, y, _rectWidth, _rectHeight, _tileWidth, _tileHeight, null, null);
-                _ox -= x;
-                _oy -= y;
-            }
-
-            _inputSettings._delay += _inputSettings._delayAfterInteraction;
-            setTimeout(ReduceDelay, _inputSettings._reduceDelayIntervals);
-        }
-    }*/
-
     private function reportButtons(i : Int, o : Null<NativeIntMap<Float>>) : Void {
         if (o == null) {
             o = new NativeIntMap<Float>();
@@ -2166,6 +2139,8 @@ class FieldViewAbstract extends AbstractView implements FieldViewInterface imple
     }
 
     private function resizeFrame() : Void {
+        _cachedOffsetHeight = null;
+        _cachedOffsetWidth = null;
         var rect : Style = getStyleFor("rect");
         var landscape : Style = getStyleFor("landscape");
         var portrait : Style = getStyleFor("portrait");

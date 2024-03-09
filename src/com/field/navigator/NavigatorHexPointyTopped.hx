@@ -412,6 +412,18 @@ class NavigatorHexPointyTopped extends NavigatorCoreAbstract {
 
         return cast directions.toVector();
     }
+
+    public override function oddColumnShift() : Float {
+        return 0.75;
+    }
+    
+    public override function scaleY() : Float {
+        return 1.5;
+    }
+
+    public override function scaleX() : Float {
+        return 0.5;
+    }
 }
 
 @:expose
@@ -464,6 +476,18 @@ class NavigatorHexPTDiagonal extends NavigatorCoreAbstract {
 
         return cast directions.toVector();
     }
+
+    public override function oddColumnShift() : Float {
+        return 0.75;
+    }
+
+    public override function scaleY() : Float {
+        return 1.5;
+    }
+
+    public override function scaleX() : Float {
+        return 0.5;
+    }    
 }
 
 @:expose
@@ -527,5 +551,17 @@ class NavigatorHexPTAllDirections extends NavigatorCoreAbstract {
         directions.get(11).init("RightUp", directions.get(10), directions.get(0), directions.get(5), directions.get(5), 0, 11, 12, 1, 2, -0.5, 0);
 
         return cast directions.toVector();
+    }
+
+    public override function oddColumnShift() : Float {
+        return 0.75;
+    }
+
+    public override function scaleY() : Float {
+        return 1.5;
+    }
+
+    public override function scaleX() : Float {
+        return 0.5;
     }
 }
